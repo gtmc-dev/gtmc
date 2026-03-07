@@ -3,7 +3,7 @@ import { BrutalButton } from "@/components/ui/brutal-button";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen w-full relative overflow-hidden text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark">
+    <div className="flex min-h-screen w-full relative overflow-y-auto overflow-x-hidden text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark">
       
       {/* ======================================================== */}
       {/* 结构层：背景图纸修饰、HUD、辅助线、标记、透视几何 */}
@@ -33,20 +33,20 @@ export default function Home() {
       </div>
       
       {/* Java 代码片段漂浮层 (Decompiled Source Code) */}
-      <div className="absolute left-10 md:left-20 bottom-[15%] opacity-20 hidden lg:block select-none pointer-events-none transform -rotate-2">
-        <div className="text-[10px] font-mono text-tech-main whitespace-pre leading-relaxed border-l-2 border-tech-main/20 pl-4">
+      <div className="absolute left-10 md:left-20 bottom-[15%] opacity-40 hidden lg:block select-none pointer-events-none transform -rotate-2 mix-blend-multiply">
+        <div className="text-[11px] font-mono text-tech-main whitespace-pre leading-relaxed border-l-4 border-tech-main/40 pl-4 bg-tech-main/5 py-2">
           <span className="text-tech-main-dark font-bold">@Override</span>{"\n"}
-          <span className="text-tech-main-dark">public void</span> onInitialize() {"{"}{"\n"}
+          <span className="text-tech-main-dark font-bold">public void</span> onInitialize() {"{"}{"\n"}
           {"  "}LOGGER.info(<span className="text-tech-main-dark">"Initializing GTMC Core..."</span>);{"\n"}
           {"  "}Registry.register(Registry.ITEM, new Identifier(ID, <span className="text-tech-main-dark">"wiki_tablet"</span>),{"\n"}
           {"    "}new WikiItem(new Item.Settings().group(GROUP)));{"\n"}
-          {"  "}// TODO: Implement packet handling for sync{"\n"}
+          {"  "}<span className="opacity-80">{'//'} TODO: Implement packet handling for sync</span>{"\n"}
           {"}"}
         </div>
       </div>
 
       {/* 字节码/Hex Dump 背景层 (底层纹理) */}
-      <div className="absolute top-[20%] left-[5%] text-[9px] font-mono text-tech-main opacity-[0.08] select-none pointer-events-none whitespace-pre leading-tight hidden xl:block">
+      <div className="absolute top-[20%] left-[5%] text-[10px] font-mono text-tech-main opacity-[0.25] select-none pointer-events-none whitespace-pre leading-tight hidden xl:block mix-blend-multiply">
         00000000: cafe babe 0000 0034 001e 0a00 0300 0f07  .......4........{"\n"}
         00000010: 0010 0700 1101 0006 3c69 6e69 743e 0100  ........&lt;init&gt;..{"\n"}
         00000020: 0328 2956 0100 0443 6f64 6501 000f 4c69  .()V...Code...Li{"\n"}
@@ -55,10 +55,10 @@ export default function Home() {
       </div>
 
       {/* 堆栈跟踪装饰 (Stack Trace Decor) */}
-      <div className="absolute bottom-8 left-8 text-[9px] font-mono text-red-500/20 select-none pointer-events-none hidden md:block">
-        at net.minecraft.server.MinecraftServer.run(MinecraftServer.java:1) {"\n"}
-        at java.lang.Thread.run(Thread.java:833) {"\n"}
-        Caused by: com.gtmc.core.ReflectiveAccesException: Blueprint not found
+      <div className="absolute bottom-8 left-8 text-[10px] font-mono text-red-500/40 select-none pointer-events-none hidden md:block mix-blend-multiply">
+        <span className="font-bold">at net.minecraft.server.MinecraftServer.run</span>(MinecraftServer.java:1) {"\n"}<br/>
+        <span className="font-bold">at java.lang.Thread.run</span>(Thread.java:833) {"\n"}<br/>
+        <span className="text-red-600/60 font-bold">Caused by: com.gtmc.core.ReflectiveAccesException: Blueprint not found</span>
       </div>
 
       {/* 分散的瞄准/坐标十字 */}
@@ -67,7 +67,7 @@ export default function Home() {
       <div className="absolute top-[15%] left-[45%] text-sm font-light opacity-30 select-none">+</div>
       
       {/* 巨型背景水印 (侧边倒置) */}
-      <div className="absolute top-1/3 -right-20 text-[10rem] font-black text-tech-main opacity-[0.03] rotate-90 select-none pointer-events-none whitespace-nowrap hidden lg:block tracking-tighter">
+      <div className="absolute top-1/3 -right-20 text-[10rem] font-black text-tech-main opacity-[0.05] rotate-90 select-none pointer-events-none whitespace-nowrap hidden lg:block tracking-tighter mix-blend-multiply">
         SCHEMATIC_01
       </div>
 
@@ -127,11 +127,64 @@ export default function Home() {
         </svg>
       </div>
 
+      {/* ======================================================== */}
+      {/* 超大屏幕 (2K/4K/27寸) 专属扩展设计元素 - 多学科图纸 */}
+      {/* ======================================================== */}
+      
+      {/* 红石逻辑代数/布尔运算 */}
+      <div className="absolute top-[40%] right-[6%] text-[11px] font-mono text-tech-main opacity-[0.35] select-none pointer-events-none hidden 2xl:block leading-relaxed border-l border-tech-main/40 pl-4 mix-blend-multiply">
+        <div className="text-tech-main-dark mb-2 font-bold">{'//'} REDSTONE_BOOLEAN_LOGIC</div>
+        <span>Y = (A ∧ B) ∨ (¬C)</span><br/>
+        <span>T_delay = ∑(repeater_ticks) + 1_GT</span><br/>
+        <span>C_out = MUX(S, A, B)</span><br/>
+        <div className="mt-2 text-[9px] opacity-80">
+          * VALIDATING SIGNAL STRENGTH (0-15)<br/>
+          * QUASI_CONNECTIVITY = TRUE
+        </div>
+      </div>
+
+      {/* 空间坐标变换矩阵 (线性代数) */}
+      <div className="absolute bottom-[30%] right-[25%] opacity-[0.35] text-[11px] font-mono select-none pointer-events-none hidden 2xl:block mix-blend-multiply">
+        <div className="text-tech-main-dark mb-2 font-bold tracking-widest">TRANSFORM_MATRIX_4x4</div>
+        <div className="grid grid-cols-4 gap-2 text-center border-l-2 border-r-2 border-tech-main/60 px-3 py-1 bg-tech-main/5">
+          <span>1.0</span><span>0.0</span><span>0.0</span><span>dx</span>
+          <span>0.0</span><span>1.0</span><span>0.0</span><span>dy</span>
+          <span>0.0</span><span>0.0</span><span>1.0</span><span>dz</span>
+          <span>0.0</span><span>0.0</span><span>0.0</span><span>1.0</span>
+        </div>
+      </div>
+
+      {/* 内存簇/寄存器网格 */}
+      <div className="absolute top-[60%] left-[3%] opacity-[0.35] text-[10px] font-mono select-none pointer-events-none hidden 2xl:block mix-blend-multiply">
+        <div className="mb-2 text-tech-main-dark font-bold tracking-widest">TICK_PHASE_ALLOCATION</div>
+        <div className="grid grid-cols-6 gap-x-4 gap-y-2 bg-tech-main/5 p-2 border border-tech-main/20">
+          {Array.from({length: 24}).map((_, i) => (
+             <span key={i} className={i % 7 === 0 ? "text-tech-main-dark font-bold relative before:content-['>'] before:absolute before:-left-3" : ""}>
+               {Math.floor(Math.random() * 0xFFFF).toString(16).padStart(4, '0').toUpperCase()}
+             </span>
+          ))}
+        </div>
+      </div>
+
+      {/* 力学/机械引擎图纸 (活塞结构抽象) */}
+      <div className="absolute top-[15%] right-[15%] opacity-[0.25] select-none pointer-events-none hidden xl:block mix-blend-multiply">
+        <svg width="140" height="160" viewBox="0 0 120 140" fill="none" stroke="currentColor" strokeWidth="1">
+          <rect x="30" y="80" width="60" height="50" fill="currentColor" fillOpacity="0.15" />
+          <rect x="45" y="40" width="30" height="40" strokeWidth="1.5" />
+          <rect x="20" y="20" width="80" height="20" fill="currentColor" fillOpacity="0.25" strokeWidth="1.5" />
+          {/* Extension line */}
+          <line x1="60" y1="20" x2="60" y2="0" strokeDasharray="3 3" />
+          <line x1="45" y1="0" x2="75" y2="0" />
+          {/* Forces */}
+          <path d="M60 90 L60 110 M55 105 L60 110 L65 105" strokeWidth="1.5" />
+          <text x="70" y="110" fontSize="9" fontFamily="monospace" fill="currentColor" fontWeight="bold">F_push</text>
+        </svg>
+      </div>
 
       {/* ======================================================== */}
       {/* 核心交互区：带有微弱堆叠感和景深的卡片 */}
       {/* ======================================================== */}
-      <main className="relative z-10 flex flex-col justify-center items-center pt-[10%] w-full max-w-7xl mx-auto">
+      <main className="relative z-10 flex flex-col justify-center items-center w-full max-w-7xl mx-auto py-24 min-h-[max-content] px-4">
         
         {/* 数据连接线装饰 (已移除以适应居中布局) */}
         {/* <div className="absolute left-[8%] lg:left-[24%] top-[12%] h-[60%] w-[1px] border-l border-dashed border-tech-main/30"></div>
@@ -152,7 +205,7 @@ export default function Home() {
             <span>&gt;|</span>
           </div>
 
-          <div className="relative border border-tech-main/40 bg-white/60 backdrop-blur-md p-10 md:p-14 shadow-sm overflow-hidden">
+          <div className="relative border border-tech-main/40 bg-white/60 backdrop-blur-md p-6 sm:p-10 md:p-14 shadow-sm overflow-hidden">
              {/* 闪光扫过效果 (Shiny Scan Line) */}
              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 translate-x-[-200%] animate-[shimmer_3s_infinite_2s] pointer-events-none"></div>
 
@@ -194,12 +247,12 @@ export default function Home() {
         {/* 操作入口 */}
         <div className="flex flex-wrap justify-center gap-5 relative z-20 w-full opacity-0 animate-slide-up-fade [animation-delay:1.4s] [animation-fill-mode:forwards]">
           <Link href="/articles">
-             <BrutalButton variant="primary" className="uppercase text-sm tracking-[0.1em] px-8 py-3 w-full sm:w-auto h-12 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 duration-200">
+             <BrutalButton variant="primary" className="uppercase text-sm tracking-[0.1em] px-8 py-3 w-full sm:w-auto h-12 flex items-center justify-center hover:scale-105 transition-transform active:scale-95 duration-200 shadow-md">
                ACCESS DATABASE →
              </BrutalButton>
           </Link>
           <Link href="/login">
-            <BrutalButton variant="ghost" className="uppercase text-sm tracking-[0.1em] px-8 py-3 w-full sm:w-auto h-12 flex items-center justify-center text-tech-main/80 border border-tech-main/20 hover:border-tech-main/50 bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all duration-300">
+            <BrutalButton variant="ghost" className="uppercase text-sm tracking-[0.1em] px-8 py-3 w-full sm:w-auto h-12 flex items-center justify-center text-tech-main-dark font-medium border border-tech-main/40 hover:border-tech-main bg-white/70 backdrop-blur-md hover:bg-white shadow-sm transition-all duration-300">
               /{'/'} INITIALIZE LOGIN
             </BrutalButton>
           </Link>

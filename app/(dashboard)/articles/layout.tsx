@@ -53,19 +53,26 @@ export default async function ArticlesLayout({
   return (
     <div className="max-w-[1400px] mx-auto p-4 sm:p-8 flex flex-col md:flex-row gap-8 relative">
       <aside className="w-full md:w-64 lg:w-80 shrink-0">
-        <BrutalCard className="sticky top-24 p-6 overflow-y-auto max-h-[calc(100vh-8rem)]">
-          <div className="text-sm font-mono uppercase tracking-[0.2em] mb-4 border-b border-tech-main/30 pb-2 text-tech-main">
-            INDEX
-          </div>
-          <div className="prose prose-sm prose-tech font-mono [&>ul]:pl-0 [&_ul]:list-none [&_li]:mt-1 [&_ul_ul]:pl-4 [&_ul_ul]:border-l [&_ul_ul]:border-tech-main/20 [&_ul_ul]:mt-1 [&_ul_ul]:mb-2">
-            <ReactMarkdown
-              components={{
-                a: ({ node, ...props }) => <SidebarLink href={props.href}>{props.children}</SidebarLink>,
-                hr: () => <hr className="my-4 border-t border-tech-main/20" />,
-                p: ({ node, ...props }) => <div className="font-mono text-[10px] uppercase text-tech-main/50 mt-4 mb-2 tracking-widest">{props.children}</div>,
-            </ReactMarkdown>
-          </div>
-        </BrutalCard>
+        <div className="sticky top-24">
+          <BrutalCard className="h-[calc(100vh-8rem)] flex flex-col !p-0">
+            <div className="p-6 overflow-y-auto flex-1 text-tech-main">
+              <div className="text-sm font-mono uppercase tracking-[0.2em] mb-4 border-b border-tech-main/30 pb-2 text-tech-main">
+                INDEX
+              </div>
+              <div className="prose prose-sm prose-tech font-mono w-full overflow-hidden break-words [&>ul]:pl-0 [&_ul]:list-none [&_li]:mt-1 [&_ul_ul]:pl-4 [&_ul_ul]:border-l [&_ul_ul]:border-tech-main/20 [&_ul_ul]:mt-1 [&_ul_ul]:mb-2">
+                <ReactMarkdown
+                  components={{
+                    a: ({ node, ...props }) => <SidebarLink href={props.href}>{props.children}</SidebarLink>,
+                    hr: () => <hr className="my-4 border-t border-tech-main/20" />,
+                    p: ({ node, ...props }) => <div className="font-mono text-[10px] uppercase text-tech-main/50 mt-4 mb-2 tracking-widest">{props.children}</div>,
+                  }}
+                >
+                  {sidebarContent}
+                </ReactMarkdown>
+              </div>
+            </div>
+          </BrutalCard>
+        </div>
       </aside>
       <main className="flex-1 min-w-0">
         {children}

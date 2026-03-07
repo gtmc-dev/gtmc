@@ -27,15 +27,15 @@ export default async function EditDraftPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
-      <div className="flex justify-between items-end border-b border-tech-main/30 pb-4 relative">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end border-b border-tech-main/30 pb-4 relative space-y-4 md:space-y-0">
         <div className="absolute -bottom-[5px] left-0 w-2 h-2 border border-tech-main/50 bg-tech-main/20"></div>
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-4 md:space-x-6">
           <Link href="/draft">
             <BrutalButton variant="ghost" size="sm">
               {"<"} BACK
             </BrutalButton>
           </Link>
-          <h1 className="text-3xl font-mono uppercase tracking-[0.2em] text-tech-main">
+          <h1 className="text-xl md:text-3xl font-mono uppercase tracking-[0.2em] text-tech-main">
             EDIT_SUBMISSION
           </h1>
         </div>
@@ -51,6 +51,8 @@ export default async function EditDraftPage({ params }: { params: Promise<{ id: 
         {draft.status === "PENDING" || draft.status === "APPROVED" ? (
            <div className="mb-4 bg-tech-main/20 border border-tech-main/50 p-4 font-mono text-sm text-tech-main-dark">
              // CAUTION: This revision is currently in [{draft.status}] state. Submitting changes will update it as a DRAFT.
+           </div>
+        ) : null}
         
         <BrutalEditor 
           initialData={{ 

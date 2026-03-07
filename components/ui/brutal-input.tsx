@@ -6,12 +6,10 @@ export interface BrutalInputProps extends React.InputHTMLAttributes<HTMLInputEle
 
 export const BrutalInput = React.forwardRef<HTMLInputElement, BrutalInputProps>(
   ({ className = "", error, ...props }, ref) => {
-    let baseStyles = "w-full border-[3px] border-black px-4 py-3 font-medium outline-none transition-shadow focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white";
+    let baseStyles = "w-full border border-tech-main/30 px-4 py-3 font-mono outline-none transition-colors focus:border-tech-main bg-white/50 text-tech-main-dark";
 
     if (error) {
-      baseStyles += " border-hot-pink focus:shadow-[4px_4px_0px_0px_#ff0099]";
-    } else {
-      baseStyles += " focus:border-electric-blue border-black";
+      baseStyles += " border-red-500 focus:border-red-500 text-red-600";
     }
 
     return (

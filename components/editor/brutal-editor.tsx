@@ -64,16 +64,19 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
   };
 
   return (
-    <form onSubmit={handleSaveDraft} className="flex flex-col space-y-6 w-full max-w-5xl mx-auto p-4">
+    <form onSubmit={handleSaveDraft} className="flex flex-col space-y-6 w-full max-w-5xl mx-auto p-6 md:p-10 border border-tech-main/30 bg-white/60 backdrop-blur-md relative group">
+      <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-tech-main -translate-x-[2px] -translate-y-[2px]"></div>
+      <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-tech-main translate-x-[2px] translate-y-[2px]"></div>
+      
       {/* 标题区 */}
       <div className="flex flex-col space-y-2">
-        <label className="text-2xl font-black uppercase tracking-tighter">
-          TITLE
+        <label className="text-sm font-mono uppercase tracking-[0.2em] text-tech-main border-b border-tech-main/30 inline-block pb-1 mb-2">
+          TITLE_
         </label>
         <BrutalInput 
           required
-          placeholder="ENTER YOUR REBELLIOUS TITLE..." 
-          className="text-2xl py-4"
+          placeholder="ENTER TITLE..." 
+          className="text-lg py-3 font-mono border-tech-main/40 focus:border-tech-main bg-white/50 backdrop-blur-sm"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -81,12 +84,12 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
 
       {/* 编辑器主区域 (双栏布局或单栏) */}
       <div className="flex flex-col space-y-2 flex-grow">
-        <div className="flex justify-between items-end">
-          <label className="text-2xl font-black uppercase tracking-tighter">
-            CONTENT (MARKDOWN)
+        <div className="flex justify-between items-end mb-2">
+          <label className="text-sm font-mono uppercase tracking-[0.2em] text-tech-main border-b border-tech-main/30 inline-block pb-1">
+            CONTENT (MARKDOWN)_
           </label>
-          <span className="text-sm font-bold bg-neon-green px-2 py-1 border-2 border-black shadow-brutal-sm">
-            Tencent COS Direct Upload Ready
+          <span className="text-[10px] font-mono tracking-widest text-tech-main bg-tech-main/5 px-2 py-1 border border-tech-main/30">
+            TENCENT_COS_READY
           </span>
         </div>
         
@@ -94,23 +97,22 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
           required
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full min-h-[500px] border-4 border-black p-4 font-mono text-lg resize-y focus:outline-none focus:ring-4 focus:ring-electric-blue focus:shadow-brutal-lg transition-shadow bg-white"
-          placeholder="Write your markdown here... Use raw force."
+          className="w-full min-h-[500px] border border-tech-main/30 p-4 font-mono text-sm leading-relaxed resize-y focus:outline-none focus:border-tech-main bg-white/50 text-tech-main-dark transition-colors backdrop-blur-sm shadow-inner"
+          placeholder="Write your markdown here... Use syntax logic."
         />
       </div>
 
       {/* 操作区 */}
-      <div className="flex gap-4 pt-4 border-t-4 border-black">
-        <BrutalButton type="submit" disabled={isSaving} variant="primary" size="lg" className="w-1/2">
+      <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-tech-main/30">
+        <BrutalButton type="submit" disabled={isSaving} variant="primary" className="w-full sm:w-1/2 rounded-none">
           {isSaving ? "SAVING..." : "SAVE DRAFT"}
         </BrutalButton>
         <BrutalButton 
           type="button" 
           onClick={handleSubmitReview} 
-          disabled={!revisionId} 
-          variant="secondary" 
-          size="lg" 
-          className="w-1/2"
+          disabled={!revisionId}
+          variant="secondary"
+          className="w-full sm:w-1/2 rounded-none"
         >
           SUBMIT FOR REVIEW
         </BrutalButton>

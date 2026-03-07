@@ -66,22 +66,22 @@ export default function LoginPage() {
       {/* ======================================================== */}
       {/* 核心交互区 */}
       {/* ======================================================== */}
-      <main className="relative z-10 flex flex-col justify-center items-center w-full max-w-lg mx-auto">
+      <main className="relative z-10 flex flex-col justify-center items-center w-full px-4 md:px-0 max-w-lg mx-auto">
         
         {/* 信息卡片主体 */}
         <div className="relative w-full mb-8 group animate-tech-pop-in [animation-duration:0.8s] [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
           
           {/* 下层错位阴影框 */}
-          <div className="absolute inset-0 bg-transparent border border-tech-main/20 translate-x-3 translate-y-3 -z-10 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-500 ease-out"></div>
+          <div className="absolute inset-0 bg-transparent border border-tech-main/20 translate-x-2 translate-y-2 md:translate-x-3 md:translate-y-3 -z-10 group-hover:translate-x-3 group-hover:translate-y-3 md:group-hover:translate-x-4 md:group-hover:translate-y-4 transition-transform duration-500 ease-out"></div>
           
            {/* 尺寸标注 decoration */}
-           <div className="absolute -right-6 top-1/2 -translate-y-1/2 text-[10px] font-mono opacity-0 flex flex-col items-center h-full animate-fade-in [animation-delay:1.5s] [animation-fill-mode:forwards]">
+           <div className="absolute -right-6 top-1/2 -translate-y-1/2 text-[10px] font-mono opacity-0 flex-col items-center h-full animate-fade-in [animation-delay:1.5s] [animation-fill-mode:forwards] hidden sm:flex">
             <span className="block border-l border-tech-main/30 h-10 w-[1px]"></span>
             <span className="py-2 rotate-90 whitespace-nowrap">SECURE FORM</span>
             <span className="block border-l border-tech-main/30 h-10 w-[1px]"></span>
           </div>
 
-          <div className="relative border border-tech-main/40 bg-white/60 backdrop-blur-md p-10 shadow-sm overflow-hidden text-center">
+          <div className="relative border border-tech-main/40 bg-white/60 backdrop-blur-md p-6 md:p-10 shadow-sm overflow-hidden text-center">
              {/* 闪光扫过效果 */}
              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -skew-x-12 translate-x-[-200%] animate-[shimmer_3s_infinite_2s] pointer-events-none"></div>
 
