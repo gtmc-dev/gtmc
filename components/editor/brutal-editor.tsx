@@ -13,6 +13,7 @@ interface BrutalEditorProps {
     filePath?: string;
     title: string;
     content: string;
+    status?: string;
   };
 }
 
@@ -22,6 +23,8 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
   const [content, setContent] = React.useState(initialData?.content || "");
   const [revisionId, setRevisionId] = React.useState<string | undefined>(initialData?.id);
   const [isSaving, setIsSaving] = React.useState(false);
+  
+  const isReadOnly = initialData?.status === "PENDING" || initialData?.status === "APPROVED";
 
   const handleSaveDraft = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,9 +79,10 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
         <BrutalInput 
           required
           placeholder="ENTER TITLE..." 
-          className="text-lg py-3 font-mono border-tech-main/40 focus:border-tech-main bg-white/50 backdrop-blur-sm"
+          className={`text-lg py-3 font-mono border-tech-main/40 focus:border-tech-main backdrop-blur-sm ${isReadOnly ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'bg-white/50'}`}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          readOnly={isReadOnly}
         />
       </div>
 
@@ -89,7 +93,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
             CONTENT (MARKDOWN)_
           </label>
           <span className="text-[10px] font-mono tracking-widest text-tech-main bg-tech-main/5 px-2 py-1 border border-tech-main/30">
-            TENCENT_COS_READY
+            {isReadOnly ? "READ_ONLY" : "TENCENT_COS_READY"}
           </span>
         </div>
         
@@ -97,26 +101,29 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
           required
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          className="w-full min-h-[500px] border border-tech-main/30 p-4 font-mono text-sm leading-relaxed resize-y focus:outline-none focus:border-tech-main bg-white/50 text-tech-main-dark transition-colors backdrop-blur-sm shadow-inner"
+          className={`w-full min-h-[500px] border border-tech-main/30 p-4 font-mono text-sm leading-relaxed resize-y focus:outline-none focus:border-tech-main text-tech-main-dark transition-colors backdrop-blur-sm shadow-inner ${isReadOnly ? 'bg-gray-100 cursor-not-allowed opacity-70' : 'bg-white/50'}`}
           placeholder="Write your markdown here... Use syntax logic."
+          readOnly={isReadOnly}
         />
       </div>
 
       {/* 操作区 */}
-      <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-tech-main/30">
-        <BrutalButton type="submit" disabled={isSaving} variant="primary" className="w-full sm:w-1/2 rounded-none">
-          {isSaving ? "SAVING..." : "SAVE DRAFT"}
-        </BrutalButton>
-        <BrutalButton 
-          type="button" 
-          onClick={handleSubmitReview} 
-          disabled={!revisionId}
-          variant="secondary"
-          className="w-full sm:w-1/2 rounded-none"
-        >
-          SUBMIT FOR REVIEW
-        </BrutalButton>
-      </div>
+      {!isReadOnly && (
+        <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-tech-main/30">
+          <BrutalButton type="submit" disabled={isSaving} variant="primary" className="w-full sm:w-1/2 rounded-none">
+            {isSaving ? "SAVING..." : "SAVE DRAFT"}
+          </BrutalButton>
+          <BrutalButton 
+            type="button" 
+            onClick={handleSubmitReview} 
+            disabled={!revisionId}
+            variant="secondary"
+            className="w-full sm:w-1/2 rounded-none"
+          >
+            SUBMIT FOR REVIEW
+          </BrutalButton>
+        </div>
+      )}
     </form>
   );
 }

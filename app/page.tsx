@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrutalButton } from "@/components/ui/brutal-button";
+import { Logo } from "@/components/ui/logo";
 
 export default function Home() {
   return (
@@ -227,11 +228,13 @@ export default function Home() {
               </h2>
             </div>
             
-            <h1 className="text-6xl md:text-7xl font-bold tracking-tight text-tech-main-dark mb-6 relative overflow-hidden">
-              <span className="inline-block animate-tech-slide-in [animation-delay:0.5s] opacity-0 [animation-fill-mode:forwards]">GTMC</span> 
-              <span className="inline-block opacity-0 font-light mix-blend-multiply text-tech-main animate-tech-slide-in [animation-delay:0.7s] [animation-fill-mode:forwards] ml-4">Wiki</span>
+            <h1 className="flex items-center text-6xl md:text-7xl font-bold tracking-tight text-tech-main-dark mb-6 relative overflow-hidden">
+              <span className="inline-block animate-tech-slide-in [animation-delay:0.5s] opacity-0 [animation-fill-mode:forwards] mr-6">
+                <Logo size="xl" className="pointer-events-none" />
+              </span> 
+              <span className="inline-block opacity-0 font-light mix-blend-multiply text-tech-main animate-tech-slide-in [animation-delay:0.7s] [animation-fill-mode:forwards]">Wiki</span>
               {/* 阅读头光标闪烁动画 */}
-              <span className="inline-block w-6 h-[1em] bg-tech-main opacity-0 ml-2 animate-pulse align-middle [animation-delay:1s] [animation-fill-mode:forwards]"></span>
+              <span className="inline-block w-6 h-[1em] bg-tech-main opacity-0 ml-4 animate-pulse align-middle [animation-delay:1s] [animation-fill-mode:forwards]"></span>
             </h1>
             
             <p className="text-base md:text-lg text-tech-main-dark/80 tracking-wide max-w-xl leading-relaxed border-l-[3px] border-tech-main/40 pl-5 opacity-0 animate-fade-in [animation-delay:1.2s] [animation-translate-y:20px] [animation-duration:1s] [animation-fill-mode:forwards]">

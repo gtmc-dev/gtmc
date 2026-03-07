@@ -1,7 +1,8 @@
-import * as React from "react";
+﻿import * as React from "react";
 import Link from "next/link";
 
 import { ProfileButton } from "@/components/ui/profile-button";
+import { Logo } from "@/components/ui/logo";
 
 export default function DashboardLayout({
   children,
@@ -16,9 +17,7 @@ export default function DashboardLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 md:h-20 items-center">
             <div className="flex items-center space-x-4 md:space-x-8">
-              <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase bg-tech-main-dark text-white px-3 py-1 -skew-x-12 hover:skew-x-0 transition-transform flex items-center shadow-[2px_2px_0px_theme(colors.tech.main/50)]">
-                <span className="opacity-70 mr-2 text-xs font-mono font-normal">{'//'}</span>GTMC
-              </Link>
+              <Logo size="md" />
               <div className="hidden md:flex space-x-6 pt-1">
                 <Link href="/articles" className="font-mono text-xs tracking-[0.15em] border-b-2 border-transparent hover:border-tech-main text-tech-main-dark hover:text-tech-main transition-colors pb-1">
                   DATABASE
@@ -49,3 +48,6 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+
+

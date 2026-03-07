@@ -59,3 +59,31 @@ body {
   background-size: 24px 24px;
   background-position: center center;
 }
+
+@layer utilities {
+  .animate-page-transit {
+    animation: page-transit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes page-transit {
+  0% {
+    opacity: 0;
+    filter: saturate(0) brightness(0.5);
+    clip-path: polygon(0 0, 10% 0, 10% 100%, 0 100%);
+    transform: translateX(10px) skewX(2deg);
+  }
+  20% {
+    opacity: 0.8;
+    filter: saturate(0.5) brightness(1.2);
+    clip-path: polygon(0 0, 100% 0, 100% 10%, 0 10%);
+    transform: translateX(-5px) skewX(-1deg);
+  }
+  100% {
+    opacity: 1;
+    filter: saturate(1) brightness(1);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    transform: translateX(0) skewX(0);
+  }
+}
+
