@@ -10,11 +10,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark flex flex-col relative w-full overflow-x-hidden">
+    <div className="min-h-screen text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark flex flex-col relative w-full">
       {/* Top Navigation - Tech/Brutalist Style */}
       <nav className="border-b border-tech-main/40 bg-white/60 backdrop-blur-md sticky top-0 z-50">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-tech-main/20"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 md:h-20 items-center">
             <div className="flex items-center space-x-4 md:space-x-8">
               <Logo size="md" />
@@ -40,7 +40,7 @@ export default function DashboardLayout({
         </div>
       </nav>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto relative z-10 p-4 sm:p-6 lg:p-8">
+      <main className="flex-1 w-full max-w-[1800px] mx-auto relative z-10 p-4 sm:p-6 lg:p-8">
         <div className="absolute top-0 left-0 w-[1px] h-full bg-tech-main/10 hidden lg:block"></div>
         <div className="absolute top-0 right-0 w-[1px] h-full bg-tech-main/10 hidden lg:block"></div>
         {children}
@@ -48,6 +48,9 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+
+
 
 
 

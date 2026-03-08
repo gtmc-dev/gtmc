@@ -37,6 +37,7 @@ export async function saveDraftAction(formData: FormData) {
       data: {
         title,
         content,
+        filePath,
         status: "DRAFT", 
       },
     });

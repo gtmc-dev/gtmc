@@ -5,7 +5,6 @@ import { signIn } from "next-auth/react";
 import { BrutalButton } from "@/components/ui/brutal-button";
 import { useState } from "react";
 import Link from "next/link";
-import { Logo } from "@/components/ui/logo";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -92,13 +91,16 @@ export default function LoginPage() {
             <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-tech-main -translate-x-[2px] translate-y-[2px]"></div>
             <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-tech-main translate-x-[2px] translate-y-[2px]"></div>
 
-            <div className="flex flex-col items-center mb-10 mt-4">
-              <div className="animate-tech-pop-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards] mb-8">
-                <Logo size="lg" className="pointer-events-none" />
+            <div className="flex flex-col items-center mb-8">
+              <div className="w-12 h-12 bg-tech-main/5 flex items-center justify-center border border-tech-main/40 mb-4 animate-tech-pop-in [animation-delay:0.6s] opacity-0 [animation-fill-mode:forwards]">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-tech-main-dark">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-tech-main-dark relative overflow-hidden flex items-center">
+              <h1 className="text-3xl font-bold tracking-tight text-tech-main-dark relative overflow-hidden">
                 <span className="inline-block animate-tech-slide-in [animation-delay:0.7s] opacity-0 [animation-fill-mode:forwards]">IDENTITY</span>
-                <span className="inline-block animate-tech-slide-in [animation-delay:0.9s] opacity-0 [animation-fill-mode:forwards] ml-2 text-tech-main font-light">VERIFY</span>
+                <span className="inline-block animate-tech-slide-in [animation-delay:0.9s] opacity-0 [animation-fill-mode:forwards] ml-2 text-tech-main font-light">VERIFICATION</span>
               </h1>
             </div>
             

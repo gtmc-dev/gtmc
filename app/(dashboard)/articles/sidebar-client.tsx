@@ -1,3 +1,4 @@
+﻿/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
@@ -6,13 +7,13 @@ import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// 定义 H2 标题的数据结构
+// 瀹氫箟 H2 鏍囬鐨勬暟鎹粨鏋?
 interface TocItem {
   id: string;
   text: string;
 }
 
-// 渲染单个导航链接，并在此下方挂载对应的子标题
+// 娓叉煋鍗曚釜瀵艰埅閾炬帴锛屽苟鍦ㄦ涓嬫柟鎸傝浇瀵瑰簲鐨勫瓙鏍囬
 function SidebarLink({ href, children, activeToc }: { href?: string; children: React.ReactNode; activeToc: TocItem[] }) {
   const pathname = usePathname();
   
@@ -32,24 +33,26 @@ function SidebarLink({ href, children, activeToc }: { href?: string; children: R
   }
 
   const route = `/articles/${cleanHref}`;
-  // 判断当前链接是否是正在阅读的文章
-  const isActive = pathname === route || pathname === `${route}/`;
+  // 鍒ゆ柇褰撳墠閾炬帴鏄惁鏄鍦ㄩ槄璇荤殑鏂囩珷
+  const decodedPathname = decodeURIComponent(pathname);
+  const decodedRoute = decodeURIComponent(route);
+  const isActive = decodedPathname === decodedRoute || decodedPathname === `${decodedRoute}/`;
 
   return (
     <div className="relative">
       <Link 
         href={route} 
-        className={`group relative text-[13px] font-mono transition-colors block py-1.5 pl-4 -ml-4 ${isActive ? 'text-tech-main' : 'text-slate-700 hover:text-tech-main'}`}
+        className={`group relative text-[15px] md:text-base font-mono transition-colors block py-1.5 pl-4 -ml-4 ${isActive ? 'text-tech-main' : 'text-slate-700 hover:text-tech-main'}`}
       >
-        <span className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-[10px] ${isActive ? 'opacity-100 text-tech-main' : 'opacity-0 group-hover:opacity-100 text-tech-main'}`}>&gt;</span>
+        <span className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-xs md:text-sm ${isActive ? 'opacity-100 text-tech-main' : 'opacity-0 group-hover:opacity-100 text-tech-main'}`}>&gt;</span>
         <span className={`border-b pb-[1px] ${isActive ? 'border-tech-main/50' : 'border-transparent group-hover:border-tech-main/30'}`}>{children}</span>
       </Link>
       
-      {/* 仅在当前文章下展开其 H2 二级标题树 */}
+      {/* 浠呭湪褰撳墠鏂囩珷涓嬪睍寮€鍏?H2 浜岀骇鏍囬鏍?*/}
       {isActive && activeToc.length > 0 && (
         <ul className="pl-4 mt-1 mb-2 space-y-2 border-l border-tech-main/20 ml-1 animate-in slide-in-from-top-2 fade-in duration-300">
           {activeToc.map((h2) => (
-            <li key={h2.id} className="text-[11px] text-tech-main/70 hover:text-tech-main transition-colors before:content-[''] before:w-2 before:h-[1px] before:bg-tech-main/30 before:absolute before:-ml-4 before:mt-2">
+            <li key={h2.id} className="text-[13px] md:text-sm text-tech-main/70 hover:text-tech-main transition-colors relative before:content-[''] before:w-2 before:h-[1px] before:bg-tech-main/30 before:absolute before:-left-4 before:top-1/2 before:-translate-y-1/2">
               <Link href={`#${h2.id}`} className="block break-words">
                 {h2.text}
               </Link>
@@ -66,16 +69,16 @@ export function SidebarClient({ content }: { content: string }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    // 监听路由变化后，抓取主干 DOM 中的 h2
-    // 设置一个小延时，确保 react-markdown 和 rehype-slug 已经完成了 DOM 节点的挂载
+    // 鐩戝惉璺敱鍙樺寲鍚庯紝鎶撳彇涓诲共 DOM 涓殑 h2
+    // 璁剧疆涓€涓皬寤舵椂锛岀‘淇?react-markdown 鍜?rehype-slug 宸茬粡瀹屾垚浜?DOM 鑺傜偣鐨勬寕杞?
     const timer = setTimeout(() => {
-      const headings = document.querySelectorAll("main article h2");
+      const headings = document.querySelectorAll("main h2");
       const tocItems: TocItem[] = [];
       headings.forEach((heading) => {
         if (heading.id && heading.textContent) {
           tocItems.push({
             id: heading.id,
-            text: heading.textContent.replace(/^#\s*/, ""), // 清理哈希标志
+            text: heading.textContent.replace(/^#\s*/, ""), // 娓呯悊鍝堝笇鏍囧織
           });
         }
       });
@@ -87,13 +90,26 @@ export function SidebarClient({ content }: { content: string }) {
 
   return (
     <ReactMarkdown
-      components={{
+      components={({
+        wtucolor: ({ node, ...props }: any) => <span style={{ color: 'red' }} {...props} />,
+        ttcolor: ({ node, ...props }: any) => <span style={{ color: '#ff7300' }} {...props} />,
+        ctcolor: ({ node, ...props }: any) => <span style={{ color: '#ffae00' }} {...props} />,
+        becolor: ({ node, ...props }: any) => <span style={{ color: 'green' }} {...props} />,
+        eucolor: ({ node, ...props }: any) => <span style={{ color: 'blue' }} {...props} />,
+        tecolor: ({ node, ...props }: any) => <span style={{ color: 'blueviolet' }} {...props} />,
+        atcolor: ({ node, ...props }: any) => <span style={{ color: 'purple' }} {...props} />,
+        heightlightnormal: ({ node, ...props }: any) => <span style={{ color: 'chartreuse' }} {...props} />,
+        heightlightwarning: ({ node, ...props }: any) => <span style={{ color: 'crimson' }} {...props} />,
+        heightlightadvanced: ({ node, ...props }: any) => <span style={{ color: 'darkseagreen' }} {...props} />,
+        nc: ({ node, ...props }: any) => <span {...props} />,
+        hidden: ({ node, ...props }: any) => <span style={{ display: 'none' }} {...props} />,
         a: ({ node, ...props }: any) => <SidebarLink href={props.href} activeToc={toc}>{props.children}</SidebarLink>,
         hr: () => <hr className="my-6 border-t border-tech-main/10" />,
-        p: ({ node, ...props }: any) => <div className="font-mono text-[11px] font-bold uppercase text-tech-main/70 mt-6 mb-3 tracking-widest">{props.children}</div>,
-      }}
+        p: ({ node, ...props }: any) => <div className="font-mono text-[13px] md:text-sm font-bold uppercase text-tech-main/70 mt-6 mb-3 tracking-widest">{props.children}</div>,
+      } as any)}
     >
       {content}
     </ReactMarkdown>
   );
 }
+
