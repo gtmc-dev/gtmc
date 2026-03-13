@@ -126,9 +126,9 @@ export async function createFeature(data: {
   // Resolve local index with retry/backoff (GitHub eventual consistency)
   const retryDelays = [500, 1000, 2000, 4000, 8000];
   let localIndex = -1;
-  for (let attempt = 0; attempt < retryDelays.length && localIndex === -1; attempt++) {
+  for (let attempt = 0; attempt <= retryDelays.length && localIndex === -1; attempt++) {
     if (attempt > 0) {
-      await new Promise((r) => setTimeout(r, retryDelays[attempt - 1]));
+      await new Promise((resolve) => setTimeout(resolve, retryDelays[attempt - 1]));
     }
     const allIssues = await listAllIssues("all");
     allIssues.sort(

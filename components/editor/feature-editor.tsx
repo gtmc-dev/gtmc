@@ -160,9 +160,9 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
     try {
       await updateFeature(initialData.id, { title, content, tags: tagArray });
       alert("Feature updated!");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      alert(error.message || "Save Failed");
+      alert(error instanceof Error ? error.message : "Save Failed");
     } finally {
       setIsSaving(false);
     }
