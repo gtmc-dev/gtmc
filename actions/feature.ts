@@ -6,10 +6,16 @@ import { revalidatePath } from "next/cache";
 import {
   listAllIssues,
   addIssueComment,
+  createIssue,
   updateIssue,
   parseIssueBody,
   serializeIssueBody,
   serializeCommentBody,
+  ensureLabel,
+  tagsToLabels,
+  statusToLabels,
+  labelsToStatus,
+  type IssueMetadata,
 } from "@/lib/github-features";
 
 const QQ_BOT_WEBHOOK = process.env.QQ_BOT_WEBHOOK || "";
@@ -61,33 +67,53 @@ export async function createFeature(data: {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const feature = await db.feature.create({
-    data: {
-      title: data.title,
-      content: data.content,
-      tags: data.tags,
-      authorId: session.user.id,
-    },
-    include: {
-      author: true,
-    },
-  });
+  const metadata: IssueMetadata = {
+    appUserId: session.user.id,
+    authorName: session.user.name ?? null,
+    authorEmail: session.user.email ?? null,
+  };
+
+  const body = serializeIssueBody(data.content, metadata, undefined);
+
+  // Ensure all tag labels exist on the repo
+  for (const tag of data.tags) {
+    await ensureLabel(tag);
+  }
+
+  const labels = [...tagsToLabels(data.tags), ...statusToLabels("PENDING")];
+
+  const created = await createIssue(data.title, body, labels);
+
+  // Determine local index: fetch all issues, sort by createdAt ASC, find position
+  const allIssues = await listAllIssues("all");
+  allIssues.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+  const localIndex = allIssues.findIndex((i) => i.number === created.number);
 
   // Send structured payload for AstrBot
   await sendQQBotNotification({
     type: "new_feature",
-    text: `New feature report from [${session.user.name || session.user.email}]: ${feature.title}\nID: ${feature.id}`,
+    text: `New feature report from [${session.user.name || session.user.email}]: ${data.title}\nID: ${localIndex}`,
     data: {
-      id: feature.id,
-      title: feature.title,
+      id: String(localIndex),
+      title: data.title,
       author: session.user.name || session.user.email,
-      tags: feature.tags,
-      url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/features/${feature.id}`,
+      tags: data.tags,
+      url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/features/${localIndex}`,
     },
   });
 
   revalidatePath("/features");
-  return { success: true, feature };
+  return {
+    success: true,
+    feature: {
+      id: String(localIndex),
+      title: data.title,
+      content: data.content,
+      tags: data.tags,
+    },
+  };
 }
 
 export async function updateFeature(
@@ -97,26 +123,56 @@ export async function updateFeature(
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const feature = await db.feature.findUnique({ where: { id } });
+  const localIndex = parseInt(id, 10);
+  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+
+  const feature = await getFeatureByIndex(localIndex);
   if (!feature) throw new Error("Not found");
 
-  // We only allow authors or admins to edit, assuming everyone can view but author modifies
-  if (feature.authorId !== session.user.id && session.user.role !== "ADMIN") {
+  const { issue, parsed } = feature;
+
+  if (
+    parsed.metadata?.appUserId !== session.user.id &&
+    session.user.role !== "ADMIN"
+  ) {
     throw new Error("Forbidden");
   }
 
-  const updated = await db.feature.update({
-    where: { id },
-    data: {
-      title: data.title,
-      content: data.content,
-      tags: data.tags,
-    },
+  for (const tag of data.tags) {
+    await ensureLabel(tag);
+  }
+
+  const currentStatus = labelsToStatus(issue.labels);
+  const newLabels = [...tagsToLabels(data.tags), ...statusToLabels(currentStatus)];
+
+  const fallbackMetadata: IssueMetadata = {
+    appUserId: "",
+    authorName: null,
+    authorEmail: null,
+  };
+  const newBody = serializeIssueBody(
+    data.content,
+    parsed.metadata ?? fallbackMetadata,
+    parsed.explanation ?? undefined,
+  );
+
+  await updateIssue(issue.number, {
+    title: data.title,
+    body: newBody,
+    labels: newLabels,
   });
 
   revalidatePath("/features");
   revalidatePath(`/features/${id}`);
-  return { success: true, feature: updated };
+  return {
+    success: true,
+    feature: {
+      id,
+      title: data.title,
+      content: data.content,
+      tags: data.tags,
+    },
+  };
 }
 
 export async function updateFeatureExplanation(
