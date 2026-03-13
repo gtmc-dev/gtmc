@@ -25,6 +25,7 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
   const [isUploading, setIsUploading] = React.useState(false);
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const isReadOnly = false; // Everyone can edit their own or admins can edit. Handled server-side usually, but we keep it simple here.
 
@@ -58,9 +59,8 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("filePath", "features/images"); // Generic path for feature images
 
-      const res = await fetch("/api/upload", {
+      const res = await fetch("/api/upload/feature", {
         method: "POST",
         body: formData,
       });
@@ -258,6 +258,28 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
           >
             Block
           </button>
+          <div className="w-px h-4 bg-white/30 mx-1"></div>
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isReadOnly || isUploading}
+            className="hover:bg-tech-accent/20 px-3 py-1.5 transition-colors border border-transparent hover:border-white/20 select-none"
+          >
+            {isUploading ? "[ UPLOADING... ]" : "[ UPLOAD_IMG ]"}
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                uploadImage(file);
+                e.target.value = "";
+              }
+            }}
+          />
           <span className="ml-auto text-tech-accent/60 opacity-60 flex items-center gap-2 text-xs">
             MARKDOWN_SUPPORTED_
           </span>
@@ -273,6 +295,8 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
             onChange={(e) => setContent(e.target.value)}
             onPaste={handlePaste}
             onDrop={handleDrop}
+            onDragOver={(e) => { if (!isReadOnly) e.preventDefault(); }}
+            onDragEnter={(e) => { if (!isReadOnly) e.preventDefault(); }}
             readOnly={isReadOnly}
           />
 
