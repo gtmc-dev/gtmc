@@ -1,10 +1,10 @@
-﻿'use client';
+﻿"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import { useEffect, useState } from "react";
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { createDocument } from '@/actions/sidebar';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { createDocument } from "@/actions/sidebar";
 
 // 定义 H2 标题的数据结构
 interface TocItem {
@@ -12,14 +12,14 @@ interface TocItem {
   text: string;
 }
 
-export function SidebarClient({ tree }: { tree: any[]; }) {
+export function SidebarClient({ tree }: { tree: any[] }) {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    title: '',
-    slug: '',
+    title: "",
+    slug: "",
     isFolder: false,
-    parentId: ''
+    parentId: "",
   });
 
   const [toc, setToc] = useState<TocItem[]>([]);
@@ -49,7 +49,8 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
     try {
       await createDocument({
         title: formData.title,
-        slug: formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-'),
+        slug:
+          formData.slug || formData.title.toLowerCase().replace(/\s+/g, "-"),
         isFolder: formData.isFolder,
         parentId: formData.parentId || null,
       });
@@ -67,20 +68,34 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
           const fileRoute = `/articles/${item.slug}`;
           const decodedPathname = decodeURIComponent(pathname);
           const decodedRoute = decodeURIComponent(fileRoute);
-          const isActive = !item.isFolder && (decodedPathname === decodedRoute || decodedPathname === `${decodedRoute}/`);
+          const isActive =
+            !item.isFolder &&
+            (decodedPathname === decodedRoute ||
+              decodedPathname === `${decodedRoute}/`);
 
           return (
-            <li key={item.id} className="my-1.5 text-[15px] md:text-base font-mono list-none">
+            <li
+              key={item.id}
+              className="my-1.5 text-[15px] md:text-base font-mono list-none"
+            >
               {item.isFolder ? (
-                <span className="text-tech-main/80 font-bold opacity-80 uppercase block mt-3 mb-1">► {item.title}</span>
+                <span className="text-tech-main/80 font-bold opacity-80 uppercase block mt-3 mb-1">
+                  ► {item.title}
+                </span>
               ) : (
                 <div className="relative">
                   <Link
                     href={fileRoute}
-                    className={`group relative transition-colors block py-1.5 pl-4 -ml-4 ${isActive ? 'text-tech-main font-bold' : 'text-slate-700 hover:text-tech-main'}`}
+                    className={`group relative transition-colors block py-1.5 pl-4 -ml-4 ${isActive ? "text-tech-main font-bold" : "text-slate-700 hover:text-tech-main"}`}
                   >
-                    <span className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-xs md:text-sm ${isActive ? 'opacity-100 text-tech-main' : 'opacity-0 group-hover:opacity-100 text-tech-main'}`}>&gt;</span>
-                    <span className={`border-b pb-[1px] ${isActive ? 'border-tech-main/50' : 'border-transparent group-hover:border-tech-main/30'}`}>
+                    <span
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-xs md:text-sm ${isActive ? "opacity-100 text-tech-main" : "opacity-0 group-hover:opacity-100 text-tech-main"}`}
+                    >
+                      &gt;
+                    </span>
+                    <span
+                      className={`border-b pb-[1px] ${isActive ? "border-tech-main/50" : "border-transparent group-hover:border-tech-main/30"}`}
+                    >
                       {item.title}
                     </span>
                   </Link>
@@ -88,8 +103,14 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
                   {isActive && toc.length > 0 && (
                     <ul className="pl-4 mt-1 mb-2 space-y-2 border-l border-tech-main/20 ml-1 animate-in slide-in-from-top-2 fade-in duration-300">
                       {toc.map((h2) => (
-                        <li key={h2.id} className="text-[13px] md:text-sm text-tech-main/70 hover:text-tech-main transition-colors relative before:content-[''] before:w-2 before:h-[1px] before:bg-tech-main/30 before:absolute before:-left-4 before:top-1/2 before:-translate-y-1/2">
-                          <Link href={`#${h2.id}`} className="block break-words">
+                        <li
+                          key={h2.id}
+                          className="text-[13px] md:text-sm text-tech-main/70 hover:text-tech-main transition-colors relative before:content-[''] before:w-2 before:h-[1px] before:bg-tech-main/30 before:absolute before:-left-4 before:top-1/2 before:-translate-y-1/2"
+                        >
+                          <Link
+                            href={`#${h2.id}`}
+                            className="block break-words"
+                          >
                             {h2.text}
                           </Link>
                         </li>
@@ -98,7 +119,9 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
                   )}
                 </div>
               )}
-              {item.children && item.children.length > 0 && renderTree(item.children)}
+              {item.children &&
+                item.children.length > 0 &&
+                renderTree(item.children)}
             </li>
           );
         })}
@@ -108,10 +131,11 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
 
   const flattenFolders = (items: any[]): any[] => {
     let folders: any[] = [];
-    items.forEach(item => {
+    items.forEach((item) => {
       if (item.isFolder) {
         folders.push(item);
-        if (item.children) folders = [...folders, ...flattenFolders(item.children)];
+        if (item.children)
+          folders = [...folders, ...flattenFolders(item.children)];
       }
     });
     return folders;
@@ -131,7 +155,9 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
       </div>
 
       {tree.length === 0 ? (
-        <div className="text-tech-main/40 text-sm font-mono mt-4">SYS.DIR_TREE_EMPTY</div>
+        <div className="text-tech-main/40 text-sm font-mono mt-4">
+          SYS.DIR_TREE_EMPTY
+        </div>
       ) : (
         <div className="-ml-4">{renderTree(tree)}</div>
       )}
