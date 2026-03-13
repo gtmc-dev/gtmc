@@ -841,3 +841,74 @@ export function tagsToLabels(tags: string[]): string[] {
 export function labelsToTags(labels: string[]): string[] {
   return labels.filter((label) => !label.startsWith(STATUS_LABEL_PREFIX));
 }
+
+// ---------------------------------------------------------------------------
+// GitHub Contents API image upload
+// ---------------------------------------------------------------------------
+
+interface GithubContentsUploadResponse {
+  content?: {
+    download_url?: string | null;
+    [key: string]: unknown;
+  };
+}
+
+export async function uploadImageToGithub(
+  buffer: Buffer,
+  originalName: string,
+  folder: string,
+): Promise<string> {
+  // Validate MIME type by extension
+  const extMatch = originalName.match(/\.([a-zA-Z0-9]+)$/);
+  const ext = extMatch ? extMatch[1].toLowerCase() : "";
+  const validExtensions = ["jpg", "jpeg", "png", "gif", "webp"];
+
+  if (!validExtensions.includes(ext)) {
+    throw new GithubFeaturesError({
+      code: "API_ERROR",
+      message: "Only image files are accepted (JPEG, PNG, GIF, WebP).",
+    });
+  }
+
+  // Validate file size
+  const maxSize = 10485760; // 10 MB
+  if (buffer.length > maxSize) {
+    throw new GithubFeaturesError({
+      code: "API_ERROR",
+      message: "Image exceeds maximum upload size of 10 MB.",
+    });
+  }
+
+  // Get repo config
+  const config = getGithubRepoConfig();
+
+  // Generate filename: {timestamp}-{random}.{ext}
+  const timestamp = Date.now();
+  const random = Math.round(Math.random() * 1000);
+  const filename = `${timestamp}-${random}.${ext}`;
+
+  // Construct path
+  const path = `${folder}/${filename}`;
+
+  // Call GitHub Contents API
+  const url = `${GITHUB_API_BASE}/repos/${config.owner}/${config.repo}/contents/${path}`;
+
+  const { data } = await requestGithub<GithubContentsUploadResponse>(url, {
+    method: "PUT",
+    body: JSON.stringify({
+      message: `Upload feature image: ${filename}`,
+      content: buffer.toString("base64"),
+    }),
+  });
+
+  // Validate response shape
+  if (!data?.content?.download_url || typeof data.content.download_url !== "string") {
+    throw new GithubFeaturesError({
+      code: "INVALID_RESPONSE",
+      message: "GitHub API returned an invalid contents upload response.",
+      details: data,
+    });
+  }
+
+  return data.content.download_url;
+}
