@@ -2,9 +2,9 @@ import { auth } from "@/lib/auth";
 import {
   EXPLANATION_MARKER,
   SYSTEM_COMMENT_MARKER,
+  getIssue,
   labelsToStatus,
   labelsToTags,
-  listAllIssues,
   listIssueComments,
   parseCommentBody,
   parseIssueBody,
@@ -24,19 +24,14 @@ export default async function FeatureDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const localIndex = Number.parseInt(id, 10);
-  if (Number.isNaN(localIndex) || localIndex < 0) {
+  const issueNumber = Number.parseInt(id, 10);
+  if (Number.isNaN(issueNumber) || issueNumber <= 0) {
     notFound();
   }
 
   const session = await auth();
 
-  const allIssues = await listAllIssues("all");
-  allIssues.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
-
-  const issue = allIssues[localIndex];
+  const issue = await getIssue(issueNumber);
   if (!issue) {
     notFound();
   }
@@ -64,7 +59,7 @@ export default async function FeatureDetailPage({
     });
 
   const feature = {
-    id: String(localIndex),
+    id: String(issue.number),
     title: issue.title,
     status: labelsToStatus(issue.labels),
     tags: labelsToTags(issue.labels),
