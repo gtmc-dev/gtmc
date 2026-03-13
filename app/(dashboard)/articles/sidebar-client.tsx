@@ -120,7 +120,6 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
   const availableFolders = flattenFolders(tree);
 
   return (
-<<<<<<< HEAD
     <div>
       <div className="mb-4">
         <button
@@ -134,35 +133,43 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
       {tree.length === 0 ? (
         <div className="text-tech-main/40 text-sm font-mono mt-4">SYS.DIR_TREE_EMPTY</div>
       ) : (
-        <div className="-ml-4">
-          {renderTree(tree)}
-        </div>
+        <div className="-ml-4">{renderTree(tree)}</div>
       )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white dark:bg-black border-2 border-tech-main p-6 max-w-md w-full rounded shadow-[8px_8px_0_0_rgba(var(--tech-main),1)]">
-            <h3 className="text-lg font-bold font-mono text-tech-main mb-6 uppercase tracking-[0.1em] border-b border-tech-main/20 pb-2">CREATE_SYS_OBJECT</h3>
+            <h3 className="text-lg font-bold font-mono text-tech-main mb-6 uppercase tracking-[0.1em] border-b border-tech-main/20 pb-2">
+              CREATE_SYS_OBJECT
+            </h3>
 
             <form onSubmit={handleCreate} className="space-y-4 font-mono">
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-tech-main/80 mb-1">Title</label>
+                <label className="block text-[11px] uppercase tracking-wider text-tech-main/80 mb-1">
+                  Title
+                </label>
                 <input
                   type="text"
                   required
                   value={formData.title}
-                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
                   className="w-full bg-tech-main/5 border border-tech-main/40 px-3 py-2 outline-none focus:border-tech-main text-tech-main text-sm"
                   placeholder="e.g. Overview"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-tech-main/80 mb-1">Slug (URL path)</label>
+                <label className="block text-[11px] uppercase tracking-wider text-tech-main/80 mb-1">
+                  Slug (URL path)
+                </label>
                 <input
                   type="text"
                   value={formData.slug}
-                  onChange={e => setFormData({ ...formData, slug: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, slug: e.target.value })
+                  }
                   className="w-full bg-tech-main/5 border border-tech-main/40 px-3 py-2 outline-none focus:border-tech-main text-tech-main text-sm"
                   placeholder="Leave empty to auto-generate"
                 />
@@ -173,22 +180,35 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
                   type="checkbox"
                   id="isFolder"
                   checked={formData.isFolder}
-                  onChange={e => setFormData({ ...formData, isFolder: e.target.checked })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isFolder: e.target.checked })
+                  }
                   className="accent-tech-main w-4 h-4"
                 />
-                <label htmlFor="isFolder" className="text-sm text-tech-main/80 cursor-pointer select-none">Create as Directory (Folder)</label>
+                <label
+                  htmlFor="isFolder"
+                  className="text-sm text-tech-main/80 cursor-pointer select-none"
+                >
+                  Create as Directory (Folder)
+                </label>
               </div>
 
               <div>
-                <label className="block text-[11px] uppercase tracking-wider text-tech-main/80 mb-1">Parent Directory</label>
+                <label className="block text-[11px] uppercase tracking-wider text-tech-main/80 mb-1">
+                  Parent Directory
+                </label>
                 <select
                   value={formData.parentId}
-                  onChange={e => setFormData({ ...formData, parentId: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, parentId: e.target.value })
+                  }
                   className="w-full bg-tech-main/5 border border-tech-main/40 px-3 py-2 outline-none text-tech-main text-sm"
                 >
                   <option value="">[ ROOT_DIRECTORY ]</option>
-                  {availableFolders.map(f => (
-                    <option key={f.id} value={f.id}>{f.title}</option>
+                  {availableFolders.map((f) => (
+                    <option key={f.id} value={f.id}>
+                      {f.title}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -213,60 +233,5 @@ export function SidebarClient({ tree }: { tree: any[]; }) {
         </div>
       )}
     </div>
-=======
-    <ReactMarkdown
-      components={
-        {
-          wtucolor: ({ node, ...props }: any) => (
-            <span style={{ color: "red" }} {...props} />
-          ),
-          ttcolor: ({ node, ...props }: any) => (
-            <span style={{ color: "#ff7300" }} {...props} />
-          ),
-          ctcolor: ({ node, ...props }: any) => (
-            <span style={{ color: "#ffae00" }} {...props} />
-          ),
-          becolor: ({ node, ...props }: any) => (
-            <span style={{ color: "green" }} {...props} />
-          ),
-          eucolor: ({ node, ...props }: any) => (
-            <span style={{ color: "blue" }} {...props} />
-          ),
-          tecolor: ({ node, ...props }: any) => (
-            <span style={{ color: "blueviolet" }} {...props} />
-          ),
-          atcolor: ({ node, ...props }: any) => (
-            <span style={{ color: "purple" }} {...props} />
-          ),
-          heightlightnormal: ({ node, ...props }: any) => (
-            <span style={{ color: "chartreuse" }} {...props} />
-          ),
-          heightlightwarning: ({ node, ...props }: any) => (
-            <span style={{ color: "crimson" }} {...props} />
-          ),
-          heightlightadvanced: ({ node, ...props }: any) => (
-            <span style={{ color: "darkseagreen" }} {...props} />
-          ),
-          nc: ({ node, ...props }: any) => <span {...props} />,
-          hidden: ({ node, ...props }: any) => (
-            <span style={{ display: "none" }} {...props} />
-          ),
-          a: ({ node, ...props }: any) => (
-            <SidebarLink href={props.href} activeToc={toc}>
-              {props.children}
-            </SidebarLink>
-          ),
-          hr: () => <hr className="my-6 border-t border-tech-main/10" />,
-          p: ({ node, ...props }: any) => (
-            <div className="font-mono text-[13px] md:text-sm font-bold uppercase text-tech-main/70 mt-6 mb-3 tracking-widest">
-              {props.children}
-            </div>
-          ),
-        } as any
-      }
-    >
-      {content}
-    </ReactMarkdown>
->>>>>>> 6a5568d (style: Lint code)
   );
 }
