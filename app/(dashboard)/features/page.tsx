@@ -1,5 +1,10 @@
-import { prisma as db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import {
+  labelsToStatus,
+  labelsToTags,
+  listAllIssues,
+  parseIssueBody,
+} from "@/lib/github-features";
 import Link from "next/link";
 import { BrutalButton } from "@/components/ui/brutal-button";
 import { FeatureList } from "./feature-list";
@@ -7,16 +12,34 @@ import { FeatureList } from "./feature-list";
 export default async function FeaturesPage() {
   const session = await auth();
 
-  const features = await db.feature.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
+  const allIssues = await listAllIssues("all");
+  allIssues.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+
+  const features = allIssues.map((issue, index) => {
+    const parsed = parseIssueBody(issue.body);
+    const assigneeId = parsed.metadata?.assigneeId;
+
+    return {
+      id: String(index),
+      title: issue.title,
+      status: labelsToStatus(issue.labels),
+      tags: labelsToTags(issue.labels),
+      createdAt: new Date(issue.createdAt),
       author: {
-        select: { name: true, image: true, email: true },
+        name: parsed.metadata?.authorName ?? null,
+        email: parsed.metadata?.authorEmail ?? null,
+        image: null,
       },
-      assignee: {
-        select: { name: true, image: true, email: true },
-      },
-    },
+      assignee: assigneeId
+        ? {
+            name: parsed.metadata?.assigneeName ?? null,
+            email: parsed.metadata?.assigneeEmail ?? null,
+            image: null,
+          }
+        : null,
+    };
   });
 
   return (

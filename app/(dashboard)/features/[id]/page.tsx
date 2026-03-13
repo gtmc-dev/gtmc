@@ -1,5 +1,13 @@
-import { prisma as db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import {
+  EXPLANATION_MARKER,
+  labelsToStatus,
+  labelsToTags,
+  listAllIssues,
+  listIssueComments,
+  parseCommentBody,
+  parseIssueBody,
+} from "@/lib/github-features";
 import { FeatureEditor } from "@/components/editor/feature-editor";
 import { notFound } from "next/navigation";
 import { BrutalCard } from "@/components/ui/brutal-card";
@@ -13,31 +21,66 @@ export default async function FeatureDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await auth();
-
-  const feature = await db.feature.findUnique({
-    where: { id },
-    include: {
-      author: {
-        select: { name: true, image: true, email: true },
-      },
-      assignee: {
-        select: { name: true, image: true, email: true },
-      },
-      comments: {
-        orderBy: { createdAt: "asc" },
-        include: {
-          author: {
-            select: { name: true, image: true, email: true },
-          },
-        },
-      },
-    },
-  });
-
-  if (!feature) {
+  const localIndex = Number.parseInt(id, 10);
+  if (Number.isNaN(localIndex) || localIndex < 0) {
     notFound();
   }
+
+  const session = await auth();
+
+  const allIssues = await listAllIssues("all");
+  allIssues.sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+  );
+
+  const issue = allIssues[localIndex];
+  if (!issue) {
+    notFound();
+  }
+
+  const parsedIssue = parseIssueBody(issue.body);
+  const rawComments = await listIssueComments(issue.number);
+
+  const comments = rawComments
+    .filter((comment) => !comment.body.includes(EXPLANATION_MARKER))
+    .map((comment) => {
+      const parsedComment = parseCommentBody(comment.body);
+      return {
+        id: String(comment.id),
+        content: parsedComment.content,
+        createdAt: new Date(comment.createdAt),
+        author: {
+          name: parsedComment.metadata?.authorName ?? null,
+          email: parsedComment.metadata?.authorEmail ?? null,
+          image: null,
+        },
+      };
+    });
+
+  const feature = {
+    id: String(localIndex),
+    title: issue.title,
+    status: labelsToStatus(issue.labels),
+    tags: labelsToTags(issue.labels),
+    createdAt: new Date(issue.createdAt),
+    content: parsedIssue.userContent,
+    explanation: parsedIssue.explanation,
+    authorId: parsedIssue.metadata?.appUserId ?? "",
+    assigneeId: parsedIssue.metadata?.assigneeId ?? null,
+    author: {
+      name: parsedIssue.metadata?.authorName ?? null,
+      email: parsedIssue.metadata?.authorEmail ?? null,
+      image: null,
+    },
+    assignee: parsedIssue.metadata?.assigneeId
+      ? {
+          name: parsedIssue.metadata?.assigneeName ?? null,
+          email: parsedIssue.metadata?.assigneeEmail ?? null,
+          image: null,
+        }
+      : null,
+    comments,
+  };
 
   const isAuthor = session?.user?.id === feature.authorId;
   const isAdmin = session?.user?.role === "ADMIN";

@@ -517,6 +517,9 @@ export interface IssueMetadata {
   appUserId: string;
   authorName: string | null;
   authorEmail: string | null;
+  assigneeId?: string;
+  assigneeName?: string | null;
+  assigneeEmail?: string | null;
 }
 
 export interface CommentMetadata {
@@ -535,11 +538,32 @@ const COMMENT_META_SUFFIX = " -->";
 // ---- Helpers ----------------------------------------------------------------
 
 function serializeMetadata(metadata: IssueMetadata | CommentMetadata): string {
-  return JSON.stringify({
+  const serialized: {
+    appUserId: string;
+    authorName: string | null;
+    authorEmail: string | null;
+    assigneeId?: string;
+    assigneeName?: string | null;
+    assigneeEmail?: string | null;
+  } = {
     appUserId: metadata.appUserId,
     authorName: metadata.authorName,
     authorEmail: metadata.authorEmail,
-  });
+  };
+
+  if (
+    "assigneeId" in metadata &&
+    typeof metadata.assigneeId === "string" &&
+    metadata.assigneeId.trim().length > 0
+  ) {
+    serialized.assigneeId = metadata.assigneeId;
+    serialized.assigneeName =
+      typeof metadata.assigneeName === "string" ? metadata.assigneeName : null;
+    serialized.assigneeEmail =
+      typeof metadata.assigneeEmail === "string" ? metadata.assigneeEmail : null;
+  }
+
+  return JSON.stringify(serialized);
 }
 
 function parseMetadata<T extends IssueMetadata | CommentMetadata>(
@@ -559,6 +583,12 @@ function parseMetadata<T extends IssueMetadata | CommentMetadata>(
         typeof parsed.authorName === "string" ? parsed.authorName : null,
       authorEmail:
         typeof parsed.authorEmail === "string" ? parsed.authorEmail : null,
+      assigneeId:
+        typeof parsed.assigneeId === "string" ? parsed.assigneeId : undefined,
+      assigneeName:
+        typeof parsed.assigneeName === "string" ? parsed.assigneeName : null,
+      assigneeEmail:
+        typeof parsed.assigneeEmail === "string" ? parsed.assigneeEmail : null,
     } as T;
   } catch {
     return null;
