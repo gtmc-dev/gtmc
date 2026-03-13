@@ -112,15 +112,15 @@ export async function createFeature(data: {
    // Send structured payload for AstrBot
    await sendQQBotNotification({
      type: "new_feature",
-      text: `New feature report from [${session.user.name || session.user.email}]: ${data.title}\nIssue #${created.number}`,
-      data: {
-        id: String(created.number),
-        issueNumber: created.number,
-        title: data.title,
-        author: session.user.name || session.user.email,
-        tags: data.tags,
-        url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/features/${created.number}`,
-      },
+     text: `New feature report from [${session.user.name || session.user.email}]: ${data.title}\nIssue #${created.number}`,
+     data: {
+       id: String(created.number),
+       issueNumber: created.number,
+       title: data.title,
+       author: session.user.name || session.user.email,
+       tags: data.tags,
+       url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/features/${created.number}`,
+     },
    });
 
    revalidatePath("/features");
