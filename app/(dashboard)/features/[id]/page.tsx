@@ -15,6 +15,8 @@ import { FeatureActions } from "./feature-actions";
 import { FeatureComments } from "./feature-comments";
 import { FeatureExplanation } from "./feature-explanation";
 
+export const revalidate = 60;
+
 export default async function FeatureDetailPage({
   params,
 }: {

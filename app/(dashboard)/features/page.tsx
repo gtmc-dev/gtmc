@@ -9,6 +9,8 @@ import Link from "next/link";
 import { BrutalButton } from "@/components/ui/brutal-button";
 import { FeatureList } from "./feature-list";
 
+export const revalidate = 60;
+
 export default async function FeaturesPage() {
   const session = await auth();
 
