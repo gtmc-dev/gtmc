@@ -20,6 +20,7 @@ import {
   statusToLabels,
   labelsToStatus,
   labelsToTags,
+  getIssue,
   type IssueMetadata,
 } from "@/lib/github-features";
 
@@ -43,22 +44,8 @@ async function sendQQBotNotification(payload: any) {
   }
 }
 
-async function getIssueNumberByIndex(localIndex: number): Promise<number> {
-  const allIssues = await listAllIssues("all");
-  allIssues.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
-  const issue = allIssues[localIndex];
-  if (!issue) throw new Error("Not found");
-  return issue.number;
-}
-
-async function getFeatureByIndex(localIndex: number) {
-  const allIssues = await listAllIssues("all");
-  allIssues.sort(
-    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-  );
-  const issue = allIssues[localIndex];
+async function getFeatureByIssueNumber(issueNumber: number) {
+  const issue = await getIssue(issueNumber);
   if (!issue) return null;
   const parsed = parseIssueBody(issue.body);
   return { issue, parsed };
@@ -172,10 +159,10 @@ export async function updateFeature(
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const localIndex = parseInt(id, 10);
-  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+  const issueNumber = parseInt(id, 10);
+  if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIndex(localIndex);
+  const feature = await getFeatureByIssueNumber(issueNumber);
   if (!feature) throw new Error("Not found");
 
   const { issue, parsed } = feature;
@@ -234,10 +221,10 @@ export async function updateFeatureExplanation(
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const localIndex = parseInt(id, 10);
-  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+  const issueNumber = parseInt(id, 10);
+  if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIndex(localIndex);
+  const feature = await getFeatureByIssueNumber(issueNumber);
   if (!feature) throw new Error("Not found");
 
   const { issue, parsed } = feature;
@@ -262,10 +249,10 @@ export async function assignFeature(id: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const localIndex = parseInt(id, 10);
-  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+  const issueNumber = parseInt(id, 10);
+  if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIndex(localIndex);
+  const feature = await getFeatureByIssueNumber(issueNumber);
   if (!feature) throw new Error("Not found");
 
   const { issue, parsed } = feature;
@@ -323,10 +310,10 @@ export async function unassignFeature(id: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const localIndex = parseInt(id, 10);
-  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+  const issueNumber = parseInt(id, 10);
+  if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIndex(localIndex);
+  const feature = await getFeatureByIssueNumber(issueNumber);
   if (!feature) throw new Error("Not found");
 
   const { issue, parsed } = feature;
@@ -392,12 +379,12 @@ export async function resolveFeature(id: string, resolutionComment?: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const localIndex = parseInt(id, 10);
-  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+  const issueNumber = parseInt(id, 10);
+  if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
   if (session.user.role !== "ADMIN") throw new Error("Admin only");
 
-  const feature = await getFeatureByIndex(localIndex);
+  const feature = await getFeatureByIssueNumber(issueNumber);
   if (!feature) throw new Error("Not found");
 
   const { issue } = feature;
@@ -428,10 +415,10 @@ export async function addFeatureComment(id: string, content: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const localIndex = parseInt(id, 10);
-  if (isNaN(localIndex)) throw new Error("Invalid feature ID");
+  const issueNumber = parseInt(id, 10);
+  if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIndex(localIndex);
+  const feature = await getFeatureByIssueNumber(issueNumber);
   if (!feature) throw new Error("Not found");
 
   const commentBody = serializeCommentBody(content, {
