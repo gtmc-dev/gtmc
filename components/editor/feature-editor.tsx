@@ -4,7 +4,7 @@ import * as React from "react";
 import { BrutalButton } from "../ui/brutal-button";
 import { BrutalInput } from "../ui/brutal-input";
 import { useRouter } from "next/navigation";
-import { createFeature, updateFeature } from "@/actions/feature";
+import { updateFeature } from "@/actions/feature";
 
 interface FeatureEditorProps {
   initialData?: {
@@ -139,23 +139,27 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const tagArray = tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    if (!initialData?.id) {
+      // Stage payload and redirect immediately — PendingCreationBanner handles the actual creation
+      sessionStorage.setItem(
+        "pendingFeatureCreate.v1",
+        JSON.stringify({ title, content, tags: tagArray }),
+      );
+      router.push("/features?created=true");
+      return;
+    }
+
+    // Update path
     setIsSaving(true);
-
     try {
-      const tagArray = tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
-
-      if (initialData?.id) {
-        await updateFeature(initialData.id, { title, content, tags: tagArray });
-        alert("Feature updated!");
-      } else {
-        const res = await createFeature({ title, content, tags: tagArray });
-        alert("Feature reported!");
-        router.push(`/features/${res.feature.id}`);
-        return; // Don't reset state if navigating away
-      }
+      await updateFeature(initialData.id, { title, content, tags: tagArray });
+      alert("Feature updated!");
     } catch (error: any) {
       console.error(error);
       alert(error.message || "Save Failed");
