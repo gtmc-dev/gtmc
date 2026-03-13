@@ -144,17 +144,21 @@ export async function updateFeature(
   const issueNumber = parseInt(id, 10);
   if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIssueNumber(issueNumber);
-  if (!feature) throw new Error("Not found");
+   const feature = await getFeatureByIssueNumber(issueNumber);
+   if (!feature) throw new Error("Not found");
 
-  const { issue, parsed } = feature;
+   if (feature.issue.state === "closed") {
+     throw new Error("Feature is deleted and read-only");
+   }
 
-  if (
-    parsed.metadata?.appUserId !== session.user.id &&
-    session.user.role !== "ADMIN"
-  ) {
-    throw new Error("Forbidden");
-  }
+   const { issue, parsed } = feature;
+
+   if (
+     parsed.metadata?.appUserId !== session.user.id &&
+     session.user.role !== "ADMIN"
+   ) {
+     throw new Error("Forbidden");
+   }
 
   for (const tag of data.tags) {
     await ensureLabel(tag);
@@ -206,14 +210,18 @@ export async function updateFeatureExplanation(
   const issueNumber = parseInt(id, 10);
   if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIssueNumber(issueNumber);
-  if (!feature) throw new Error("Not found");
+   const feature = await getFeatureByIssueNumber(issueNumber);
+   if (!feature) throw new Error("Not found");
 
-  const { issue, parsed } = feature;
+   if (feature.issue.state === "closed") {
+     throw new Error("Feature is deleted and read-only");
+   }
 
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = parsed.metadata?.assigneeId === session.user.id;
-  if (!isAssignee && !isAdmin) throw new Error("Forbidden");
+   const { issue, parsed } = feature;
+
+   const isAdmin = session.user.role === "ADMIN";
+   const isAssignee = parsed.metadata?.assigneeId === session.user.id;
+   if (!isAssignee && !isAdmin) throw new Error("Forbidden");
 
   const newBody = serializeIssueBody(
     parsed.userContent,
@@ -234,14 +242,18 @@ export async function assignFeature(id: string) {
   const issueNumber = parseInt(id, 10);
   if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIssueNumber(issueNumber);
-  if (!feature) throw new Error("Not found");
+   const feature = await getFeatureByIssueNumber(issueNumber);
+   if (!feature) throw new Error("Not found");
 
-  const { issue, parsed } = feature;
-  const metadataForWrite = getMetadataForWrite(
-    parsed.metadata,
-    `legacy-issue-${issue.number}`,
-  );
+   if (feature.issue.state === "closed") {
+     throw new Error("Feature is deleted and read-only");
+   }
+
+   const { issue, parsed } = feature;
+   const metadataForWrite = getMetadataForWrite(
+     parsed.metadata,
+     `legacy-issue-${issue.number}`,
+   );
 
   const newBodyWithAssignee = serializeIssueBody(
     parsed.userContent,
@@ -295,13 +307,17 @@ export async function unassignFeature(id: string) {
   const issueNumber = parseInt(id, 10);
   if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIssueNumber(issueNumber);
-  if (!feature) throw new Error("Not found");
+   const feature = await getFeatureByIssueNumber(issueNumber);
+   if (!feature) throw new Error("Not found");
 
-  const { issue, parsed } = feature;
-  const isAdmin = session.user.role === "ADMIN";
-  const isAssignee = parsed.metadata?.assigneeId === session.user.id;
-  if (!isAssignee && !isAdmin) throw new Error("Forbidden");
+   if (feature.issue.state === "closed") {
+     throw new Error("Feature is deleted and read-only");
+   }
+
+   const { issue, parsed } = feature;
+   const isAdmin = session.user.role === "ADMIN";
+   const isAssignee = parsed.metadata?.assigneeId === session.user.id;
+   if (!isAssignee && !isAdmin) throw new Error("Forbidden");
 
   const metadataForWrite = getMetadataForWrite(
     parsed.metadata,
@@ -366,12 +382,16 @@ export async function resolveFeature(id: string, resolutionComment?: string) {
 
   if (session.user.role !== "ADMIN") throw new Error("Admin only");
 
-  const feature = await getFeatureByIssueNumber(issueNumber);
-  if (!feature) throw new Error("Not found");
+   const feature = await getFeatureByIssueNumber(issueNumber);
+   if (!feature) throw new Error("Not found");
 
-  const { issue } = feature;
+   if (feature.issue.state === "closed") {
+     throw new Error("Feature is deleted and read-only");
+   }
 
-  const tags = labelsToTags(issue.labels);
+   const { issue } = feature;
+
+   const tags = labelsToTags(issue.labels);
   const newLabels = [...tagsToLabels(tags), ...statusToLabels("RESOLVED")];
 
   await setIssueLabels(issue.number, newLabels);
@@ -400,14 +420,18 @@ export async function addFeatureComment(id: string, content: string) {
   const issueNumber = parseInt(id, 10);
   if (isNaN(issueNumber)) throw new Error("Invalid feature ID");
 
-  const feature = await getFeatureByIssueNumber(issueNumber);
-  if (!feature) throw new Error("Not found");
+   const feature = await getFeatureByIssueNumber(issueNumber);
+   if (!feature) throw new Error("Not found");
 
-  const commentBody = serializeCommentBody(content, {
-    appUserId: session.user.id,
-    authorName: session.user.name ?? null,
-    authorEmail: session.user.email ?? null,
-  });
+   if (feature.issue.state === "closed") {
+     throw new Error("Feature is deleted and read-only");
+   }
+
+   const commentBody = serializeCommentBody(content, {
+     appUserId: session.user.id,
+     authorName: session.user.name ?? null,
+     authorEmail: session.user.email ?? null,
+   });
 
   const ghComment = await addIssueComment(feature.issue.number, commentBody);
 
