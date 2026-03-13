@@ -758,7 +758,7 @@ export function issueStateForStatus(status: string): "open" | "closed" {
 }
 
 export function tagsToLabels(tags: string[]): string[] {
-  return tags;
+  return [...tags];
 }
 
 export function labelsToTags(labels: string[]): string[] {
