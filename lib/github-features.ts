@@ -244,6 +244,7 @@ async function requestGithub<T>(
   url: string,
   init: RequestInit,
   options?: { allow404?: boolean },
+  tokenOverride?: string,
 ): Promise<{ data: T | null; response: Response }> {
   const config = getGithubRepoConfig();
 
@@ -253,7 +254,7 @@ async function requestGithub<T>(
       ...init,
       headers: {
         Accept: GITHUB_ACCEPT_HEADER,
-        Authorization: `token ${config.token}`,
+        Authorization: `token ${tokenOverride ?? config.token}`,
         "Content-Type": "application/json",
         ...(init.headers ?? {}),
       },
@@ -915,13 +916,15 @@ export async function uploadImageToGithub(
   // Call GitHub Contents API
   const url = `${GITHUB_API_BASE}/repos/${config.owner}/${config.repo}/contents/${path}`;
 
+  const writeToken = getGithubWriteToken();
+
   const { data } = await requestGithub<GithubContentsUploadResponse>(url, {
     method: "PUT",
     body: JSON.stringify({
       message: `Upload feature image: ${filename}`,
       content: buffer.toString("base64"),
     }),
-  });
+  }, undefined, writeToken);
 
   // Validate response shape
   if (!data?.content?.download_url || typeof data.content.download_url !== "string") {
