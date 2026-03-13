@@ -99,7 +99,7 @@ export default async function FeatureDetailPage({
             {canEdit ? "Edit Feature" : "View Feature"}
           </h1>
           <p className="text-sm mt-2 font-mono text-zinc-600">
-            ID: {feature.id}
+            Issue #{feature.id}
           </p>
         </div>
 
