@@ -856,8 +856,18 @@ interface GithubContentsUploadResponse {
 export async function uploadImageToGithub(
   buffer: Buffer,
   originalName: string,
+  mimeType: string,
   folder: string,
 ): Promise<string> {
+  // Validate MIME type
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+  if (!allowedMimeTypes.includes(mimeType)) {
+    throw new GithubFeaturesError({
+      code: "API_ERROR",
+      message: "Only image files are accepted (JPEG, PNG, GIF, WebP).",
+    });
+  }
+
   // Validate MIME type by extension
   const extMatch = originalName.match(/\.([a-zA-Z0-9]+)$/);
   const ext = extMatch ? extMatch[1].toLowerCase() : "";
