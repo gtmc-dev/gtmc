@@ -428,8 +428,8 @@ export async function addFeatureComment(id: string, content: string) {
   const fallbackAuthorLabel = session.user.name ?? session.user.email ?? session.user.id;
   const mentionToken = githubLogin ? `@${githubLogin}` : fallbackAuthorLabel;
   const authorLine = githubLogin
-    ? `[By]: ${mentionToken} (${fallbackAuthorLabel})`
-    : `[By]: ${mentionToken}`;
+    ? `Submitted by: ${mentionToken} (${fallbackAuthorLabel})`
+    : `Submitted by: ${mentionToken}`;
 
   console.log("[addFeatureComment] githubLogin:", githubLogin);
   console.log("[addFeatureComment] authorLine:", authorLine);
@@ -437,12 +437,15 @@ export async function addFeatureComment(id: string, content: string) {
   const authorEmail = isPrivate ? null : (session.user.email ?? null);
   const emailRedacted = isPrivate;
 
-  const commentBody = serializeCommentBody(`${authorLine}\n\n${content}`, {
-    appUserId: session.user.id,
-    authorName: session.user.name ?? null,
-    authorEmail,
-    emailRedacted,
-  });
+  const commentBody = serializeCommentBody(
+    `<!-- GTMC_COMMENT_AUTHOR_LINE -->\n${authorLine}\n\n${content}`,
+    {
+      appUserId: session.user.id,
+      authorName: session.user.name ?? null,
+      authorEmail,
+      emailRedacted,
+    },
+  );
 
   const ghComment = await addIssueComment(feature.issue.number, commentBody);
 
