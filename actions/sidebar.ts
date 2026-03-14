@@ -9,7 +9,7 @@ import path from "path";
  * Helper to recursively read local assets
  */
 function getLocalFiles(dir: string, basePath = ""): any[] {
-  let results: any[] = [];
+  const results: any[] = [];
   try {
     const list = fs.readdirSync(dir);
     for (const item of list) {
