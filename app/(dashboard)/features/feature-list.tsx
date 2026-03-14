@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { BrutalCard } from "@/components/ui/brutal-card";
 
-export function StatusBadge({ status }: { status: string; }) {
+export function StatusBadge({ status }: { status: string }) {
   let styles = "px-2 text-xs font-bold uppercase border";
   let label = status;
 
@@ -28,7 +28,7 @@ export function StatusBadge({ status }: { status: string; }) {
   return <span className={styles}>{label}</span>;
 }
 
-export function FeatureList({ features }: { features: any[]; }) {
+export function FeatureList({ features }: { features: any[] }) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
 
@@ -47,9 +47,9 @@ export function FeatureList({ features }: { features: any[]; }) {
     );
   };
 
-  // Filter features
-  const filteredFeatures = useMemo(() => {
-    return features.filter((f) => {
+  // Filter and group features in a single pass
+  const { filteredFeatures, groupedFeatures } = useMemo(() => {
+    const filtered = features.filter((f) => {
       const matchTags =
         selectedTags.length === 0 || selectedTags.every((tag) => f.tags?.includes(tag));
       const matchStatus =
@@ -58,11 +58,29 @@ export function FeatureList({ features }: { features: any[]; }) {
         f.status === statusFilter;
       return matchTags && matchStatus;
     });
+
+    const grouped = {
+      PENDING: [] as any[],
+      IN_PROGRESS: [] as any[],
+      RESOLVED: [] as any[],
+    };
+
+    filtered.forEach((f) => {
+      if (f.status === "PENDING") {
+        grouped.PENDING.push(f);
+      } else if (f.status === "IN_PROGRESS") {
+        grouped.IN_PROGRESS.push(f);
+      } else if (f.status === "RESOLVED") {
+        grouped.RESOLVED.push(f);
+      }
+    });
+
+    return { filteredFeatures: filtered, groupedFeatures: grouped };
   }, [features, selectedTags, statusFilter]);
 
-  const pendingFeatures = filteredFeatures.filter((f) => f.status === "PENDING");
-  const inProgressFeatures = filteredFeatures.filter((f) => f.status === "IN_PROGRESS");
-  const resolvedFeatures = filteredFeatures.filter((f) => f.status === "RESOLVED");
+  const pendingFeatures = groupedFeatures.PENDING;
+  const inProgressFeatures = groupedFeatures.IN_PROGRESS;
+  const resolvedFeatures = groupedFeatures.RESOLVED;
 
   const renderFeatureGroup = (title: string, groupFeatures: any[], emptyText: string) => {
     if (groupFeatures.length === 0) {
@@ -136,10 +154,11 @@ export function FeatureList({ features }: { features: any[]; }) {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`text-xs font-mono px-3 py-1.5 border transition-all ${statusFilter === status
-                    ? "bg-tech-main text-white border-tech-main"
-                    : "bg-transparent text-tech-main border-tech-main/30 hover:border-tech-main"
-                    }`}
+                  className={`text-xs font-mono px-3 py-1.5 border transition-all ${
+                    statusFilter === status
+                      ? "bg-tech-main text-white border-tech-main"
+                      : "bg-transparent text-tech-main border-tech-main/30 hover:border-tech-main"
+                  }`}
                 >
                   {status}
                 </button>
@@ -157,10 +176,11 @@ export function FeatureList({ features }: { features: any[]; }) {
                   <button
                     key={tag}
                     onClick={() => toggleTag(tag)}
-                    className={`text-xs font-mono uppercase px-3 py-1.5 border transition-all ${selectedTags.includes(tag)
-                      ? "bg-tech-accent text-white border-tech-accent"
-                      : "bg-tech-accent/5 text-tech-main border-tech-main/20 hover:border-tech-main/50"
-                      }`}
+                    className={`text-xs font-mono uppercase px-3 py-1.5 border transition-all ${
+                      selectedTags.includes(tag)
+                        ? "bg-tech-accent text-white border-tech-accent"
+                        : "bg-tech-accent/5 text-tech-main border-tech-main/20 hover:border-tech-main/50"
+                    }`}
                   >
                     {tag}
                   </button>
