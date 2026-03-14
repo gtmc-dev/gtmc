@@ -431,9 +431,6 @@ export async function addFeatureComment(id: string, content: string) {
     ? `Submitted by: ${mentionToken} (${fallbackAuthorLabel})`
     : `Submitted by: ${mentionToken}`;
 
-  console.log("[addFeatureComment] githubLogin:", githubLogin);
-  console.log("[addFeatureComment] authorLine:", authorLine);
-
   const authorEmail = isPrivate ? null : (session.user.email ?? null);
   const emailRedacted = isPrivate;
 
