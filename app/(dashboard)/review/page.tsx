@@ -57,7 +57,7 @@ export default async function ReviewHubPage() {
             </h2>
           </div>
         ) : (
-          pendingRevisions.map((rev) => (
+          pendingRevisions.map((rev: (typeof pendingRevisions)[0]) => (
             <BrutalCard
               key={rev.id}
               className="flex flex-col md:flex-row justify-between items-start md:items-center border border-tech-main/30 bg-white/60 backdrop-blur-sm p-4 sm:p-6 relative group space-y-4 md:space-y-0"

@@ -21,9 +21,11 @@ export default async function DraftDashboardPage() {
     },
   });
 
-  const activeDrafts = allDrafts.filter((d) => d.status !== "APPROVED" && d.status !== "ARCHIVED");
+  const activeDrafts = allDrafts.filter(
+    (d: (typeof allDrafts)[0]) => d.status !== "APPROVED" && d.status !== "ARCHIVED",
+  );
   const archivedDrafts = allDrafts.filter(
-    (d) => d.status === "APPROVED" || d.status === "ARCHIVED",
+    (d: (typeof allDrafts)[0]) => d.status === "APPROVED" || d.status === "ARCHIVED",
   );
 
   const renderDraftCard = (draft: any) => (
