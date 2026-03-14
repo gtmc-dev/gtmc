@@ -261,11 +261,24 @@ export async function assignFeature(id: string) {
   // Post claim bot comment (best-effort, does not fail the action)
   try {
     const mentionToken = await resolveMentionToken(session.user.id, session.user.name ?? null);
+
+    // Query GitHub Account and check email visibility
+    const account = await prisma.account.findFirst({
+      where: {
+        provider: "github",
+        userId: session.user.id,
+      },
+    });
+
+    const visibility = await getGithubEmailVisibility(account?.access_token || "");
+    const assigneeEmail =
+      visibility === "private" ? "redacted" : (session.user.email ?? "redacted");
+
     const payload = `[Assignment Notice]
 Action: CLAIMED
 Assignee: ${mentionToken}
 AssigneeId: ${session.user.id}
-AssigneeEmail: ${session.user.email ?? "N/A"}
+AssigneeEmail: ${assigneeEmail}
 By: ${mentionToken}
 At: ${new Date().toISOString()}`;
     await addIssueComment(issue.number, serializeSystemComment(payload));
