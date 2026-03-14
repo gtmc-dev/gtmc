@@ -85,7 +85,7 @@ function getMetadataForWrite(
   };
 }
 
-export async function createFeature(data: { title: string; content: string; tags: string[] }) {
+export async function createFeature(data: { title: string; content: string; tags: string[]; }) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -134,7 +134,7 @@ export async function createFeature(data: { title: string; content: string; tags
 
 export async function updateFeature(
   id: string,
-  data: { title: string; content: string; tags: string[] },
+  data: { title: string; content: string; tags: string[]; },
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -276,7 +276,7 @@ export async function assignFeature(id: string) {
 
     const visibility = await getGithubEmailVisibility(account?.access_token || "");
     const assigneeEmail =
-      visibility === "private" ? "redacted" : (session.user.email ?? "redacted");
+      visibility === "private" ? "REDACTED FOR PRIVACY" : (session.user.email ?? "Unknown");
 
     const payload = `[Assignment Notice]
 Action: CLAIMED
@@ -445,7 +445,7 @@ export async function addFeatureComment(id: string, content: string) {
       author: {
         name: session.user.name ?? null,
         email: authorEmail,
-        image: (session.user as { image?: string | null }).image ?? null,
+        image: (session.user as { image?: string | null; }).image ?? null,
       },
       emailRedacted,
     },
