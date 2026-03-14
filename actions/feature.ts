@@ -85,7 +85,7 @@ function getMetadataForWrite(
   };
 }
 
-export async function createFeature(data: { title: string; content: string; tags: string[]; }) {
+export async function createFeature(data: { title: string; content: string; tags: string[] }) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -134,7 +134,7 @@ export async function createFeature(data: { title: string; content: string; tags
 
 export async function updateFeature(
   id: string,
-  data: { title: string; content: string; tags: string[]; },
+  data: { title: string; content: string; tags: string[] },
 ) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -422,10 +422,19 @@ export async function addFeatureComment(id: string, content: string) {
   const visibility = await getGithubEmailVisibility(account?.access_token || "");
   const isPrivate = visibility === "private";
 
+  const githubLogin = account?.providerAccountId
+    ? await getGithubLoginByAccountId(account.providerAccountId)
+    : null;
+  const fallbackAuthorLabel = session.user.name ?? session.user.email ?? session.user.id;
+  const mentionToken = githubLogin ? `@${githubLogin}` : fallbackAuthorLabel;
+  const authorLine = githubLogin
+    ? `[By]: ${mentionToken} (${fallbackAuthorLabel})`
+    : `[By]: ${mentionToken}`;
+
   const authorEmail = isPrivate ? null : (session.user.email ?? null);
   const emailRedacted = isPrivate;
 
-  const commentBody = serializeCommentBody(content, {
+  const commentBody = serializeCommentBody(`${authorLine}\n\n${content}`, {
     appUserId: session.user.id,
     authorName: session.user.name ?? null,
     authorEmail,
@@ -445,7 +454,7 @@ export async function addFeatureComment(id: string, content: string) {
       author: {
         name: session.user.name ?? null,
         email: authorEmail,
-        image: (session.user as { image?: string | null; }).image ?? null,
+        image: (session.user as { image?: string | null }).image ?? null,
       },
       emailRedacted,
     },
