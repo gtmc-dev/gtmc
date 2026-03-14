@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 /**
  * Pending labels for GitHub API operations in features area.
  * Used by IssueActionRow and related components.
@@ -44,9 +42,6 @@ export function LoadingIndicator({
 
       {/* Uppercase monospace text */}
       <span className="uppercase tracking-widest">{label}</span>
-
-      {/* Optional decorative square (aria-hidden) */}
-      <span className="w-1 h-1 bg-current opacity-30 inline-block" aria-hidden="true" />
 
       {/* Screen reader text if provided */}
       {screenReaderText && <span className="sr-only">{screenReaderText}</span>}
