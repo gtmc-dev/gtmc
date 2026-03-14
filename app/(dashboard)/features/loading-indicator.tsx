@@ -40,13 +40,13 @@ export function LoadingIndicator({
       aria-hidden={ariaHidden}
     >
       {/* Pulsing square */}
-      <span className="w-2 h-2 bg-tech-accent animate-pulse inline-block" />
+      <span className="w-2 h-2 bg-current opacity-60 animate-pulse inline-block" />
 
       {/* Uppercase monospace text */}
-      <span className="text-tech-main uppercase tracking-widest">{label}</span>
+      <span className="uppercase tracking-widest">{label}</span>
 
       {/* Optional decorative square (aria-hidden) */}
-      <span className="w-1 h-1 bg-tech-line inline-block" aria-hidden="true" />
+      <span className="w-1 h-1 bg-current opacity-30 inline-block" aria-hidden="true" />
 
       {/* Screen reader text if provided */}
       {screenReaderText && <span className="sr-only">{screenReaderText}</span>}
