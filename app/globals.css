@@ -244,6 +244,17 @@ body {
     transform-style: preserve-3d;
     perspective: 1000px;
   }
+
+  /* Button cursor semantics */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    @apply cursor-pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    @apply cursor-not-allowed;
+  }
 }
 
 @keyframes page-transit {
