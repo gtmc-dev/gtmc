@@ -1,37 +1,42 @@
 import { SectionFrame, SectionRail, SegmentedBar, SweepOverlay, ScanConfirmOverlay } from "../loading-shell-primitives";
+import { BrutalCard } from "@/components/ui/brutal-card";
 
 export default function FeatureDetailLoading() {
   return (
     <div
-      className="container mx-auto p-4 md:p-8 space-y-8 max-w-5xl"
+      className="container mx-auto p-4 sm:p-6 md:p-8 space-y-6 max-w-4xl"
       aria-busy="true"
       aria-label="Loading feature details"
     >
       {/* FEATURE_HEADER_ */}
-      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 animate-tech-slide-in relative">
+      <div className="flex flex-col gap-4 animate-tech-slide-in relative">
         <ScanConfirmOverlay />
-        <div className="space-y-2">
-          <SectionRail label="FEATURE_HEADER" />
+        <div>
           <SegmentedBar opacity="high" className="w-64 h-8" />
         </div>
-        <SegmentedBar opacity="medium" className="w-32 h-10" />
       </div>
 
       {/* ISSUE_METADATA_ */}
-      <SectionFrame
-        showBrackets
-        className="animate-tech-slide-in"
-        style={{ animationDelay: "100ms" }}
-      >
-        <SectionRail label="ISSUE_METADATA" />
-        <div className="flex flex-col gap-3 font-mono text-sm mt-4">
-          <SegmentedBar opacity="high" className="w-64 h-4" />
-          <SegmentedBar opacity="medium" className="w-56 h-4" />
-          <SegmentedBar opacity="high" className="w-60 h-4" />
-          <SegmentedBar opacity="medium" className="w-52 h-4" />
-          <SegmentedBar opacity="low" className="w-48 h-4" />
+      <BrutalCard className="animate-tech-slide-in" style={{ animationDelay: "100ms" }}>
+        <div className="flex flex-col gap-2 font-mono text-xs sm:text-sm">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <span className="font-bold text-zinc-500 sm:w-24">STATUS:</span>
+            <SegmentedBar opacity="high" className="w-32 h-4" />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <span className="font-bold text-zinc-500 sm:w-24">AUTHOR:</span>
+            <SegmentedBar opacity="medium" className="w-40 h-4" />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <span className="font-bold text-zinc-500 sm:w-24">ASSIGNEE:</span>
+            <SegmentedBar opacity="medium" className="w-40 h-4" />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <span className="font-bold text-zinc-500 sm:w-24">CREATED:</span>
+            <SegmentedBar opacity="low" className="w-36 h-4" />
+          </div>
         </div>
-      </SectionFrame>
+      </BrutalCard>
 
       {/* RESOLUTION_BLOCK_ */}
       <SectionFrame
