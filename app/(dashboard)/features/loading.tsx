@@ -3,7 +3,7 @@ import { SectionRail, SegmentedBar, ScanConfirmOverlay, SkeletonExitWrapper } fr
 
 export default function FeaturesLoading() {
   return (
-    <SkeletonExitWrapper isExiting={true}>
+    <SkeletonExitWrapper>
       <div
         className="max-w-6xl mx-auto space-y-8 px-6 pb-12"
         aria-busy="true"
