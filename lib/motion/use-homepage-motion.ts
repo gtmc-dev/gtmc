@@ -21,6 +21,8 @@ export interface HomepageMotionValues {
     x: MotionValue<number>;
     y: MotionValue<number>;
     blur: MotionValue<number>;
+    rotateX?: MotionValue<number>;
+    rotateY?: MotionValue<number>;
   };
 }
 
@@ -89,6 +91,12 @@ export function useHomepageMotion(): HomepageMotionValues {
       scrollProgress,
       (v) => v * config.scrollAmplitude * layerWeight * config.blurRange.max
     );
+
+    if (layer === 'foreground') {
+      const rotateY = useTransform(smoothX, (v) => v * 2);
+      const rotateX = useTransform(smoothY, (v) => v * -2);
+      return { x, y, blur, rotateX, rotateY };
+    }
 
     return { x, y, blur };
   };
