@@ -3,7 +3,7 @@ import { BrutalCard } from "@/components/ui/brutal-card";
 
 export default function FeatureDetailLoading() {
   return (
-    <SkeletonExitWrapper isExiting={false}>
+    <SkeletonExitWrapper isExiting={true}>
       <div
         className="container mx-auto p-4 sm:p-6 md:p-8 space-y-6 max-w-4xl"
         aria-busy="true"
