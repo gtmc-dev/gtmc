@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BrutalButton } from "@/components/ui/brutal-button";
 import { Logo } from "@/components/ui/logo";
 import { useHomepageMotion } from "@/lib/motion/use-homepage-motion";
+import { motion } from "motion/react";
 
 const HEX_VALUES = [
   "a1b2",
@@ -33,12 +34,18 @@ const HEX_VALUES = [
 ];
 
 export default function Home() {
-  const motion = useHomepageMotion();
+  const motionDriver = useHomepageMotion();
+  const bgTransform = motionDriver.getDepthTransform('background');
+  const mgTransform = motionDriver.getDepthTransform('midground');
+  const fgTransform = motionDriver.getDepthTransform('foreground');
 
   return (
     <div className="flex min-h-screen w-full relative overflow-y-auto overflow-x-hidden text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark">
       {/* Background Layer - Furthest depth, slowest motion */}
-      <div className="homepage-decor-background absolute inset-0 z-0">
+      <motion.div 
+        className="homepage-decor-background absolute inset-0 z-0"
+        style={{ x: bgTransform.x, y: bgTransform.y, filter: `blur(${bgTransform.blur}px)` }}
+      >
         {/* 巨型背景水印 */}
         <div className="absolute top-1/3 -right-20 text-[10rem] font-black text-tech-main opacity-[0.05] rotate-90 select-none pointer-events-none whitespace-nowrap hidden lg:block tracking-tighter mix-blend-multiply decor-desktop-only">
           SCHEMATIC_01
@@ -201,10 +208,13 @@ export default function Home() {
             </text>
           </svg>
         </div>
-      </div>
+      </motion.div>
 
       {/* Midground Layer - Medium depth, moderate motion */}
-      <div className="homepage-decor-midground absolute inset-0 z-[1]">
+      <motion.div 
+        className="homepage-decor-midground absolute inset-0 z-[1]"
+        style={{ x: mgTransform.x, y: mgTransform.y, filter: `blur(${mgTransform.blur}px)` }}
+      >
         {/* 左上角系统序列号 */}
         <div className="absolute top-8 left-8 flex flex-col space-y-1 hidden md:flex">
           <div className="text-xs tracking-widest font-mono text-tech-main-dark opacity-50 uppercase">
@@ -298,12 +308,21 @@ export default function Home() {
             <div key={i} className="flex-none h-8 border-t border-tech-main/40 w-full relative"></div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Hero Content - Highest z-index, stable positioning */}
       <main className="relative z-10 flex flex-col justify-center items-center w-full max-w-7xl mx-auto py-24 min-h-[max-content] px-4 mt-[7vh]">
         {/* Foreground Layer - Card chrome and nearby accents */}
-        <div className="homepage-decor-foreground relative w-full max-w-3xl mb-8 group animate-tech-pop-in [animation-duration:0.8s] [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]">
+        <motion.div 
+          className="homepage-decor-foreground relative w-full max-w-3xl mb-8 group animate-tech-pop-in [animation-duration:0.8s] [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]"
+          style={{ 
+            x: fgTransform.x, 
+            y: fgTransform.y,
+            rotateX: fgTransform.rotateX,
+            rotateY: fgTransform.rotateY,
+            transformStyle: 'preserve-3d'
+          }}
+        >
           {/* 下层错位阴影框 */}
           <div className="absolute inset-0 bg-transparent border border-tech-main/20 translate-x-3 translate-y-3 -z-10 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-500 ease-out"></div>
 
@@ -355,7 +374,7 @@ export default function Home() {
               </span>
             </p>
           </div>
-        </div>
+        </motion.div>
 
         {/* 操作入口 */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-5 relative z-20 w-full sm:w-auto opacity-0 animate-slide-up-fade [animation-delay:1.4s] [animation-fill-mode:forwards]">
