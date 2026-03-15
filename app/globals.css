@@ -18,16 +18,16 @@
   --color-tech-accent: #c4d0df; /* 浅蓝灰辅助色 */
   --color-tech-line: #cbd5e1; /* 更柔和的淡色点阵 */
 
-   --animate-fade-in: fade-in 0.8s ease-out forwards;
-   --animate-fade-out: fade-out 0.3s ease-out forwards;
-   --animate-slide-up-fade: slide-up-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-   --animate-tech-pop-in: tech-pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-   --animate-tech-slide-in: tech-slide-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-   --animate-tech-glitch: tech-glitch 2s infinite;
-   --animate-target-blink: target-blink 1.2s ease-out forwards;
-   --animate-blueprint-sweep: shimmer 2s ease-out infinite;
-   --animate-scan-confirm: scan-confirm 0.6s ease-out forwards;
-   --animate-skeleton-exit: skeleton-exit 0.25s ease-out forwards;
+  --animate-fade-in: fade-in 0.8s ease-out forwards;
+  --animate-fade-out: fade-out 0.3s ease-out forwards;
+  --animate-slide-up-fade: slide-up-fade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-tech-pop-in: tech-pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  --animate-tech-slide-in: tech-slide-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  --animate-tech-glitch: tech-glitch 2s infinite;
+  --animate-target-blink: target-blink 1.2s ease-out forwards;
+  --animate-blueprint-sweep: shimmer 2s ease-out infinite;
+  --animate-scan-confirm: scan-confirm 0.6s ease-out forwards;
+  --animate-skeleton-exit: skeleton-exit 0.25s ease-out forwards;
 
   @keyframes fade-in {
     0% {
@@ -170,6 +170,14 @@ body {
 @layer utilities {
   .animate-page-transit {
     animation: page-transit 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-skeleton-exit {
+    animation: skeleton-exit 0.25s ease-out forwards;
+  }
+
+  .animate-fade-out {
+    animation: fade-out 0.3s ease-out forwards;
   }
 
   /* Mobile baseline: container and spacing constraints */
