@@ -52,7 +52,7 @@ export function getMarkdownComponents(rawPath: string) {
       <span style={{ color: "darkseagreen" }} {...props} />
     ),
     table: ({ ...props }: MarkdownComponentProps) => (
-      <div className="w-full overflow-x-auto my-6 border border-tech-main/30 bg-white/50 backdrop-blur-sm">
+      <div className="w-full overflow-x-auto my-6 border border-tech-main/30 bg-white/50 backdrop-blur-sm -mx-6 sm:-mx-8 px-6 sm:px-8">
         <table
           className="w-full text-left border-collapse font-mono text-sm min-w-150"
           {...props}
@@ -77,7 +77,7 @@ export function getMarkdownComponents(rawPath: string) {
     h1: ({ id, children }: MarkdownComponentProps) => (
       <h1
         id={id}
-        className="group relative text-3xl lg:text-4xl font-mono uppercase mt-8 mb-6 tracking-widest border-b border-tech-main/30 pb-4 text-slate-900 scroll-m-20 target:animate-target-blink target:border-tech-main"
+        className="group relative text-2xl sm:text-3xl lg:text-4xl font-mono uppercase mt-8 mb-6 tracking-widest border-b border-tech-main/30 pb-4 text-slate-900 scroll-m-20 target:animate-target-blink target:border-tech-main"
       >
         {id && (
           <a
@@ -191,25 +191,27 @@ export function getMarkdownComponents(rawPath: string) {
     code: ({ className, children, ...props }: MarkdownComponentProps) => {
       const match = /language-(\w+)/.exec((className as string) || "");
       return match ? (
-        <div className="my-6 border border-tech-main/30 font-mono text-sm max-w-full overflow-hidden bg-[#1e1e1e] shadow-sm">
+        <div className="my-6 border border-tech-main/30 font-mono text-sm max-w-full overflow-hidden bg-[#1e1e1e] shadow-sm -mx-6 sm:-mx-8">
           <div className="bg-tech-main/10 text-tech-main px-4 py-1 text-xs font-mono uppercase tracking-widest flex justify-between items-center border-b border-tech-main/30">
             <span>{match[1]}</span>
             <span className="opacity-50">{"//"} EXECUTABLE_BLOCK</span>
           </div>
           <div className="overflow-x-auto">
-            <SyntaxHighlighter
-              style={vscDarkPlus as Record<string, Record<string, string>>}
-              language={match[1]}
-              PreTag="div"
-              customStyle={{
-                margin: 0,
-                padding: "1rem",
-                background: "transparent",
-              }}
-              {...props}
-            >
-              {String(children).replace(/\n$/, "")}
-            </SyntaxHighlighter>
+            <div className="px-6 sm:px-8">
+              <SyntaxHighlighter
+                style={vscDarkPlus as Record<string, Record<string, string>>}
+                language={match[1]}
+                PreTag="div"
+                customStyle={{
+                  margin: 0,
+                  padding: "1rem 0",
+                  background: "transparent",
+                }}
+                {...props}
+              >
+                {String(children).replace(/\n$/, "")}
+              </SyntaxHighlighter>
+            </div>
           </div>
         </div>
       ) : (
