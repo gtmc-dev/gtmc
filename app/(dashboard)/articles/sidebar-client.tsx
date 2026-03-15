@@ -33,6 +33,7 @@ export function SidebarClient({ tree }: { tree: TreeNode[] }) {
   });
 
   const [toc, setToc] = useState<TocItem[]>([]);
+  const [isFileExpanded, setIsFileExpanded] = useState(false);
 
   useEffect(() => {
     let frameCount = 0;
@@ -67,6 +68,45 @@ export function SidebarClient({ tree }: { tree: TreeNode[] }) {
     retryWithRAF();
   }, [pathname]);
 
+  // 当路径改变时，默认折叠当前文章的目录
+  useEffect(() => {
+    setIsFileExpanded(false);
+  }, [pathname]);
+
+  const toggleFileExp = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsFileExpanded((prev) => !prev);
+  };
+
+  const [explicitlyExpanded, setExplicitlyExpanded] = useState<Set<string>>(new Set());
+  const [explicitlyCollapsed, setExplicitlyCollapsed] = useState<Set<string>>(new Set());
+
+  const isFolderExpanded = useCallback((id: string, level: number) => {
+    if (explicitlyCollapsed.has(id)) return false;
+    if (explicitlyExpanded.has(id)) return true;
+    return level === 0;
+  }, [explicitlyCollapsed, explicitlyExpanded]);
+
+  const toggleFolder = (id: string, level: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    const currentlyExpanded = isFolderExpanded(id, level);
+    if (currentlyExpanded) {
+      setExplicitlyCollapsed((prev) => new Set(prev).add(id));
+      setExplicitlyExpanded((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    } else {
+      setExplicitlyExpanded((prev) => new Set(prev).add(id));
+      setExplicitlyCollapsed((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -84,7 +124,7 @@ export function SidebarClient({ tree }: { tree: TreeNode[] }) {
     }
   };
 
-  const renderTree = (items: TreeNode[]) => {
+  const renderTree = (items: TreeNode[], level = 0) => {
     return (
       <ul className="pl-4 border-l border-tech-main/20 my-1">
         {items.map((item) => {
@@ -95,47 +135,83 @@ export function SidebarClient({ tree }: { tree: TreeNode[] }) {
             !item.isFolder &&
             (decodedPathname === decodedRoute || decodedPathname === `${decodedRoute}/`);
 
+          const folderExpanded = item.isFolder ? isFolderExpanded(item.id, level) : false;
+
           return (
             <li key={item.id} className="my-1.5 text-[15px] md:text-base font-mono list-none">
               {item.isFolder ? (
-                <span className="text-tech-main/80 font-bold opacity-80 uppercase block mt-3 mb-1">
-                  ► {item.title}
-                </span>
+                <button
+                  onClick={(e) => toggleFolder(item.id, level, e)}
+                  className="w-full text-left flex items-center text-tech-main/80 font-bold opacity-80 uppercase mt-3 mb-1 hover:text-tech-main transition-colors focus:outline-none"
+                >
+                  <span className="w-4 inline-block text-xs text-tech-main/50">
+                    {folderExpanded ? "▼" : "▶"}
+                  </span>
+                  <span>{item.title}</span>
+                </button>
               ) : (
                 <div className="relative">
-                  <Link
-                    href={fileRoute}
-                    className={`group relative transition-colors block py-1.5 pl-4 -ml-4 ${isActive ? "text-tech-main font-bold" : "text-slate-700 hover:text-tech-main"}`}
-                  >
-                    <span
-                      className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-xs md:text-sm ${isActive ? "opacity-100 text-tech-main" : "opacity-0 group-hover:opacity-100 text-tech-main"}`}
-                    >
-                      &gt;
-                    </span>
-                    <span
-                      className={`border-b pb-px ${isActive ? "border-tech-main/50" : "border-transparent group-hover:border-tech-main/30"}`}
+                  <div className={`group relative transition-colors flex items-center py-1.5 pl-4 -ml-4 ${isActive ? "text-tech-main font-bold" : "text-slate-700 hover:text-tech-main"}`}>
+                    {isActive && toc.length > 0 ? (
+                      <button
+                        onClick={toggleFileExp}
+                        className="absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-[10px] md:text-xs text-tech-main hover:text-tech-main/80 focus:outline-none z-10"
+                        title={isFileExpanded ? "收起目录" : "展开目录"}
+                      >
+                        {isFileExpanded ? "▼" : "▶"}
+                      </button>
+                    ) : (
+                      <span
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 transition-opacity text-xs md:text-sm ${isActive ? "opacity-100 text-tech-main" : "opacity-0 group-hover:opacity-100 text-tech-main"}`}
+                      >
+                        &gt;
+                      </span>
+                    )}
+                    <Link
+                      href={fileRoute}
+                      className={`block w-full border-b pb-px pl-1 ${isActive ? "border-tech-main/50" : "border-transparent group-hover:border-tech-main/30"}`}
                     >
                       {item.title}
-                    </span>
-                  </Link>
-                  {/* 二级标题展开 */}
+                    </Link>
+                  </div>
+                  {/* 二级标题展示（三级目录） */}
                   {isActive && toc.length > 0 && (
-                    <ul className="pl-4 mt-1 mb-2 space-y-2 border-l border-tech-main/20 ml-1 animate-in slide-in-from-top-2 fade-in duration-300">
-                      {toc.map((h2) => (
-                        <li
-                          key={h2.id}
-                          className="text-[13px] md:text-sm text-tech-main/70 hover:text-tech-main transition-colors relative before:content-[''] before:w-2 before:h-px before:bg-tech-main/30 before:absolute before:-left-4 before:top-1/2 before:-translate-y-1/2"
-                        >
-                          <Link href={`#${h2.id}`} className="block wrap-break-word">
-                            {h2.text}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                    <div
+                      className={`grid transition-all duration-300 ease-out ${
+                        isFileExpanded ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                      }`}
+                    >
+                      <div className="overflow-hidden">
+                        <ul className="pl-4 mt-1 mb-2 space-y-2 border-l border-tech-main/20 ml-1">
+                          {toc.map((h2) => (
+                            <li
+                              key={h2.id}
+                              className="text-[13px] md:text-sm text-tech-main/70 hover:text-tech-main transition-colors relative before:content-[''] before:w-2 before:h-px before:bg-tech-main/30 before:absolute before:-left-4 before:top-1/2 before:-translate-y-1/2"
+                            >
+                              <Link href={`#${h2.id}`} className="block wrap-break-word">
+                                {h2.text}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}
-              {item.children && item.children.length > 0 && renderTree(item.children)}
+              {item.children && item.children.length > 0 && (
+                <div
+                  className={`grid transition-all duration-300 ease-out ${
+                    !item.isFolder || folderExpanded
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    {renderTree(item.children, level + 1)}
+                  </div>
+                </div>
+              )}
             </li>
           );
         })}
