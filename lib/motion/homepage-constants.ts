@@ -14,7 +14,6 @@ export const HOMEPAGE_MOTION = {
   // Desktop configuration
   desktop: {
     pointerAmplitude: 1.0,
-    scrollAmplitude: 0.6,
     blurRange: {
       min: 0,
       max: 8,
@@ -24,7 +23,6 @@ export const HOMEPAGE_MOTION = {
   // Mobile configuration
   mobile: {
     pointerAmplitude: 0.5,
-    scrollAmplitude: 0.3,
     blurRange: {
       min: 0,
       max: 4,
@@ -34,7 +32,6 @@ export const HOMEPAGE_MOTION = {
   // Reduced motion configuration (respects prefers-reduced-motion)
   reducedMotion: {
     pointerAmplitude: 0,
-    scrollAmplitude: 0,
     blurRange: {
       min: 0,
       max: 0,
