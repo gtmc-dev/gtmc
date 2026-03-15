@@ -119,6 +119,17 @@
       padding-left: 0;
     }
   }
+
+  @keyframes scan-confirm {
+    0% {
+      background: linear-gradient(90deg, transparent, var(--color-tech-accent), transparent);
+      opacity: 1;
+    }
+    100% {
+      background: linear-gradient(90deg, transparent, var(--color-tech-accent), transparent);
+      opacity: 0;
+    }
+  }
 }
 
 @theme inline {
