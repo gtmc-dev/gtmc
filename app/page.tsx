@@ -38,9 +38,9 @@ export default function Home() {
   const { background: bgTransform, midground: mgTransform, foreground: fgTransform } = motionDriver;
 
   return (
-    <div className="flex min-h-screen w-full relative overflow-y-auto overflow-x-hidden text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark">
+    <div className="flex h-screen w-full relative overflow-hidden text-tech-main font-sans selection:bg-tech-main/20 selection:text-tech-main-dark">
       {/* Background Layer - Furthest depth, slowest motion */}
-      <motion.div 
+      <motion.div
         className="homepage-decor-background absolute inset-0 z-0"
         style={{ x: bgTransform.x, y: bgTransform.y, filter: bgTransform.filter }}
       >
@@ -209,7 +209,7 @@ export default function Home() {
       </motion.div>
 
       {/* Midground Layer - Medium depth, moderate motion */}
-      <motion.div 
+      <motion.div
         className="homepage-decor-midground absolute inset-0 z-[1]"
         style={{ x: mgTransform.x, y: mgTransform.y, filter: mgTransform.filter }}
       >
@@ -303,7 +303,10 @@ export default function Home() {
         </div>
         <div className="absolute top-0 left-0 h-full w-2 border-r border-tech-main/10 flex flex-col overflow-hidden opacity-30 hidden md:flex decor-desktop-only">
           {Array.from({ length: 50 }).map((_, i) => (
-            <div key={i} className="flex-none h-8 border-t border-tech-main/40 w-full relative"></div>
+            <div
+              key={i}
+              className="flex-none h-8 border-t border-tech-main/40 w-full relative"
+            ></div>
           ))}
         </div>
       </motion.div>
@@ -311,14 +314,14 @@ export default function Home() {
       {/* Hero Content - Highest z-index, stable positioning */}
       <main className="relative z-10 flex flex-col justify-center items-center w-full max-w-7xl mx-auto py-24 min-h-[max-content] px-4 mt-[7vh]">
         {/* Foreground Layer - Card chrome and nearby accents */}
-        <motion.div 
+        <motion.div
           className="homepage-decor-foreground relative w-full max-w-3xl mb-8 group animate-tech-pop-in [animation-duration:0.8s] [animation-delay:0.2s] opacity-0 [animation-fill-mode:forwards]"
-          style={{ 
-            x: fgTransform.x, 
+          style={{
+            x: fgTransform.x,
             y: fgTransform.y,
             rotateX: fgTransform.rotateX,
             rotateY: fgTransform.rotateY,
-            transformStyle: 'preserve-3d'
+            transformStyle: "preserve-3d",
           }}
         >
           {/* 下层错位阴影框 */}
