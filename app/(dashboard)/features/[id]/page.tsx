@@ -116,9 +116,16 @@ export default async function FeatureDetailPage({ params }: { params: Promise<{ 
       </RevealSection>
 
       {isClosed && (
-        <div className="border-[3px] border-tech-main bg-tech-main/10 p-4 sm:p-6 font-mono text-xs sm:text-sm text-tech-main uppercase tracking-wider shadow-[4px_4px_0px] shadow-tech-main">
-          <span className="font-bold">⚠ FEATURE DELETED (READ-ONLY)</span>
-          <p className="mt-1 text-xs normal-case tracking-normal opacity-80">
+        <div className="relative border border-red-500/50 bg-red-500/5 p-4 sm:p-6 font-mono text-xs sm:text-sm text-red-600 uppercase tracking-wider backdrop-blur-sm">
+          <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-red-500/50 -translate-x-[1px] -translate-y-[1px] pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-red-500/50 translate-x-[1px] -translate-y-[1px] pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-red-500/50 -translate-x-[1px] translate-y-[1px] pointer-events-none"></div>
+          <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-red-500/50 translate-x-[1px] translate-y-[1px] pointer-events-none"></div>
+          
+          <span className="font-bold flex items-center gap-2">
+            <span className="text-red-500">⚠</span> FEATURE DELETED (READ-ONLY)
+          </span>
+          <p className="mt-2 text-xs normal-case tracking-normal opacity-80 border-t border-dashed border-red-500/30 pt-2">
             This feature has been deleted. The content is preserved for historical reference. No
             changes can be made.
           </p>
