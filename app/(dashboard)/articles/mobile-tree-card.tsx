@@ -43,7 +43,7 @@ export function MobileTreeCard({ isOpen, onClose, children, isFloating }: Mobile
       />
 
       <div
-        className="absolute top-20 right-4 left-4 z-[60] ml-auto flex max-h-[calc(100vh-5rem)] max-w-[24rem] flex-col border border-tech-main/40 bg-white/95 backdrop-blur-md animate-tech-pop-in"
+        className="absolute left-1/2 top-1/2 z-[60] flex w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] max-w-[24rem] -translate-x-1/2 -translate-y-1/2 flex-col border border-tech-main/40 bg-white/95 backdrop-blur-md animate-tech-pop-in"
         data-testid="mobile-tree-card"
       >
         <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-tech-main/40 -translate-x-[1px] -translate-y-[1px] pointer-events-none" />
