@@ -76,11 +76,13 @@ export function useHomepageMotion(): HomepageMotionValues {
       ? HOMEPAGE_MOTION.mobile
       : HOMEPAGE_MOTION.desktop;
 
-  // Blur driven by pointer distance × layer weight
-  // Non-focused layers blur more as pointer moves away from center
-  const fgBlur = useTransform(pointerDist, (d) => d * HOMEPAGE_MOTION.layers.foreground * config.blurRange.max);
-  const mgBlur = useTransform(pointerDist, (d) => d * HOMEPAGE_MOTION.layers.midground * config.blurRange.max);
-  const bgBlur = useTransform(pointerDist, (d) => d * HOMEPAGE_MOTION.layers.background * config.blurRange.max);
+  const blurMax = reducedMotionQuery
+    ? { foreground: 0, midground: 0, background: 0 }
+    : HOMEPAGE_MOTION.blurMax;
+
+  const fgBlur = useTransform(pointerDist, (d) => d * blurMax.foreground);
+  const mgBlur = useTransform(pointerDist, (d) => d * blurMax.midground);
+  const bgBlur = useTransform(pointerDist, (d) => d * blurMax.background);
 
   const foreground: ForegroundTransform = {
     x: useTransform(smoothX, (v) => v * config.pointerAmplitude * HOMEPAGE_MOTION.layers.foreground * 20),
