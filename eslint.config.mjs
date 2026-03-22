@@ -1,12 +1,14 @@
 import { defineConfig, globalIgnores } from "eslint/config"
-import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
-import { parser as tsParser } from "typescript-eslint";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss"
+import { parser as tsParser } from "typescript-eslint"
 import nextVitals from "eslint-config-next/core-web-vitals"
 import nextTs from "eslint-config-next/typescript"
+import prettierConfig from "eslint-config-prettier"
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  prettierConfig,
 
   // Override default ignores of eslint-config-next.
   globalIgnores([
@@ -24,29 +26,28 @@ const eslintConfig = defineConfig([
     settings: {
       "better-tailwindcss": {
         entryPoint: "app/globals.css",
-
-      }
-    }
+      },
+    },
   },
   {
     files: ["**/*.{ts,tsx,cts,mts}"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: true
-      }
-    }
+        project: true,
+      },
+    },
   },
   {
     files: ["**/*.{jsx,tsx}"],
     languageOptions: {
       parserOptions: {
         ecmaFeatures: {
-          jsx: true
-        }
-      }
-    }
-  }
+          jsx: true,
+        },
+      },
+    },
+  },
 ])
 
 export default eslintConfig
