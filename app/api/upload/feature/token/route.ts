@@ -52,9 +52,6 @@ export async function POST(req: NextRequest) {
           addRandomSuffix: false,
         }
       },
-      onUploadCompleted: async () => {
-        // No-op — commit step handles GitHub transfer
-      },
     })
 
     return NextResponse.json(jsonResponse)
