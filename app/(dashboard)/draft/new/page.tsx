@@ -44,11 +44,11 @@ export default async function NewDraftPage({
       md:p-8
     ">
       <div className="
-        border-tech-main/40 relative flex items-center space-x-6 border-b pb-4
+        relative flex items-center space-x-6 border-b border-tech-main/40 pb-4
       ">
         <div className="
-          border-tech-main/40 bg-tech-main/10 absolute -bottom-[5px] left-0
-          size-2 border
+          absolute -bottom-[5px] left-0 size-2 border border-tech-main/40
+          bg-tech-main/10
         "></div>
         <Link href="/draft">
           <BrutalButton variant="ghost" size="sm">
@@ -56,7 +56,7 @@ export default async function NewDraftPage({
           </BrutalButton>
         </Link>
         <h1 className="
-          text-tech-main tracking-tech-wide font-mono text-xl uppercase
+          font-mono text-xl tracking-tech-wide text-tech-main uppercase
           md:text-3xl
         ">
           NEW_SUBMISSION
@@ -64,14 +64,14 @@ export default async function NewDraftPage({
       </div>
 
       <div className="
-        bg-tech-main/5 border-tech-main/40 relative mx-auto border p-6
+        relative mx-auto border border-tech-main/40 bg-tech-main/5 p-6
         backdrop-blur-sm
       ">
         <div className="
-          border-tech-main/40 absolute top-0 left-0 size-2 border-t border-l
+          absolute top-0 left-0 size-2 border-t border-l border-tech-main/40
         "></div>
         <div className="
-          border-tech-main/40 absolute right-0 bottom-0 size-2 border-r border-b
+          absolute right-0 bottom-0 size-2 border-r border-b border-tech-main/40
         "></div>
         <BrutalEditor
           initialData={{

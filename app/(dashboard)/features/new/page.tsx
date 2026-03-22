@@ -8,7 +8,7 @@ export default function NewFeaturePage() {
     ">
       <div>
         <h1 className="
-          border-tech-main inline-block border-b-2 pr-8 pb-2 text-3xl font-bold
+          inline-block border-b-2 border-tech-main pr-8 pb-2 text-3xl font-bold
           tracking-tighter uppercase
         ">
           Report New Feature

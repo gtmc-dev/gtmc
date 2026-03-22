@@ -30,32 +30,32 @@ export default async function ProfilePage() {
 
   return (
     <div className="
-      animate-fade-in mx-auto mt-4 max-w-4xl space-y-8 px-4 pb-20
+      mx-auto mt-4 max-w-4xl animate-fade-in space-y-8 px-4 pb-20
       sm:mt-8 sm:space-y-12 sm:px-0
     ">
       <div className="
-        border-tech-main/40 flex flex-col items-start justify-between border-b-2
+        flex flex-col items-start justify-between border-b-2 border-tech-main/40
         pb-4
         md:flex-row md:items-end
       ">
         <div>
           <p className="
-            text-tech-main/60 tracking-tech-wide mb-2 font-mono text-[10px]
+            mb-2 font-mono text-[10px] tracking-tech-wide text-tech-main/60
             uppercase
             sm:text-xs
           ">
             [ USER_PROFILE_SYS ]
           </p>
           <h1 className="
-            text-tech-main-dark flex items-center gap-2 text-xl font-bold
-            tracking-widest uppercase
+            flex items-center gap-2 text-xl font-bold tracking-widest
+            text-tech-main-dark uppercase
             sm:gap-4 sm:text-2xl
             md:text-4xl
             lg:text-5xl
           ">
             <span className="
-              border-tech-main/40 bg-tech-main/5 text-tech-main flex size-8
-              shrink-0 items-center justify-center border
+              flex size-8 shrink-0 items-center justify-center border
+              border-tech-main/40 bg-tech-main/5 text-tech-main
               sm:size-10
             ">
               <svg
@@ -73,50 +73,50 @@ export default async function ProfilePage() {
             USER_PROFILE
           </h1>
           <p className="
-            text-tech-main/70 tracking-tech-wide mt-2 flex items-center gap-2
-            font-mono text-[10px]
+            mt-2 flex items-center gap-2 font-mono text-[10px]
+            tracking-tech-wide text-tech-main/70
             sm:mt-3 sm:text-sm
           ">
             <span className="
-              bg-tech-main size-1 animate-pulse
+              size-1 animate-pulse bg-tech-main
               sm:size-1.5
             "></span>
             CONFIG // IDENTITY // TOKENS
           </p>
         </div>
         <div className="
-          text-tech-main/50 tracking-tech-wide mt-4 font-mono text-[9px]
+          mt-4 font-mono text-[9px] tracking-tech-wide text-tech-main/50
           uppercase
           sm:text-xs
           md:mt-0
         ">
           SYS.STATE ::{" "}
-          <span className="text-tech-main-dark font-bold">
+          <span className="font-bold text-tech-main-dark">
             ACTIVE *
           </span>
         </div>
       </div>
 
       <div className="
-        border-tech-main/40 relative w-full border bg-white/60 shadow-sm
+        relative w-full border border-tech-main/40 bg-white/60 shadow-sm
         backdrop-blur-md
       ">
         <div className="
-          bg-tech-main/5 border-tech-main/20 text-tech-main/60 absolute top-0
-          right-0 border-b border-l px-2 py-1 font-mono text-[9px]
-          tracking-widest
+          absolute top-0 right-0 border-b border-l border-tech-main/20
+          bg-tech-main/5 px-2 py-1 font-mono text-[9px] tracking-widest
+          text-tech-main/60
           sm:text-[10px]
         ">
           CONFIG.PANEL_V2
         </div>
         {/* 角落刻度 */}
         <div className="
-          border-tech-main absolute top-0 left-0 size-2 -translate-0.5
-          border-t-2 border-l-2
+          absolute top-0 left-0 size-2 -translate-0.5 border-t-2 border-l-2
+          border-tech-main
         "></div>
         <div className="
-          border-tech-main absolute right-0 bottom-0 size-2 translate-0.5
-          border-r-2 border-b-2
+          absolute right-0 bottom-0 size-2 translate-0.5 border-r-2 border-b-2
+          border-tech-main
         "></div>
 
         <form
@@ -133,13 +133,13 @@ export default async function ProfilePage() {
             md:gap-8
           ">
             <div className="
-              border-tech-main/30 bg-tech-main/5 relative size-24 shrink-0
-              border p-1
+              relative size-24 shrink-0 border border-tech-main/30
+              bg-tech-main/5 p-1
               sm:size-32
               md:size-40
             ">
-              <div className="bg-tech-main absolute -top-1 -left-1 size-2"></div>
-              <div className="bg-tech-main absolute -right-1 -bottom-1 size-2"></div>
+              <div className="absolute -top-1 -left-1 size-2 bg-tech-main"></div>
+              <div className="absolute -right-1 -bottom-1 size-2 bg-tech-main"></div>
               <BrutalAvatar
                 src={user.image}
                 alt={user.name}
@@ -153,8 +153,8 @@ export default async function ProfilePage() {
               sm:space-y-4
             ">
               <label className="
-                text-tech-main-dark border-tech-main tracking-tech-wide block
-                border-l-2 pl-2.5 font-mono text-[10px] font-bold uppercase
+                block border-l-2 border-tech-main pl-2.5 font-mono text-[10px]
+                font-bold tracking-tech-wide text-tech-main-dark uppercase
                 sm:text-xs
               ">
                 AVATAR URL
@@ -164,16 +164,15 @@ export default async function ProfilePage() {
                 defaultValue={user.image || ""}
                 placeholder="https://..."
                 className="
-                  border-tech-main/30
+                  w-full rounded-none border border-tech-main/30 bg-white
+                  font-mono text-xs shadow-none transition-colors
                   focus:border-tech-main
-                  w-full rounded-none border bg-white font-mono text-xs
-                  shadow-none transition-colors
                   sm:text-sm
                 "
               />
               <p className="
-                text-tech-main/60 border-tech-main/30 border-l pl-2 font-mono
-                text-[9px] tracking-widest uppercase
+                border-l border-tech-main/30 pl-2 font-mono text-[9px]
+                tracking-widest text-tech-main/60 uppercase
                 sm:text-[10px]
               ">
                 {">"} REQUIRED: DIRECT IMAGE LINK (.PNG/.JPG/.GIF)
@@ -182,10 +181,10 @@ export default async function ProfilePage() {
           </div>
 
           <div className="
-            border-tech-main/30 flex justify-end border-b border-dashed pb-2
+            flex justify-end border-b border-dashed border-tech-main/30 pb-2
           ">
             <span className="
-              text-tech-main/50 font-mono text-[9px] tracking-widest
+              font-mono text-[9px] tracking-widest text-tech-main/50
               sm:text-[10px]
             ">
               SEC_1_IDENTITY
@@ -202,8 +201,8 @@ export default async function ProfilePage() {
               sm:space-y-4
             ">
               <label className="
-                text-tech-main-dark border-tech-main tracking-tech-wide block
-                border-l-2 pl-2.5 font-mono text-[10px] font-bold uppercase
+                block border-l-2 border-tech-main pl-2.5 font-mono text-[10px]
+                font-bold tracking-tech-wide text-tech-main-dark uppercase
                 sm:text-xs
               ">
                 USERNAME
@@ -213,10 +212,9 @@ export default async function ProfilePage() {
                 defaultValue={user.name || ""}
                 required
                 className="
-                  border-tech-main/30
+                  w-full rounded-none border border-tech-main/30 bg-white
+                  font-mono text-xs shadow-none transition-colors
                   focus:border-tech-main
-                  w-full rounded-none border bg-white font-mono text-xs
-                  shadow-none transition-colors
                   sm:text-sm
                 "
               />
@@ -226,15 +224,15 @@ export default async function ProfilePage() {
               sm:space-y-4
             ">
               <label className="
-                text-tech-main/60 border-tech-main/40 tracking-tech-wide flex
-                items-center gap-2 border-l-2 pl-2.5 font-mono text-[10px]
-                font-bold uppercase
+                flex items-center gap-2 border-l-2 border-tech-main/40 pl-2.5
+                font-mono text-[10px] font-bold tracking-tech-wide
+                text-tech-main/60 uppercase
                 sm:text-xs
               ">
                 EMAIL{" "}
                 <span className="
-                  border-tech-main/30 bg-tech-main/5 text-tech-main/60 border
-                  px-1 text-[8px]
+                  border border-tech-main/30 bg-tech-main/5 px-1 text-[8px]
+                  text-tech-main/60
                   sm:text-[9px]
                 ">
                   RO
@@ -253,9 +251,9 @@ export default async function ProfilePage() {
                 defaultValue={user.email || ""}
                 disabled
                 className="
-                  border-tech-main/20 bg-tech-main/5 text-tech-main/60 w-full
-                  cursor-not-allowed rounded-none border font-mono text-xs
-                  tracking-wide shadow-none
+                  w-full cursor-not-allowed rounded-none border
+                  border-tech-main/20 bg-tech-main/5 font-mono text-xs
+                  tracking-wide text-tech-main/60 shadow-none
                   sm:text-sm
                 "
               />
@@ -273,23 +271,23 @@ export default async function ProfilePage() {
           </div>
 
           <div className="
-            bg-tech-main/5 border-tech-main/30 relative mt-6 flex flex-col
-            items-start justify-between gap-3 border p-3
+            relative mt-6 flex flex-col items-start justify-between gap-3 border
+            border-tech-main/30 bg-tech-main/5 p-3
             sm:mt-8 sm:flex-row sm:items-center sm:gap-4 sm:p-4
           ">
-            <div className="bg-tech-main/20 absolute top-0 right-0 size-2"></div>
+            <div className="absolute top-0 right-0 size-2 bg-tech-main/20"></div>
             <div className="
               flex items-center gap-3
               sm:gap-4
             ">
               <span className="
-                text-tech-main/60 font-mono text-[9px] tracking-widest uppercase
+                font-mono text-[9px] tracking-widest text-tech-main/60 uppercase
                 sm:text-[10px]
               ">
                 ASSIGNED ROLE:
               </span>
               <span className="
-                text-tech-main-dark font-mono text-xs font-bold tracking-widest
+                font-mono text-xs font-bold tracking-widest text-tech-main-dark
                 uppercase
                 sm:text-sm
               ">
@@ -299,11 +297,11 @@ export default async function ProfilePage() {
           </div>
 
           <div className="
-            border-tech-main/30 flex justify-start border-b border-dashed pt-4
+            flex justify-start border-b border-dashed border-tech-main/30 pt-4
             pb-2
           ">
             <span className="
-              text-tech-main/50 font-mono text-[9px] tracking-widest
+              font-mono text-[9px] tracking-widest text-tech-main/50
               sm:text-[10px]
             ">
               SEC_2_CREDENTIALS
@@ -313,7 +311,7 @@ export default async function ProfilePage() {
           
 
           <div className="
-            bg-tech-main/30 my-6 h-px w-full
+            my-6 h-px w-full bg-tech-main/30
             sm:my-8
           "></div>
 
@@ -323,25 +321,22 @@ export default async function ProfilePage() {
             md:flex-row md:items-center md:gap-6
           ">
             <SignOutButton className="
-              bg-tech-main/10
-              hover:bg-tech-main
-              text-tech-main border-tech-main/40 relative flex min-h-11 w-full
-              items-center justify-center border px-4 py-2.5 font-mono text-xs
-              font-bold tracking-widest uppercase transition-colors
-              hover:text-white
+              relative flex min-h-11 w-full items-center justify-center border
+              border-tech-main/40 bg-tech-main/10 px-4 py-2.5 font-mono text-xs
+              font-bold tracking-widest text-tech-main uppercase
+              transition-colors
+              hover:bg-tech-main hover:text-white
               sm:px-6 sm:py-3
               md:px-8
             " />
             <button
               type="submit"
               className="
-                bg-tech-main/10
-                hover:bg-tech-main
-                text-tech-main border-tech-main/40 relative flex min-h-11 w-full
-                cursor-pointer items-center justify-center border px-4 py-2.5
-                font-mono text-xs font-bold tracking-widest uppercase
-                transition-colors
-                hover:text-white
+                relative flex min-h-11 w-full cursor-pointer items-center
+                justify-center border border-tech-main/40 bg-tech-main/10 px-4
+                py-2.5 font-mono text-xs font-bold tracking-widest
+                text-tech-main uppercase transition-colors
+                hover:bg-tech-main hover:text-white
                 sm:px-6 sm:py-3
                 md:px-8
               ">

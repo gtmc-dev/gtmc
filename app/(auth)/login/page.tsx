@@ -16,9 +16,8 @@ export default function LoginPage() {
 
   return (
     <div className="
-      text-tech-main
+      relative flex min-h-screen w-full overflow-hidden font-sans text-tech-main
       selection:bg-tech-main/20 selection:text-tech-main-dark
-      relative flex min-h-screen w-full overflow-hidden font-sans
     ">
       {/* ======================================================== */}
       {/* 结构层：背景图纸修饰、HUD、辅助线、标记、透视几何 */}
@@ -30,13 +29,13 @@ export default function LoginPage() {
         md:flex
       ">
         <div className="
-          text-tech-main-dark font-mono text-xs tracking-widest uppercase
+          font-mono text-xs tracking-widest text-tech-main-dark uppercase
           opacity-50
         ">
           [ GTMC_AUTH_GATEWAY ]
         </div>
         <div className="
-          text-tech-main font-mono text-[10px] tracking-widest opacity-30
+          font-mono text-[10px] tracking-widest text-tech-main opacity-30
         ">
           SECURE.CONN // PORT-443
         </div>
@@ -44,8 +43,8 @@ export default function LoginPage() {
 
       {/* 右上角HUD：模拟服务器/图纸数据 */}
       <div className="
-        text-tech-main absolute top-8 right-12 z-0 hidden space-y-1 text-right
-        font-mono text-[10px] opacity-40 select-none
+        absolute top-8 right-12 z-0 hidden space-y-1 text-right font-mono
+        text-[10px] text-tech-main opacity-40 select-none
         sm:block
       ">
         <p>
@@ -54,7 +53,7 @@ export default function LoginPage() {
         </p>
         <p>ENCRYPTION:: AES-256-GCM</p>
         <p>HANDSHAKE :: WAITING...</p>
-        <div className="bg-tech-main/30 my-2 h-px w-full"></div>
+        <div className="my-2 h-px w-full bg-tech-main/30"></div>
         <p>SESSION : NULL</p>
       </div>
 
@@ -66,10 +65,10 @@ export default function LoginPage() {
         lg:block
       ">
         <div className="
-          text-tech-main border-tech-main/20 border-r-2 pr-4 text-right
-          font-mono text-[10px] leading-relaxed whitespace-pre
+          border-r-2 border-tech-main/20 pr-4 text-right font-mono text-[10px]
+          leading-relaxed whitespace-pre text-tech-main
         ">
-          <span className="text-tech-main-dark font-bold">
+          <span className="font-bold text-tech-main-dark">
             @PostMapping
           </span>
           (
@@ -90,23 +89,23 @@ export default function LoginPage() {
 
       {/* 贯穿全图的低调主辅助线 */}
       <div className="
-        bg-tech-main/10 decor-desktop-only absolute top-[50%] left-0 flex hidden
-        h-px w-full items-center justify-center
+        decor-desktop-only absolute top-[50%] left-0 flex hidden h-px w-full
+        items-center justify-center bg-tech-main/10
         md:flex
       ">
-        <div className="bg-tech-bg border-tech-main/50 size-2 border"></div>
+        <div className="size-2 border border-tech-main/50 bg-tech-bg"></div>
       </div>
       <div className="
-        w-pxfull bg-tech-main/10 decor-desktop-only absolute top-0 left-[50%]
-        hidden
+        w-pxfull decor-desktop-only absolute top-0 left-[50%] hidden
+        bg-tech-main/10
         md:block
       "></div>
 
       {/* 巨型背景水印 */}
       <div className="
-        text-tech-main decor-desktop-only pointer-events-none absolute bottom-0
-        -left-20 hidden text-[8rem] font-black tracking-tighter
-        whitespace-nowrap opacity-[0.03] select-none
+        decor-desktop-only pointer-events-none absolute bottom-0 -left-20 hidden
+        text-[8rem] font-black tracking-tighter whitespace-nowrap text-tech-main
+        opacity-[0.03] select-none
         lg:block
       ">
         ACCESS_CONTROL
@@ -122,13 +121,13 @@ export default function LoginPage() {
       ">
         {/* 信息卡片主体 */}
         <div className="
-          group animate-tech-pop-in relative mb-8 w-full opacity-0
+          group relative mb-8 w-full animate-tech-pop-in opacity-0
           [animation-delay:0.2s] [animation-duration:0.8s]
           [animation-fill-mode:forwards]
         ">
           {/* 下层错位阴影框 */}
           <div className="
-            border-tech-main/20 absolute inset-0 -z-10 translate-2 border
+            absolute inset-0 -z-10 translate-2 border border-tech-main/20
             bg-transparent transition-transform duration-500 ease-out
             group-hover:translate-3
             md:translate-3
@@ -137,20 +136,20 @@ export default function LoginPage() {
 
           {/* 尺寸标注 decoration */}
           <div className="
-            animate-fade-in absolute top-1/2 -right-6 hidden h-full
-            -translate-y-1/2 flex-col items-center font-mono text-[10px]
+            absolute top-1/2 -right-6 hidden h-full -translate-y-1/2
+            animate-fade-in flex-col items-center font-mono text-[10px]
             opacity-0 [animation-delay:1.5s] [animation-fill-mode:forwards]
             sm:flex
           ">
-            <span className="border-tech-main/30 block h-10 w-px border-l"></span>
+            <span className="block h-10 w-px border-l border-tech-main/30"></span>
             <span className="rotate-90 py-2 whitespace-nowrap">
               SECURE FORM
             </span>
-            <span className="border-tech-main/30 block h-10 w-px border-l"></span>
+            <span className="block h-10 w-px border-l border-tech-main/30"></span>
           </div>
 
           <div className="
-            border-tech-main/40 relative overflow-hidden border bg-white/60 p-6
+            relative overflow-hidden border border-tech-main/40 bg-white/60 p-6
             text-center shadow-sm backdrop-blur-md
             md:p-10
           ">
@@ -163,27 +162,27 @@ export default function LoginPage() {
 
             {/* 角落刻度 */}
             <div className="
-              border-tech-main absolute top-0 left-0 size-3 -translate-0.5
-              border-t-2 border-l-2
+              absolute top-0 left-0 size-3 -translate-0.5 border-t-2 border-l-2
+              border-tech-main
             "></div>
             <div className="
-              border-tech-main absolute top-0 right-0 size-3 translate-x-0.5
-              -translate-y-0.5 border-t-2 border-r-2
+              absolute top-0 right-0 size-3 translate-x-0.5 -translate-y-0.5
+              border-t-2 border-r-2 border-tech-main
             "></div>
             <div className="
-              border-tech-main absolute bottom-0 left-0 size-3 -translate-x-0.5
-              translate-y-0.5 border-b-2 border-l-2
+              absolute bottom-0 left-0 size-3 -translate-x-0.5 translate-y-0.5
+              border-b-2 border-l-2 border-tech-main
             "></div>
             <div className="
-              border-tech-main absolute right-0 bottom-0 size-3 translate-0.5
-              border-r-2 border-b-2
+              absolute right-0 bottom-0 size-3 translate-0.5 border-r-2
+              border-b-2 border-tech-main
             "></div>
 
             <div className="mb-8 flex flex-col items-center">
               <div className="
-                bg-tech-main/5 border-tech-main/40 animate-tech-pop-in mb-4 flex
-                size-12 items-center justify-center border opacity-0
-                [animation-delay:0.6s] [animation-fill-mode:forwards]
+                mb-4 flex size-12 animate-tech-pop-in items-center
+                justify-center border border-tech-main/40 bg-tech-main/5
+                opacity-0 [animation-delay:0.6s] [animation-fill-mode:forwards]
               ">
                 <svg
                   width="24"
@@ -204,18 +203,18 @@ export default function LoginPage() {
                 </svg>
               </div>
               <h1 className="
-                text-tech-main-dark relative overflow-hidden text-3xl font-bold
-                tracking-tight
+                relative overflow-hidden text-3xl font-bold tracking-tight
+                text-tech-main-dark
               ">
                 <span className="
-                  animate-tech-slide-in inline-block opacity-0
+                  inline-block animate-tech-slide-in opacity-0
                   [animation-delay:0.7s] [animation-fill-mode:forwards]
                 ">
                   IDENTITY
                 </span>
                 <span className="
-                  animate-tech-slide-in text-tech-main ml-2 inline-block
-                  font-light opacity-0 [animation-delay:0.9s]
+                  ml-2 inline-block animate-tech-slide-in font-light
+                  text-tech-main opacity-0 [animation-delay:0.9s]
                   [animation-fill-mode:forwards]
                 ">
                   VERIFICATION
@@ -224,8 +223,8 @@ export default function LoginPage() {
             </div>
 
             <p className="
-              text-tech-main-dark/70 animate-fade-in mx-auto mb-8 max-w-xs
-              text-sm opacity-0 [animation-delay:1.1s]
+              mx-auto mb-8 max-w-xs animate-fade-in text-sm
+              text-tech-main-dark/70 opacity-0 [animation-delay:1.1s]
               [animation-fill-mode:forwards]
             ">
               Please authenticate with your GitHub account to access
@@ -233,7 +232,7 @@ export default function LoginPage() {
             </p>
 
             <div className="
-              animate-slide-up-fade w-full opacity-0 [animation-delay:1.3s]
+              w-full animate-slide-up-fade opacity-0 [animation-delay:1.3s]
               [animation-fill-mode:forwards]
             ">
               <BrutalButton
@@ -260,16 +259,16 @@ export default function LoginPage() {
             </div>
 
             <div className="
-              animate-fade-in mt-6 font-mono text-[10px] opacity-40
+              mt-6 animate-fade-in font-mono text-[10px] opacity-40
               [animation-delay:1.6s] [animation-fill-mode:forwards]
             ">
               <p>PROTECTED BY GTMC_SECURE_GATEWAY v2.0</p>
               <Link
                 href="/"
                 className="
-                  hover:text-tech-main-dark
                   mt-2 inline-block underline decoration-dashed
                   underline-offset-4 transition-colors
+                  hover:text-tech-main-dark
                 ">
                 &lt; RETURN TO PUBLIC ACCESS
               </Link>

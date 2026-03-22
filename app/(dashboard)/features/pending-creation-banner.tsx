@@ -95,19 +95,18 @@ export function PendingCreationBanner() {
   if (state.status === "success") {
     return (
       <div className="
-        border-tech-main/40 flex items-center gap-3 border bg-white/60 px-4 py-3
+        flex items-center gap-3 border border-tech-main/40 bg-white/60 px-4 py-3
         font-mono text-sm backdrop-blur-sm
       ">
-        <span className="bg-tech-main inline-block size-2" />
-        <span className="text-tech-main tracking-widest uppercase">
+        <span className="inline-block size-2 bg-tech-main" />
+        <span className="tracking-widest text-tech-main uppercase">
           FEATURE_CREATED_
         </span>
         <Link
           href={`/features/${state.featureId}`}
           className="
-            text-tech-accent
+            ml-2 text-tech-accent underline
             hover:text-tech-main
-            ml-2 underline
           ">
           VIEW_ISSUE_#{state.featureId}_
         </Link>
@@ -150,11 +149,11 @@ export function PendingCreationBanner() {
   // pending
   return (
     <div className="
-      border-tech-main/40 flex items-center gap-3 border bg-white/60 px-4 py-3
+      flex items-center gap-3 border border-tech-main/40 bg-white/60 px-4 py-3
       font-mono text-sm backdrop-blur-sm
     ">
-      <span className="bg-tech-accent inline-block size-2 animate-pulse" />
-      <span className="text-tech-main tracking-widest uppercase">
+      <span className="inline-block size-2 animate-pulse bg-tech-accent" />
+      <span className="tracking-widest text-tech-main uppercase">
         CREATING_FEATURE_...
       </span>
     </div>

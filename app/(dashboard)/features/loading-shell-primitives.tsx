@@ -17,7 +17,7 @@ export const SectionFrame = React.forwardRef<
     <div
       ref={ref}
       className={`
-        border-tech-main/40 relative border bg-white/80 p-6 backdrop-blur-sm
+        relative border border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
         sm:p-8
         ${className}
       `}
@@ -25,20 +25,20 @@ export const SectionFrame = React.forwardRef<
       {showBrackets && (
         <>
           <div className="
-            border-tech-main/60 pointer-events-none absolute top-0 left-0 size-2
-            -translate-px border-t-2 border-l-2
+            pointer-events-none absolute top-0 left-0 size-2 -translate-px
+            border-t-2 border-l-2 border-tech-main/60
           " />
           <div className="
-            border-tech-main/60 pointer-events-none absolute top-0 right-0
-            size-2 translate-x-px -translate-y-px border-t-2 border-r-2
+            pointer-events-none absolute top-0 right-0 size-2 translate-x-px
+            -translate-y-px border-t-2 border-r-2 border-tech-main/60
           " />
           <div className="
-            border-tech-main/60 pointer-events-none absolute bottom-0 left-0
-            size-2 -translate-x-px translate-y-px border-b-2 border-l-2
+            pointer-events-none absolute bottom-0 left-0 size-2 -translate-x-px
+            translate-y-px border-b-2 border-l-2 border-tech-main/60
           " />
           <div className="
-            border-tech-main/60 pointer-events-none absolute right-0 bottom-0
-            size-2 translate-px border-r-2 border-b-2
+            pointer-events-none absolute right-0 bottom-0 size-2 translate-px
+            border-r-2 border-b-2 border-tech-main/60
           " />
         </>
       )}
@@ -59,7 +59,7 @@ export const SectionRail = React.forwardRef<
   <div
     ref={ref}
     className={`
-      text-tech-main tracking-tech-wide font-mono text-xs uppercase
+      font-mono text-xs tracking-tech-wide text-tech-main uppercase
       ${className}
     `}
     {...props}>
@@ -100,7 +100,7 @@ export const SegmentedBar = React.forwardRef<
         className={`
           h-2
           ${opacityMap[opacity]}
-          ${showBorder ? `border-tech-line border` : ""}
+          ${showBorder ? `border border-tech-line` : ""}
           ${className}
         `}
         {...props}
@@ -144,8 +144,8 @@ export const SweepOverlay = React.forwardRef<
   <div
     ref={ref}
     className={`
-      via-tech-accent/30 animate-blueprint-sweep absolute inset-0 bg-linear-to-r
-      from-transparent to-transparent
+      absolute inset-0 animate-blueprint-sweep bg-linear-to-r from-transparent
+      via-tech-accent/30 to-transparent
       motion-reduce:animate-none
       ${className}
     `}
@@ -165,8 +165,8 @@ export const ScanConfirmOverlay = React.forwardRef<
   <div
     ref={ref}
     className={`
-      via-tech-accent/30 animate-scan-confirm absolute inset-0 bg-linear-to-r
-      from-transparent to-transparent
+      absolute inset-0 animate-scan-confirm bg-linear-to-r from-transparent
+      via-tech-accent/30 to-transparent
       motion-reduce:animate-none
       ${className}
     `}

@@ -14,9 +14,9 @@ export function UnchangedBlock({
     return (
       <textarea
         className="
+          w-full resize-y bg-transparent p-2 font-mono text-sm
+          text-tech-main-dark/70 outline-none
           focus:bg-tech-main/5
-          text-tech-main-dark/70 w-full resize-y bg-transparent p-2 font-mono
-          text-sm outline-none
         "
         rows={Math.max(2, lines.length + 1)}
         value={content}
@@ -31,16 +31,16 @@ export function UnchangedBlock({
 
   return (
     <div className="
-      text-tech-main-dark/60 border-tech-main/20 bg-tech-main/5 flex flex-col
-      border-y border-dashed font-mono text-sm
+      flex flex-col border-y border-dashed border-tech-main/20 bg-tech-main/5
+      font-mono text-sm text-tech-main-dark/60
     ">
       <pre className="bg-transparent p-2 whitespace-pre-wrap">{head}</pre>
       <div
         className="
-          bg-tech-main/10 text-tech-main
+          mx-4 my-1 cursor-pointer rounded-sm bg-tech-main/10 px-4 py-2
+          text-center text-xs font-bold tracking-widest text-tech-main uppercase
+          transition-colors
           hover:bg-tech-main/20
-          mx-4 my-1 cursor-pointer rounded-sm px-4 py-2 text-center text-xs
-          font-bold tracking-widest uppercase transition-colors
         "
         onClick={() => setExpanded(true)}
       >

@@ -60,35 +60,35 @@ export default async function FeaturesPage({
     <div className="mx-auto max-w-6xl space-y-8 px-6 pb-12">
       <RevealSection delay={0}>
         <div className="
-          border-tech-main/40 relative mt-8 flex flex-col items-start
-          justify-between gap-4 border-b pb-6
+          relative mt-8 flex flex-col items-start justify-between gap-4 border-b
+          border-tech-main/40 pb-6
           md:flex-row md:items-end
         ">
           <div className="
-            border-tech-main/20 absolute top-0 right-0 size-8 translate-x-px
-            -translate-y-px border-t border-r
+            absolute top-0 right-0 size-8 translate-x-px -translate-y-px
+            border-t border-r border-tech-main/20
           "></div>
           <div className="
             mb-0 w-full
             md:w-auto
           ">
             <h1 className="
-              text-tech-main-dark flex items-center gap-2 text-2xl font-bold
-              tracking-tight uppercase
+              flex items-center gap-2 text-2xl font-bold tracking-tight
+              text-tech-main-dark uppercase
               md:text-4xl
             ">
               <span className="
-                bg-tech-main/20 border-tech-main/40 size-3 shrink-0 border
+                size-3 shrink-0 border border-tech-main/40 bg-tech-main/20
               "></span>
               <span className="wrap-break-word">Feature Reports</span>
             </h1>
             <p className="
-              text-tech-main/80 mt-3 flex items-center gap-2 font-mono text-xs
-              tracking-widest
+              mt-3 flex items-center gap-2 font-mono text-xs tracking-widest
+              text-tech-main/80
               sm:text-sm
             ">
               <span className="
-                bg-tech-main size-1.5 shrink-0 animate-pulse rounded-full
+                size-1.5 shrink-0 animate-pulse rounded-full bg-tech-main
               "></span>
               <span className="wrap-break-word">
                 BUG REPORTS, FEATURE REQUESTS, AND ISSUE TRACKING

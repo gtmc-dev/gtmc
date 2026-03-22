@@ -48,7 +48,7 @@ export function FeatureComments({
   return (
     <div className="space-y-6">
       <h3 className="
-        border-tech-main inline-block border-b-2 pb-2 text-2xl font-bold
+        inline-block border-b-2 border-tech-main pb-2 text-2xl font-bold
         tracking-tighter uppercase
       ">
         Discussions
@@ -59,14 +59,14 @@ export function FeatureComments({
           <BrutalCard
             key={comment.id}
             className="
-              border-tech-main/40 border bg-white/80 p-6 backdrop-blur-sm
+              border border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
             ">
             <div className="
-              border-tech-main/30 mb-2 flex items-center gap-2 border-b
-              border-dashed pb-2 font-mono text-sm
+              mb-2 flex items-center gap-2 border-b border-dashed
+              border-tech-main/30 pb-2 font-mono text-sm
             ">
               <span className="
-                text-tech-main font-bold tracking-wider uppercase
+                font-bold tracking-wider text-tech-main uppercase
               ">
                 {comment.author.name ||
                   (comment.emailRedacted
@@ -87,8 +87,8 @@ export function FeatureComments({
         ))}
         {initialComments.length === 0 && (
           <div className="
-            text-tech-main/50 border-tech-main/40 border border-dashed
-            bg-white/40 py-8 text-center font-mono
+            border border-dashed border-tech-main/40 bg-white/40 py-8
+            text-center font-mono text-tech-main/50
           ">
             NO_COMMENTS_YET_
           </div>
@@ -99,11 +99,11 @@ export function FeatureComments({
         (userId ? (
           <form onSubmit={handleSubmit} className="mt-8">
             <BrutalCard className="
-              border-tech-main/40 border bg-white/80 p-6 backdrop-blur-sm
+              border border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
             ">
               <label className="
-                text-tech-main border-tech-main/40 tracking-tech-wide mb-4
-                inline-block border-b pb-1 font-mono text-sm uppercase
+                mb-4 inline-block border-b border-tech-main/40 pb-1 font-mono
+                text-sm tracking-tech-wide text-tech-main uppercase
               ">
                 LEAVE_A_REPLY_
               </label>
@@ -111,11 +111,10 @@ export function FeatureComments({
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="
-                  border-tech-main/40
-                  focus:border-tech-main/60
-                  min-h-25 w-full resize-y border bg-white/80 p-4 font-mono
-                  text-sm text-black placeholder-zinc-500 backdrop-blur-sm
-                  focus:ring-0 focus:outline-none
+                  min-h-25 w-full resize-y border border-tech-main/40
+                  bg-white/80 p-4 font-mono text-sm text-black
+                  placeholder-zinc-500 backdrop-blur-sm
+                  focus:border-tech-main/60 focus:ring-0 focus:outline-none
                 "
                 placeholder="ENTER COMMENT..."
                 disabled={isPending}
@@ -139,8 +138,8 @@ export function FeatureComments({
           </form>
         ) : (
           <div className="
-            border-tech-main/40 text-tech-main/70 mt-8 border bg-white/40 py-4
-            text-center font-mono text-sm
+            mt-8 border border-tech-main/40 bg-white/40 py-4 text-center
+            font-mono text-sm text-tech-main/70
           ">
             PLEASE_LOG_IN_TO_LEAVE_A_REPLY_
           </div>

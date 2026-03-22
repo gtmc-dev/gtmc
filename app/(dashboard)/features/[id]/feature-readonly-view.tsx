@@ -35,8 +35,8 @@ export function FeatureReadonlyView({
             <span
               key={tag}
               className="
-                border-tech-main text-tech-main bg-tech-accent/10 border px-2
-                py-1 font-mono text-xs uppercase
+                border border-tech-main bg-tech-accent/10 px-2 py-1 font-mono
+                text-xs text-tech-main uppercase
               ">
               {tag}
             </span>
@@ -44,16 +44,16 @@ export function FeatureReadonlyView({
         </div>
       )}
 
-      <div className="border-tech-main/30 mt-8 border-t border-dashed pt-6">
+      <div className="mt-8 border-t border-dashed border-tech-main/30 pt-6">
         <div className="
-          border-tech-main/40 flex flex-col overflow-hidden border bg-white/50
+          flex flex-col overflow-hidden border border-tech-main/40 bg-white/50
           backdrop-blur-sm
         ">
           <div
             role="tablist"
             aria-label="Editor mode"
             className="
-              bg-tech-main/10 border-tech-main/40 flex items-center border-b
+              flex items-center border-b border-tech-main/40 bg-tech-main/10
               font-mono text-xs
             ">
             <button
@@ -68,9 +68,8 @@ export function FeatureReadonlyView({
                 activeTab === "rendered"
                   ? "bg-tech-main text-white"
                   : `
-                    text-tech-main/60
+                    cursor-pointer text-tech-main/60
                     hover:bg-tech-main/10
-                    cursor-pointer
                   `
               }
               `}>
@@ -88,9 +87,8 @@ export function FeatureReadonlyView({
                 activeTab === "source"
                   ? "bg-tech-main text-white"
                   : `
-                    text-tech-main/60
+                    cursor-pointer text-tech-main/60
                     hover:bg-tech-main/10
-                    cursor-pointer
                   `
               }
               `}>
@@ -118,7 +116,7 @@ export function FeatureReadonlyView({
                     {content}
                   </pre>
                 ) : (
-                  <p className="text-tech-main/40 p-6 font-mono text-xs">
+                  <p className="p-6 font-mono text-xs text-tech-main/40">
                     NOTHING_TO_PREVIEW_
                   </p>
                 )}

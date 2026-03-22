@@ -156,7 +156,7 @@ export function SidebarClient({
 
   const renderTree = (items: TreeNode[], level = 0) => {
     return (
-      <ul className="border-tech-main/20 my-1 border-l pl-4">
+      <ul className="my-1 border-l border-tech-main/20 pl-4">
         {items.map((item) => {
           const fileRoute = `/articles/${item.slug}`
           const decodedPathname = decodeURIComponent(pathname)
@@ -181,13 +181,13 @@ export function SidebarClient({
                 <button
                   onClick={(e) => toggleFolder(item.id, e)}
                   className="
-                    text-tech-main/80
-                    hover:text-tech-main
                     mt-3 mb-1 flex w-full cursor-pointer items-center text-left
-                    font-bold uppercase opacity-80 transition-colors
+                    font-bold text-tech-main/80 uppercase opacity-80
+                    transition-colors
+                    hover:text-tech-main
                     focus:outline-none
                   ">
-                  <span className="text-tech-main/50 inline-block w-4 text-xs">
+                  <span className="inline-block w-4 text-xs text-tech-main/50">
                     {folderExpanded ? "▼" : "▶"}
                   </span>
                   <span>{item.title}</span>
@@ -198,19 +198,19 @@ export function SidebarClient({
                     className={`
                       group relative -ml-4 flex items-center py-1.5 pl-4
                       transition-colors
-                      ${isActive ? `text-tech-main font-bold` : `
-                        hover:text-tech-main
+                      ${isActive ? `font-bold text-tech-main` : `
                         text-slate-700
+                        hover:text-tech-main
                       `}
                     `}>
                     {isActive && toc.length > 0 ? (
                       <button
                         onClick={toggleFileExp}
                         className="
-                          text-tech-main
-                          hover:text-tech-main/80
                           absolute top-1/2 left-0 z-10 -translate-y-1/2
-                          cursor-pointer text-[10px] transition-opacity
+                          cursor-pointer text-[10px] text-tech-main
+                          transition-opacity
+                          hover:text-tech-main/80
                           focus:outline-none
                           md:text-xs
                         "
@@ -245,9 +245,9 @@ export function SidebarClient({
                       }}
                       className={`
                         block w-full border-b pb-px pl-1
-                        ${isActive ? `border-tech-main/50 cursor-pointer` : `
-                          group-hover:border-tech-main/30
+                        ${isActive ? `cursor-pointer border-tech-main/50` : `
                           border-transparent
+                          group-hover:border-tech-main/30
                         `}
                       `}>
                       {item.title}
@@ -266,20 +266,19 @@ export function SidebarClient({
                       `}>
                       <div className="overflow-hidden">
                         <ul className="
-                          border-tech-main/20 mt-1 mb-2 ml-1 space-y-2 border-l
+                          mt-1 mb-2 ml-1 space-y-2 border-l border-tech-main/20
                           pl-4
                         ">
                           {toc.map((h2) => (
                             <li
                               key={h2.id}
                               className="
-                                text-tech-main/70
-                                hover:text-tech-main
-                                before:bg-tech-main/30
-                                relative text-[13px] transition-colors
+                                relative text-[13px] text-tech-main/70
+                                transition-colors
                                 before:absolute before:top-1/2 before:-left-4
                                 before:h-px before:w-2 before:-translate-y-1/2
-                                before:content-['']
+                                before:bg-tech-main/30 before:content-['']
+                                hover:text-tech-main
                                 md:text-sm
                               ">
                               <Link
@@ -344,18 +343,16 @@ export function SidebarClient({
         <button
           onClick={() => setIsModalOpen(true)}
           className="
-            border-tech-main/40
-            hover:bg-tech-main
-            cursor-pointer border px-3 py-1.5 font-mono text-[11px]
-            transition-colors
-            hover:text-white
+            cursor-pointer border border-tech-main/40 px-3 py-1.5 font-mono
+            text-[11px] transition-colors
+            hover:bg-tech-main hover:text-white
           ">
           + NEW DIR / FILE
         </button>
       </div>
 
       {tree.length === 0 ? (
-        <div className="text-tech-main/40 mt-4 font-mono text-sm">
+        <div className="mt-4 font-mono text-sm text-tech-main/40">
           SYS.DIR_TREE_EMPTY
         </div>
       ) : (
@@ -368,13 +365,13 @@ export function SidebarClient({
           bg-black/80 p-4 duration-300
         ">
           <div className="
-            border-tech-main w-full max-w-md rounded-sm border-2 bg-white p-6
+            w-full max-w-md rounded-sm border-2 border-tech-main bg-white p-6
             shadow-[8px_8px_0_0_rgba(var(--tech-main),1)]
             dark:bg-black
           ">
             <h3 className="
-              text-tech-main border-tech-main/20 mb-6 border-b pb-2 font-mono
-              text-lg font-bold tracking-widest uppercase
+              mb-6 border-b border-tech-main/20 pb-2 font-mono text-lg font-bold
+              tracking-widest text-tech-main uppercase
             ">
               CREATE_SYS_OBJECT
             </h3>
@@ -384,7 +381,7 @@ export function SidebarClient({
               className="space-y-4 font-mono">
               <div>
                 <label className="
-                  text-tech-main/80 mb-1 block text-[11px] tracking-wider
+                  mb-1 block text-[11px] tracking-wider text-tech-main/80
                   uppercase
                 ">
                   Title
@@ -400,9 +397,9 @@ export function SidebarClient({
                     })
                   }
                   className="
-                    bg-tech-main/5 border-tech-main/40
+                    w-full border border-tech-main/40 bg-tech-main/5 px-3 py-2
+                    text-sm text-tech-main outline-none
                     focus:border-tech-main
-                    text-tech-main w-full border px-3 py-2 text-sm outline-none
                   "
                   placeholder="e.g. Overview"
                 />
@@ -410,7 +407,7 @@ export function SidebarClient({
 
               <div>
                 <label className="
-                  text-tech-main/80 mb-1 block text-[11px] tracking-wider
+                  mb-1 block text-[11px] tracking-wider text-tech-main/80
                   uppercase
                 ">
                   Slug (URL path)
@@ -422,17 +419,17 @@ export function SidebarClient({
                     setFormData({ ...formData, slug: e.target.value })
                   }
                   className="
-                    bg-tech-main/5 border-tech-main/40
+                    w-full border border-tech-main/40 bg-tech-main/5 px-3 py-2
+                    text-sm text-tech-main outline-none
                     focus:border-tech-main
-                    text-tech-main w-full border px-3 py-2 text-sm outline-none
                   "
                   placeholder="Leave empty to auto-generate"
                 />
               </div>
 
               <div className="
-                bg-tech-main/5 border-tech-main/20 flex items-center gap-3
-                border px-3 py-2
+                flex items-center gap-3 border border-tech-main/20
+                bg-tech-main/5 px-3 py-2
               ">
                 <input
                   type="checkbox"
@@ -444,12 +441,12 @@ export function SidebarClient({
                       isFolder: e.target.checked,
                     })
                   }
-                  className="accent-tech-main size-4"
+                  className="size-4 accent-tech-main"
                 />
                 <label
                   htmlFor="isFolder"
                   className="
-                    text-tech-main/80 cursor-pointer text-sm select-none
+                    cursor-pointer text-sm text-tech-main/80 select-none
                   ">
                   Create as Directory (Folder)
                 </label>
@@ -457,7 +454,7 @@ export function SidebarClient({
 
               <div>
                 <label className="
-                  text-tech-main/80 mb-1 block text-[11px] tracking-wider
+                  mb-1 block text-[11px] tracking-wider text-tech-main/80
                   uppercase
                 ">
                   Parent Directory
@@ -471,8 +468,8 @@ export function SidebarClient({
                     })
                   }
                   className="
-                    bg-tech-main/5 border-tech-main/40 text-tech-main w-full
-                    border px-3 py-2 text-sm outline-none
+                    w-full border border-tech-main/40 bg-tech-main/5 px-3 py-2
+                    text-sm text-tech-main outline-none
                   ">
                   <option value="">[ ROOT_DIRECTORY ]</option>
                   {availableFolders.map((f) => (
@@ -484,23 +481,23 @@ export function SidebarClient({
               </div>
 
               <div className="
-                border-tech-main/20 mt-6 flex justify-end gap-2 border-t pt-4
+                mt-6 flex justify-end gap-2 border-t border-tech-main/20 pt-4
               ">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
                   className="
-                    border-tech-main/40 text-tech-main
+                    cursor-pointer border border-tech-main/40 px-4 py-2
+                    text-[11px] font-bold tracking-widest text-tech-main
+                    uppercase transition-colors
                     hover:bg-tech-main/10
-                    cursor-pointer border px-4 py-2 text-[11px] font-bold
-                    tracking-widest uppercase transition-colors
                   ">
                   ABORT
                 </button>
                 <button
                   type="submit"
                   className="
-                    bg-tech-main cursor-pointer px-4 py-2 text-[11px] font-bold
+                    cursor-pointer bg-tech-main px-4 py-2 text-[11px] font-bold
                     tracking-widest text-white uppercase
                     shadow-[2px_2px_0_0_rgba(var(--tech-main),0.4)]
                     transition-opacity

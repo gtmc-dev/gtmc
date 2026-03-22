@@ -35,13 +35,13 @@ export default async function EditDraftPage({
       md:p-8
     ">
       <div className="
-        border-tech-main/30 relative flex flex-col items-start justify-between
-        space-y-4 border-b pb-4
+        relative flex flex-col items-start justify-between space-y-4 border-b
+        border-tech-main/30 pb-4
         md:flex-row md:items-end md:space-y-0
       ">
         <div className="
-          border-tech-main/50 bg-tech-main/20 absolute -bottom-[5px] left-0
-          size-2 border
+          absolute -bottom-[5px] left-0 size-2 border border-tech-main/50
+          bg-tech-main/20
         "></div>
         <div className="
           flex items-center space-x-4
@@ -53,35 +53,35 @@ export default async function EditDraftPage({
             </BrutalButton>
           </Link>
           <h1 className="
-            text-tech-main tracking-tech-wide font-mono text-xl uppercase
+            font-mono text-xl tracking-tech-wide text-tech-main uppercase
             md:text-3xl
           ">
             EDIT_SUBMISSION
           </h1>
         </div>
         <div className="
-          border-tech-main/50 bg-tech-main/10 text-tech-main border px-3 py-1
-          font-mono text-xs tracking-widest uppercase
+          border border-tech-main/50 bg-tech-main/10 px-3 py-1 font-mono text-xs
+          tracking-widest text-tech-main uppercase
         ">
           STATUS: [{draft.status}]
         </div>
       </div>
 
       <div className="
-        bg-tech-main/5 border-tech-main/30 relative mx-auto border p-6
+        relative mx-auto border border-tech-main/30 bg-tech-main/5 p-6
         backdrop-blur-sm
       ">
         <div className="
-          border-tech-main/50 absolute top-0 left-0 size-2 border-t border-l
+          absolute top-0 left-0 size-2 border-t border-l border-tech-main/50
         "></div>
         <div className="
-          border-tech-main/50 absolute right-0 bottom-0 size-2 border-r border-b
+          absolute right-0 bottom-0 size-2 border-r border-b border-tech-main/50
         "></div>
 
         {draft.status === "SUBMITTED" ? (
           <div className="
-            bg-tech-main/20 border-tech-main/50 text-tech-main-dark mb-4 border
-            p-4 font-mono text-sm
+            mb-4 border border-tech-main/50 bg-tech-main/20 p-4 font-mono
+            text-sm text-tech-main-dark
           ">
             {`// CAUTION: This revision is currently in [SUBMITTED] state. A PR has been opened on GitHub. Edits made here will not affect the open PR.`}
           </div>

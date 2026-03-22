@@ -19,15 +19,14 @@ export default function DashboardLayout({
 
   return (
     <div className="
-      text-tech-main
+      relative flex min-h-screen w-full flex-col font-sans text-tech-main
       selection:bg-tech-main/20 selection:text-tech-main-dark
-      relative flex min-h-screen w-full flex-col font-sans
     ">
       <nav className="
-        border-tech-main/40 sticky top-0 z-50 border-b bg-white/60
+        sticky top-0 z-50 border-b border-tech-main/40 bg-white/60
         backdrop-blur-md
       ">
-        <div className="bg-tech-main/20 absolute top-0 left-0 h-px w-full"></div>
+        <div className="absolute top-0 left-0 h-px w-full bg-tech-main/20"></div>
         <div className="
           mx-auto max-w-[1800px] px-4
           sm:px-6
@@ -51,11 +50,9 @@ export default function DashboardLayout({
                     key={link.href}
                     href={link.href}
                     className="
-                      hover:border-tech-main
-                      text-tech-main-dark
-                      hover:text-tech-main
                       border-b-2 border-transparent pb-1 font-mono text-xs
-                      tracking-[0.15em] transition-colors
+                      tracking-[0.15em] text-tech-main-dark transition-colors
+                      hover:border-tech-main hover:text-tech-main
                     ">
                     {link.label}
                   </Link>
@@ -68,8 +65,8 @@ export default function DashboardLayout({
               <React.Suspense
                 fallback={
                   <div className="
-                    border-tech-main/40 bg-tech-main/10 size-8 animate-pulse
-                    rounded-none border
+                    size-8 animate-pulse rounded-none border border-tech-main/40
+                    bg-tech-main/10
                     md:size-10
                   " />
                 }>
@@ -86,11 +83,11 @@ export default function DashboardLayout({
         lg:p-8
       ">
         <div className="
-          bg-tech-main/20 absolute top-0 left-0 hidden h-full w-px
+          absolute top-0 left-0 hidden h-full w-px bg-tech-main/20
           lg:block
         "></div>
         <div className="
-          bg-tech-main/20 absolute top-0 right-0 hidden h-full w-px
+          absolute top-0 right-0 hidden h-full w-px bg-tech-main/20
           lg:block
         "></div>
         {children}

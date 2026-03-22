@@ -176,15 +176,15 @@ export default function ConflictResolver({
     <div className="space-y-4">
       {/* Top Banner */}
       <div className="
-        border-tech-main bg-tech-main/10 flex flex-col items-start
-        justify-between border-l-4 p-4
+        flex flex-col items-start justify-between border-l-4 border-tech-main
+        bg-tech-main/10 p-4
         sm:flex-row sm:items-center
       ">
         <div>
-          <p className="text-tech-main font-bold tracking-widest uppercase">
+          <p className="font-bold tracking-widest text-tech-main uppercase">
             Merge Conflict Detected
           </p>
-          <p className="text-tech-main-dark text-sm">
+          <p className="text-sm text-tech-main-dark">
             {viewMode === "visual"
               ? remainingConflicts === 0
                 ? "All conflicts resolved! You can submit now."
@@ -223,7 +223,7 @@ export default function ConflictResolver({
         <input type="hidden" name="filePath" value={filePath} />
 
         <div className="
-          bg-tech-main/5 border-tech-main/30 relative w-full rounded-sm border
+          relative w-full rounded-sm border border-tech-main/30 bg-tech-main/5
           p-1
         ">
           {viewMode === "raw" ? (
@@ -232,8 +232,8 @@ export default function ConflictResolver({
               value={rawContent}
               onChange={(e) => setRawContent(e.target.value)}
               className="
-                text-tech-main-dark min-h-[600px] w-full resize-y bg-transparent
-                p-4 font-mono text-sm outline-none
+                min-h-[600px] w-full resize-y bg-transparent p-4 font-mono
+                text-sm text-tech-main-dark outline-none
               "
             />
           ) : (

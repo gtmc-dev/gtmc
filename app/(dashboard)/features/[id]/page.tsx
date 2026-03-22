@@ -108,7 +108,7 @@ export default async function FeatureDetailPage({
         <div className="flex flex-col gap-4">
           <div>
             <h1 className="
-              border-tech-main inline-block border-b-2 pb-2 text-xl font-bold
+              inline-block border-b-2 border-tech-main pb-2 text-xl font-bold
               tracking-tighter uppercase
               sm:text-2xl
               md:text-3xl
@@ -252,10 +252,9 @@ export default async function FeatureDetailPage({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
-                      text-tech-main border-tech-main/50
-                      hover:bg-tech-main/80
-                      border-b font-mono wrap-break-word transition-colors
-                      hover:text-white
+                      border-b border-tech-main/50 font-mono wrap-break-word
+                      text-tech-main transition-colors
+                      hover:bg-tech-main/80 hover:text-white
                     ">
                     Issue #{feature.issueNumber}
                   </a>

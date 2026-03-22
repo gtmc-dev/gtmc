@@ -70,7 +70,7 @@ export function getMarkdownComponents(rawPath: string) {
     ),
     table: ({ ...props }: MarkdownComponentProps) => (
       <div className="
-        border-tech-main/30 -mx-6 my-6 w-full overflow-x-auto border bg-white/50
+        -mx-6 my-6 w-full overflow-x-auto border border-tech-main/30 bg-white/50
         px-6 backdrop-blur-sm
         sm:-mx-8 sm:px-8
       ">
@@ -84,15 +84,15 @@ export function getMarkdownComponents(rawPath: string) {
     ),
     thead: ({ ...props }: MarkdownComponentProps) => (
       <thead
-        className="bg-tech-main/10 border-tech-main/30 border-b"
+        className="border-b border-tech-main/30 bg-tech-main/10"
         {...props}
       />
     ),
     th: ({ ...props }: MarkdownComponentProps) => (
       <th
         className="
-          text-tech-main border-tech-main/10 border-r p-3 font-semibold
-          whitespace-nowrap
+          border-r border-tech-main/10 p-3 font-semibold whitespace-nowrap
+          text-tech-main
           last:border-r-0
         "
         {...props}
@@ -101,7 +101,7 @@ export function getMarkdownComponents(rawPath: string) {
     td: ({ ...props }: MarkdownComponentProps) => (
       <td
         className="
-          border-tech-main/10 border-t border-r p-3 text-slate-700
+          border-t border-r border-tech-main/10 p-3 text-slate-700
           last:border-r-0
         "
         {...props}
@@ -111,10 +111,9 @@ export function getMarkdownComponents(rawPath: string) {
       <h1
         id={id}
         className="
-          group border-tech-main/30
+          group relative mt-8 mb-6 scroll-m-20 border-b border-tech-main/30 pb-4
+          font-mono text-2xl tracking-widest text-slate-900 uppercase
           target:animate-target-blink target:border-tech-main
-          relative mt-8 mb-6 scroll-m-20 border-b pb-4 font-mono text-2xl
-          tracking-widest text-slate-900 uppercase
           sm:text-3xl
           lg:text-4xl
         ">
@@ -122,8 +121,8 @@ export function getMarkdownComponents(rawPath: string) {
           <a
             href={`#${id}`}
             className="
-              text-tech-main absolute top-1/2 -left-6 -translate-y-1/2 text-xl
-              font-normal no-underline opacity-0 transition-opacity
+              absolute top-1/2 -left-6 -translate-y-1/2 text-xl font-normal
+              text-tech-main no-underline opacity-0 transition-opacity
               group-hover:opacity-100
             ">
             #
@@ -136,17 +135,17 @@ export function getMarkdownComponents(rawPath: string) {
       <h2
         id={id}
         className="
-          group border-tech-main/30
+          group relative mt-12 mb-6 inline-block scroll-m-20 border-b
+          border-tech-main/30 pr-8 font-mono text-2xl tracking-widest
+          text-slate-800 uppercase
           target:animate-target-blink target:border-tech-main
-          relative mt-12 mb-6 inline-block scroll-m-20 border-b pr-8 font-mono
-          text-2xl tracking-widest text-slate-800 uppercase
         ">
         {id && (
           <a
             href={`#${id}`}
             className="
-              text-tech-main absolute top-1/2 -left-5 -translate-y-1/2 text-lg
-              font-normal no-underline opacity-0 transition-opacity
+              absolute top-1/2 -left-5 -translate-y-1/2 text-lg font-normal
+              text-tech-main no-underline opacity-0 transition-opacity
               group-hover:opacity-100
             ">
             #
@@ -159,17 +158,16 @@ export function getMarkdownComponents(rawPath: string) {
       <h3
         id={id}
         className="
-          group
-          target:animate-target-blink
-          relative mt-8 mb-4 scroll-m-20 font-mono text-xl tracking-widest
+          group relative mt-8 mb-4 scroll-m-20 font-mono text-xl tracking-widest
           text-slate-700 uppercase
+          target:animate-target-blink
         ">
         {id && (
           <a
             href={`#${id}`}
             className="
-              text-tech-main absolute top-1/2 -left-4 -translate-y-1/2 text-base
-              font-normal no-underline opacity-0 transition-opacity
+              absolute top-1/2 -left-4 -translate-y-1/2 text-base font-normal
+              text-tech-main no-underline opacity-0 transition-opacity
               group-hover:opacity-100
             ">
             #
@@ -215,10 +213,9 @@ export function getMarkdownComponents(rawPath: string) {
         <Link
           href={href}
           className="
-            text-tech-main border-tech-main/50
-            hover:bg-tech-main/80
-            border-b font-mono transition-colors
-            hover:text-white
+            border-b border-tech-main/50 font-mono text-tech-main
+            transition-colors
+            hover:bg-tech-main/80 hover:text-white
           "
           {...props}
         />
@@ -227,7 +224,7 @@ export function getMarkdownComponents(rawPath: string) {
     ul: ({ ...props }: MarkdownComponentProps) => (
       <ul
         className="
-          border-tech-main/30 mb-6 list-none space-y-2 border-l-[1.5] pl-8
+          mb-6 list-none space-y-2 border-l-[1.5] border-tech-main/30 pl-8
           font-mono text-[0.9em] text-slate-800
         "
         {...props}
@@ -242,9 +239,9 @@ export function getMarkdownComponents(rawPath: string) {
     li: ({ ...props }: MarkdownComponentProps) => (
       <li
         className="
-          before:text-tech-main/50
           relative text-slate-800
-          before:absolute before:-left-4 before:content-['>']
+          before:absolute before:-left-4 before:text-tech-main/50
+          before:content-['>']
         "
         {...props}
       />
@@ -252,7 +249,7 @@ export function getMarkdownComponents(rawPath: string) {
     blockquote: ({ ...props }: MarkdownComponentProps) => (
       <blockquote
         className="
-          border-tech-main bg-tech-main/5 mb-6 border-l-2 p-4 pb-[0.01]
+          mb-6 border-l-2 border-tech-main bg-tech-main/5 p-4 pb-[0.01]
           font-mono text-slate-700 italic
         "
         {...props}
@@ -279,7 +276,7 @@ export function getMarkdownComponents(rawPath: string) {
           src={src}
           alt={(alt as string) || ""}
           className="
-            border-tech-main/30 bg-tech-main/5 my-8 h-auto max-w-full border p-1
+            my-8 h-auto max-w-full border border-tech-main/30 bg-tech-main/5 p-1
             shadow-sm
           "
         />
@@ -293,14 +290,14 @@ export function getMarkdownComponents(rawPath: string) {
       const match = /language-(\w+)/.exec((className as string) || "")
       return match ? (
         <div className="
-          border-tech-main/30 -mx-6 my-6 max-w-full overflow-hidden border
+          -mx-6 my-6 max-w-full overflow-hidden border border-tech-main/30
           bg-[#1e1e1e] font-mono text-sm shadow-sm
           sm:-mx-8
         ">
           <div className="
-            bg-tech-main/10 text-tech-main border-tech-main/30 flex items-center
-            justify-between border-b px-4 py-1 font-mono text-xs tracking-widest
-            uppercase
+            flex items-center justify-between border-b border-tech-main/30
+            bg-tech-main/10 px-4 py-1 font-mono text-xs tracking-widest
+            text-tech-main uppercase
           ">
             <span>{match[1]}</span>
             <span className="opacity-50">
@@ -338,8 +335,8 @@ export function getMarkdownComponents(rawPath: string) {
       ) : (
         <code
           className="
-            bg-tech-main/10 text-tech-main border-tech-main/30 mx-1 rounded-none
-            border px-1 py-[0.05rem] font-mono text-[0.8em]
+            mx-1 rounded-none border border-tech-main/30 bg-tech-main/10 px-1
+            py-[0.05rem] font-mono text-[0.8em] text-tech-main
           "
           {...props}>
           {children}

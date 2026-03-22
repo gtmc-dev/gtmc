@@ -112,8 +112,8 @@ export function FeatureList({ features }: { features: Feature[] }) {
       <RevealSection delay={delay}>
         <div className="mb-8">
           <h2 className="
-            border-tech-main/20 text-tech-main-dark mb-6 border-b pb-2 text-lg
-            font-bold tracking-widest uppercase
+            mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
+            tracking-widest text-tech-main-dark uppercase
             md:text-xl
           ">
             {title} ({groupFeatures.length})
@@ -129,23 +129,21 @@ export function FeatureList({ features }: { features: Feature[] }) {
                 href={`/features/${feature.id}`}
                 className="block">
                 <BrutalCard className="
-                  border-tech-main/40 group
+                  group relative flex h-auto flex-col justify-between border
+                  border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
+                  transition-colors
                   hover:border-tech-main/60
-                  relative flex h-auto flex-col justify-between border
-                  bg-white/80 p-6 backdrop-blur-sm transition-colors
                   sm:h-64
                 ">
                   {/* Corner brackets */}
                   <div className="
-                    border-tech-main/40 absolute top-0 left-0 size-2
-                    -translate-px border-t-2 border-l-2 opacity-0
-                    transition-opacity
+                    absolute top-0 left-0 size-2 -translate-px border-t-2
+                    border-l-2 border-tech-main/40 opacity-0 transition-opacity
                     group-hover:opacity-100
                   "></div>
                   <div className="
-                    border-tech-main/40 absolute right-0 bottom-0 size-2
-                    translate-px border-r-2 border-b-2 opacity-0
-                    transition-opacity
+                    absolute right-0 bottom-0 size-2 translate-px border-r-2
+                    border-b-2 border-tech-main/40 opacity-0 transition-opacity
                     group-hover:opacity-100
                   "></div>
 
@@ -154,7 +152,7 @@ export function FeatureList({ features }: { features: Feature[] }) {
                       <StatusBadge status={feature.status} />
                       <div className="flex flex-col items-end gap-1">
                         <span
-                          className="text-tech-main/50 font-mono text-xs"
+                          className="font-mono text-xs text-tech-main/50"
                           suppressHydrationWarning>
                           {new Date(
                             feature.createdAt,
@@ -164,19 +162,20 @@ export function FeatureList({ features }: { features: Feature[] }) {
                     </div>
 
                     <h3 className="
-                      text-tech-main-dark border-tech-main/40 mt-2 line-clamp-2
-                      border-l-2 pl-3 text-lg font-bold tracking-tight uppercase
+                      mt-2 line-clamp-2 border-l-2 border-tech-main/40 pl-3
+                      text-lg font-bold tracking-tight text-tech-main-dark
+                      uppercase
                     ">
                       {feature.title}
                     </h3>
 
                     <div className="mt-4 flex flex-col gap-2">
                       <p className="
-                        text-tech-main flex items-center font-mono text-xs
-                        tracking-widest opacity-80
+                        flex items-center font-mono text-xs tracking-widest
+                        text-tech-main opacity-80
                       ">
                         <span className="
-                          bg-tech-main mr-2 inline-block size-1.5
+                          mr-2 inline-block size-1.5 bg-tech-main
                         "></span>
                         AUTHOR:{" "}
                         {feature.author?.name || "UNKNOWN_USER"}
@@ -201,9 +200,9 @@ export function FeatureList({ features }: { features: Feature[] }) {
                           <span
                             key={tag}
                             className="
-                              bg-tech-main/5 border-tech-main/20
-                              text-tech-main/70 border px-1.5 py-0.5 font-mono
-                              text-[10px] uppercase
+                              border border-tech-main/20 bg-tech-main/5 px-1.5
+                              py-0.5 font-mono text-[10px] text-tech-main/70
+                              uppercase
                             ">
                             {tag}
                           </span>
@@ -230,7 +229,7 @@ export function FeatureList({ features }: { features: Feature[] }) {
           <div className="space-y-4">
             <div>
               <h4 className="
-                text-tech-main mb-3 font-mono text-sm tracking-widest uppercase
+                mb-3 font-mono text-sm tracking-widest text-tech-main uppercase
               ">
                 FILTER_BY_STATUS_
               </h4>
@@ -250,11 +249,10 @@ export function FeatureList({ features }: { features: Feature[] }) {
                       border px-3 py-2 font-mono text-xs transition-all
                       ${
                       statusFilter === status
-                        ? "bg-tech-main border-tech-main text-white"
+                        ? "border-tech-main bg-tech-main text-white"
                         : `
-                          text-tech-main border-tech-main/40
+                          border-tech-main/40 bg-transparent text-tech-main
                           hover:border-tech-main/60
-                          bg-transparent
                         `
                     }
                     `}>
@@ -267,7 +265,7 @@ export function FeatureList({ features }: { features: Feature[] }) {
             {allTags.length > 0 && (
               <div>
                 <h4 className="
-                  text-tech-main mb-3 font-mono text-sm tracking-widest
+                  mb-3 font-mono text-sm tracking-widest text-tech-main
                   uppercase
                 ">
                   FILTER_BY_TAGS_
@@ -283,9 +281,9 @@ export function FeatureList({ features }: { features: Feature[] }) {
                         transition-all
                         ${
                         selectedTags.includes(tag)
-                          ? "bg-tech-accent border-tech-accent text-white"
+                          ? "border-tech-accent bg-tech-accent text-white"
                           : `
-                            bg-tech-accent/5 text-tech-main border-tech-main/40
+                            border-tech-main/40 bg-tech-accent/5 text-tech-main
                             hover:border-tech-main/60
                           `
                       }
@@ -304,8 +302,8 @@ export function FeatureList({ features }: { features: Feature[] }) {
       <div className="mt-8">
         {filteredFeatures.length === 0 ? (
           <div className="
-            border-tech-main/40 text-tech-main/50 border border-dashed
-            bg-white/30 py-16 text-center font-mono
+            border border-dashed border-tech-main/40 bg-white/30 py-16
+            text-center font-mono text-tech-main/50
           ">
             NO_FEATURES_FOUND_
           </div>

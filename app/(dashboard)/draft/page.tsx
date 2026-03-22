@@ -34,19 +34,19 @@ export default async function DraftDashboardPage() {
     <BrutalCard
       key={draft.id}
       className="
-        border-tech-main/40 group relative flex h-auto flex-col justify-between
-        border bg-white/80 p-6 backdrop-blur-sm
+        group relative flex h-auto flex-col justify-between border
+        border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
         sm:h-64
       ">
       {/* Corner brackets */}
       <div className="
-        border-tech-main/40 absolute top-0 left-0 size-2 -translate-px
-        border-t-2 border-l-2 opacity-0 transition-opacity
+        absolute top-0 left-0 size-2 -translate-px border-t-2 border-l-2
+        border-tech-main/40 opacity-0 transition-opacity
         group-hover:opacity-100
       "></div>
       <div className="
-        border-tech-main/40 absolute right-0 bottom-0 size-2 translate-px
-        border-r-2 border-b-2 opacity-0 transition-opacity
+        absolute right-0 bottom-0 size-2 translate-px border-r-2 border-b-2
+        border-tech-main/40 opacity-0 transition-opacity
         group-hover:opacity-100
       "></div>
 
@@ -57,7 +57,7 @@ export default async function DraftDashboardPage() {
               shrink-0 border px-2 py-0.5 font-mono text-xs tracking-wider
               ${
               draft.status === "DRAFT"
-                ? "border-tech-main/40 text-tech-main bg-tech-main/5"
+                ? "border-tech-main/40 bg-tech-main/5 text-tech-main"
                 : draft.status === "PENDING"
                   ? "border-blue-500/40 bg-blue-500/10 text-blue-600"
                   : draft.status === "REJECTED"
@@ -70,7 +70,7 @@ export default async function DraftDashboardPage() {
             [{draft.status}]
           </span>
           <div className="flex flex-col items-end gap-1">
-            <span className="text-tech-main/50 font-mono text-xs">
+            <span className="font-mono text-xs text-tech-main/50">
               {draft.updatedAt.toLocaleDateString()}
             </span>
             {draft.status !== "PENDING" &&
@@ -94,17 +94,17 @@ export default async function DraftDashboardPage() {
           </div>
         </div>
         <h3 className="
-          text-tech-main-dark border-tech-main/40 mt-2 line-clamp-2 border-l-2
-          pl-3 text-lg font-bold tracking-tight uppercase
+          mt-2 line-clamp-2 border-l-2 border-tech-main/40 pl-3 text-lg
+          font-bold tracking-tight text-tech-main-dark uppercase
         ">
           {draft.title || "UNTITLED_DOCUMENT"}
         </h3>
         {draft.articleId && (
           <p className="
-            text-tech-main mt-4 flex items-center font-mono text-xs
-            tracking-widest opacity-80
+            mt-4 flex items-center font-mono text-xs tracking-widest
+            text-tech-main opacity-80
           ">
-            <span className="bg-tech-main mr-2 inline-block size-1.5"></span>{" "}
+            <span className="mr-2 inline-block size-1.5 bg-tech-main"></span>{" "}
             MOD_LIVE_DB
           </p>
         )}
@@ -119,11 +119,9 @@ export default async function DraftDashboardPage() {
         <BrutalButton
           variant="ghost"
           className="
-            border-tech-main/40
-            hover:border-tech-main/60
-            min-h-[44px] w-full border bg-white/50 font-mono text-xs
-            tracking-widest transition-all
-            hover:bg-white/80
+            min-h-[44px] w-full border border-tech-main/40 bg-white/50 font-mono
+            text-xs tracking-widest transition-all
+            hover:border-tech-main/60 hover:bg-white/80
           ">
           {draft.status === "DRAFT" || draft.status === "REJECTED"
             ? "> EDIT_RECORD"
@@ -136,35 +134,35 @@ export default async function DraftDashboardPage() {
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-6">
       <div className="
-        border-tech-main/40 relative flex flex-col items-start justify-between
-        gap-4 border-b pb-6
+        relative flex flex-col items-start justify-between gap-4 border-b
+        border-tech-main/40 pb-6
         md:flex-row md:items-end
       ">
         <div className="
-          border-tech-main/20 absolute top-0 right-0 size-8 translate-x-px
-          -translate-y-px border-t border-r
+          absolute top-0 right-0 size-8 translate-x-px -translate-y-px border-t
+          border-r border-tech-main/20
         "></div>
         <div className="
           mb-0 w-full
           md:w-auto
         ">
           <h1 className="
-            text-tech-main-dark flex items-center gap-2 text-2xl font-bold
-            tracking-tight uppercase
+            flex items-center gap-2 text-2xl font-bold tracking-tight
+            text-tech-main-dark uppercase
             md:text-4xl
           ">
             <span className="
-              bg-tech-main/20 border-tech-main/40 size-3 shrink-0 border
+              size-3 shrink-0 border border-tech-main/40 bg-tech-main/20
             "></span>
             <span className="wrap-break-word">Ops Center</span>
           </h1>
           <p className="
-            text-tech-main/80 mt-3 flex items-center gap-2 font-mono text-xs
-            tracking-widest
+            mt-3 flex items-center gap-2 font-mono text-xs tracking-widest
+            text-tech-main/80
             sm:text-sm
           ">
             <span className="
-              bg-tech-main size-1.5 shrink-0 animate-pulse rounded-full
+              size-1.5 shrink-0 animate-pulse rounded-full bg-tech-main
             "></span>
             <span className="wrap-break-word">
               YOUR DIGITAL WORKSHOP / DRAFTS & REVISIONS
@@ -192,8 +190,8 @@ export default async function DraftDashboardPage() {
       <div className="space-y-8">
         <div>
           <h2 className="
-            text-tech-main-dark border-tech-main/20 mb-6 border-b pb-2 text-lg
-            font-bold tracking-widest uppercase
+            mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
+            tracking-widest text-tech-main-dark uppercase
             md:text-xl
           ">
             Active Records
@@ -205,16 +203,17 @@ export default async function DraftDashboardPage() {
           ">
             {activeDrafts.length === 0 ? (
               <div className="
-                border-tech-main/40 group relative col-span-full border
-                border-dashed bg-white/30 py-16 text-center backdrop-blur-sm
+                group relative col-span-full border border-dashed
+                border-tech-main/40 bg-white/30 py-16 text-center
+                backdrop-blur-sm
               ">
                 <div className="
                   absolute inset-0
                   bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(96,112,143,0.05)_10px,rgba(96,112,143,0.05)_20px)]
                 "></div>
                 <h2 className="
-                  text-tech-main/50 relative z-10 font-mono text-lg
-                  tracking-widest uppercase
+                  relative z-10 font-mono text-lg tracking-widest
+                  text-tech-main/50 uppercase
                 ">
                   NO ACTIVE RECORDS FOUND.
                 </h2>
@@ -228,8 +227,8 @@ export default async function DraftDashboardPage() {
         {archivedDrafts.length > 0 && (
           <div>
             <h2 className="
-              text-tech-main-dark border-tech-main/20 mb-6 border-b pb-2 text-lg
-              font-bold tracking-widest uppercase
+              mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
+              tracking-widest text-tech-main-dark uppercase
               md:text-xl
             ">
               Archived / Approved Records
