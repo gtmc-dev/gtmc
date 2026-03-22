@@ -990,7 +990,7 @@ export function labelsToStatus(labels: string[]): AppFeatureStatus {
     return "IN_PROGRESS"
   }
 
-  // Defaulting to PENDING because no recognized status label was found â€” this
+  // Defaulting to PENDING because no recognized status label was found â€?this
   // handles issues created outside the app.
   return "PENDING"
 }

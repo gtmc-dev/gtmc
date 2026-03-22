@@ -28,7 +28,7 @@ export default async function ReviewHubPage() {
   // Fetch PRs from GitHub using admin's PAT or default SERVER TOKEN
   const token =
     (session.user as { githubPat?: string }).githubPat ||
-    process.env.GITHUB_TOKEN
+    process.env.GITHUB_ARTICLES_WRITE_PAT
   let openPRs: Array<{
     id: number
     number: number
@@ -105,7 +105,7 @@ export default async function ReviewHubPage() {
                   <BrutalButton
                     variant="primary"
                     className="flex min-h-[44px] w-full items-center justify-center px-6 text-xs tracking-widest uppercase transition-transform hover:scale-[1.02] md:w-auto">
-                    REVIEW CONTENT â†’
+                    REVIEW CONTENT â†?
                   </BrutalButton>
                 </Link>
               </div>

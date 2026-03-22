@@ -9,7 +9,7 @@ export const UPLOAD_SAFE_LIMIT_BYTES = 4.3 * 1024 * 1024
 // Start compressing above this threshold to leave room for compression
 export const COMPRESS_TRIGGER_BYTES = 3.5 * 1024 * 1024
 
-// Target size (MB) for compression â€” maps to browser-image-compression maxSizeMB
+// Target size (MB) for compression â€?maps to browser-image-compression maxSizeMB
 export const COMPRESS_TARGET_MB = 4.0
 
 export interface CompressionResult {
@@ -24,7 +24,7 @@ export async function compressImageForUpload(
   const imageCompression = (await import("browser-image-compression"))
     .default
 
-  // GIF bypass â€” compressing GIFs destroys animation
+  // GIF bypass â€?compressing GIFs destroys animation
   if (file.type === "image/gif") {
     if (file.size > UPLOAD_SAFE_LIMIT_BYTES) {
       return {
@@ -69,14 +69,14 @@ export async function compressImageForUpload(
       }
     }
 
-    // Compression made the file larger (e.g. already well-optimized PNG) â€” use original
+    // Compression made the file larger (e.g. already well-optimized PNG) â€?use original
     if (compressed.size >= file.size) {
       return { file, compressed: false }
     }
 
     return { file: compressed, compressed: true }
   } catch {
-    // Compression failed â€” fall back to original if it fits, otherwise error
+    // Compression failed â€?fall back to original if it fits, otherwise error
     if (file.size > UPLOAD_SAFE_LIMIT_BYTES) {
       return {
         file,

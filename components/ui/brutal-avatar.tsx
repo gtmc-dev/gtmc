@@ -18,7 +18,7 @@ export function BrutalAvatar({
   return (
     <div
       className={`border-tech-main/40 group hover:border-tech-main relative box-border flex aspect-square h-full w-full items-center justify-center overflow-hidden border-2 bg-slate-100 transition-all duration-300 ${className}`}>
-      {/* 科技感装饰元素 */}
+      {/* 科技感装饰元�?*/}
       <div className="pointer-events-none absolute inset-0 z-10 opacity-70 transition-opacity duration-300 group-hover:opacity-100">
         {/* 中心十字准星 */}
         <div className="bg-tech-main/40 absolute top-1/2 left-1/2 h-[1px] w-4 -translate-x-1/2 -translate-y-1/2"></div>

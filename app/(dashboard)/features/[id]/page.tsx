@@ -128,7 +128,7 @@ export default async function FeatureDetailPage({
           <div className="pointer-events-none absolute right-0 bottom-0 h-2 w-2 translate-x-[1px] translate-y-[1px] border-r-2 border-b-2 border-red-500/50"></div>
 
           <span className="flex items-center gap-2 font-bold">
-            <span className="text-red-500">âš </span> FEATURE DELETED
+            <span className="text-red-500">âš?/span> FEATURE DELETED
             (READ-ONLY)
           </span>
           <p className="mt-2 border-t border-dashed border-red-500/30 pt-2 text-xs tracking-normal normal-case opacity-80">

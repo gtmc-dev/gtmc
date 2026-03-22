@@ -54,7 +54,7 @@ export function PendingCreationBanner() {
     const raw = sessionStorage.getItem(PENDING_FEATURE_CREATE_KEY)
     if (!raw) {
       inFlightRef.current = false
-      return // No payload â€” render nothing
+      return // No payload â€?render nothing
     }
 
     try {

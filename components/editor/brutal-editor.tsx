@@ -207,7 +207,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
       const result = await saveDraftAction(formData)
       if (result.success && result.revisionId) {
         setRevisionId(result.revisionId)
-        alert("草稿已保存 / Draft Saved!")
+        alert("草稿已保�?/ Draft Saved!")
       }
     } catch (error) {
       console.error(error)
@@ -225,7 +225,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
 
     try {
       await submitForReviewAction(revisionId)
-      alert("已提交审核 / Submitted for Review!")
+      alert("已提交审�?/ Submitted for Review!")
       router.push("/draft")
     } catch (error) {
       console.error(error)
@@ -239,7 +239,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
       <div className="border-tech-main/60 absolute top-0 left-0 h-2 w-2 -translate-x-0.5 -translate-y-0.5 border-t-2 border-l-2"></div>
       <div className="border-tech-main/60 absolute right-0 bottom-0 h-2 w-2 translate-x-0.5 translate-y-0.5 border-r-2 border-b-2"></div>
 
-      {/* 标题区 */}
+      {/* 标题�?*/}
       <div className="flex flex-col space-y-4">
         <div className="flex flex-col space-y-2">
           <label className="section-label">TITLE_</label>
@@ -258,7 +258,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
             FILE_PATH (e.g. Folder/My-Article.md)_
           </label>
           <BrutalInput
-            placeholder="e.g. SlimeTech/Molforte/04-新机器.md"
+            placeholder="e.g. SlimeTech/Molforte/04-新机�?md"
             className={`border-tech-main/40 focus:border-tech-main/60 py-2 font-mono text-sm backdrop-blur-sm ${isReadOnly ? "cursor-not-allowed bg-gray-100 opacity-70" : "bg-white/80"}`}
             value={filePath}
             onChange={(e) => setFilePath(e.target.value)}
@@ -267,7 +267,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
         </div>
       </div>
 
-      {/* 编辑器主区域 (双栏布局或单栏) */}
+      {/* 编辑器主区域 (双栏布局或单�? */}
       <div className="flex grow flex-col space-y-2">
         <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between sm:gap-0">
           <label className="text-tech-main border-tech-main/30 tracking-tech-wide inline-block border-b pb-1 font-mono text-sm uppercase">
@@ -360,7 +360,7 @@ export function BrutalEditor({ initialData }: BrutalEditorProps) {
         />
       </div>
 
-      {/* 操作区 */}
+      {/* 操作�?*/}
       {!isReadOnly && (
         <div className="border-tech-main/40 flex flex-col gap-4 border-t pt-6 sm:flex-row">
           <BrutalButton

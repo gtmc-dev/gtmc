@@ -19,7 +19,7 @@ export async function mergePRAction(prNumber: number) {
 
   const token =
     (session.user as { githubPat?: string }).githubPat ||
-    process.env.GITHUB_TOKEN
+    process.env.GITHUB_ARTICLES_WRITE_PAT
   const octokit = getOctokit(token)
 
   try {
@@ -48,7 +48,7 @@ export async function resolveConflictAction(
 
   const token =
     (session.user as { githubPat?: string }).githubPat ||
-    process.env.GITHUB_TOKEN
+    process.env.GITHUB_ARTICLES_WRITE_PAT
   const octokit = getOctokit(token)
 
   const filePath = formData.get("filePath") as string
@@ -105,7 +105,7 @@ export async function closePRAction(prNumber: number) {
 
   const token =
     (session.user as { githubPat?: string }).githubPat ||
-    process.env.GITHUB_TOKEN
+    process.env.GITHUB_ARTICLES_WRITE_PAT
   const octokit = getOctokit(token)
 
   try {

@@ -13,7 +13,7 @@ interface MimeConfig {
 }
 
 const MIME_ALLOWLIST: Record<string, MimeConfig> = {
-  // Images â€” 15 MB
+  // Images â€?15 MB
   "image/jpeg": {
     category: "images",
     maxBytes: 15 * 1024 * 1024,
@@ -34,7 +34,7 @@ const MIME_ALLOWLIST: Record<string, MimeConfig> = {
     maxBytes: 15 * 1024 * 1024,
     proxyable: false,
   },
-  // Videos â€” 50 MB
+  // Videos â€?50 MB
   "video/mp4": {
     category: "videos",
     maxBytes: 50 * 1024 * 1024,
@@ -50,7 +50,7 @@ const MIME_ALLOWLIST: Record<string, MimeConfig> = {
     maxBytes: 50 * 1024 * 1024,
     proxyable: false,
   },
-  // Files â€” 50 MB
+  // Files â€?50 MB
   "application/pdf": {
     category: "files",
     maxBytes: 50 * 1024 * 1024,
@@ -95,7 +95,7 @@ const MIME_ALLOWLIST: Record<string, MimeConfig> = {
   },
 }
 
-// Vercel serverless body limit â€” files at or above this use Blob intermediary
+// Vercel serverless body limit â€?files at or above this use Blob intermediary
 export const VERCEL_BODY_LIMIT_BYTES = 4.5 * 1024 * 1024
 
 // MIME types that the proxy route can serve inline
@@ -178,7 +178,7 @@ export function sanitizeFilename(
       ? originalName.substring(lastDot + 1).toLowerCase()
       : "bin")
 
-  // Sanitize basename: spaces â†’ dashes, strip non-allowed chars, truncate
+  // Sanitize basename: spaces â†?dashes, strip non-allowed chars, truncate
   basename = basename
     .replace(/\s+/g, "-")
     .replace(/[^a-zA-Z0-9._-]/g, "")
@@ -240,9 +240,9 @@ export function generateMarkdownBlock(
   if (classification.proxyable && storagePath) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
     const proxyUrl = `${appUrl}/api/files/proxy?path=${encodeURIComponent(storagePath)}`
-    return `${emoji} **${displayName}** (${sizeStr})\n[\[â–¶ View / Download\]](${proxyUrl})`
+    return `${emoji} **${displayName}** (${sizeStr})\n[\[â–?View / Download\]](${proxyUrl})`
   }
 
   // Non-proxyable: direct download link
-  return `${emoji} **${displayName}** (${sizeStr})\n[\[â†“ Download\]](${rawGithubUrl})`
+  return `${emoji} **${displayName}** (${sizeStr})\n[\[â†?Download\]](${rawGithubUrl})`
 }
