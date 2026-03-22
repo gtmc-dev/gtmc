@@ -18,7 +18,15 @@ const eslintConfig = defineConfig([
     ".worktrees/**",
   ]),
 
-  { extends: [eslintPluginBetterTailwindcss.configs.recommended] },
+  {
+    extends: [eslintPluginBetterTailwindcss.configs.recommended],
+    settings: {
+      "better-tailwindcss": {
+        entryPoint: "./app/globals.css",
+      }
+    }
+
+  },
 ])
 
 export default eslintConfig
