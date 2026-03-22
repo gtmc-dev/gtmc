@@ -51,7 +51,7 @@
     "@types/react": "^19.2.14",
     "@types/react-syntax-highlighter": "^15.5.13",
     "eslint": "^9.39.4",
-    "eslint-config-next": "16.2.0",
+    "eslint-config-next": "16.2.1",
     "playwright": "^1.58.2",
     "pnpm": "^10.32.1",
     "prettier": "^3.8.1",
