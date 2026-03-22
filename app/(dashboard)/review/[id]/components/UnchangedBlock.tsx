@@ -8,9 +8,11 @@ export function UnchangedBlock({
   onChange: (val: string) => void
 }) {
   const [expanded, setExpanded] = useState(false)
-  const lines = content.split("\n")
+  // Split properly, handling both \r\n, \n, and old mac \r
+  const contentFixed = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  const lines = contentFixed.split("\n")
 
-  if (lines.length <= 8 || expanded) {
+  if (lines.length <= 12 || expanded) {
     return (
       <textarea
         className="
@@ -25,8 +27,8 @@ export function UnchangedBlock({
     )
   }
 
-  const head = lines.slice(0, 3).join("\n")
-  const tail = lines.slice(-3).join("\n")
+  const headLines = lines.slice(0, 3)
+  const tailLines = lines.slice(-3)
   const hiddenCount = lines.length - 6
 
   return (
@@ -36,15 +38,12 @@ export function UnchangedBlock({
     ">
       <pre className="bg-transparent p-2 whitespace-pre-wrap">{head}</pre>
       <div
-        className="
-          mx-4 my-1 cursor-pointer rounded-sm bg-tech-main/10 px-4 py-2
-          text-center text-xs font-bold tracking-widest text-tech-main uppercase
-          transition-colors
-          hover:bg-tech-main/20
-        "
+        className="mx-4 my-1 py-2 px-4 bg-tech-main/10 text-tech-main hover:bg-tech-main/20 cursor-pointer text-center text-xs rounded-sm transition-colors font-bold tracking-widest uppercase"
         onClick={() => setExpanded(true)}
       >
-        ? {hiddenCount} unchanged lines hidden. Expand to view/edit
+        <span className="mr-2">?</span> 
+        {hiddenCount} UNCHANGED LINES HIDDEN. CLICK TO EXPAND & EDIT
+        <span className="ml-2">?</span>
       </div>
       <pre className="bg-transparent p-2 whitespace-pre-wrap">{tail}</pre>
     </div>

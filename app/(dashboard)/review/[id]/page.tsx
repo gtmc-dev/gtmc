@@ -58,14 +58,41 @@ export default async function ReviewDetailPage({
   const mainFile =
     files.find((f) => f.filename.endsWith(".md")) || files[0]
 
-  const isMergeable = pr.mergeable === true
-  const hasConflict = pr.mergeable === false
+  let isMergeable = pr.mergeable === true
+  let hasConflict = pr.mergeable === false
 
   let rawContent = ""
   if (mainFile) {
+    // 1. Fetch current PR head file to check if it has unresolved conflict markers left behind
+    let currentPrText = ""
+    try {
+      const { data: fileData } = await octokit.repos.getContent({
+        owner,
+        repo,
+        path: mainFile.filename,
+        ref: pr.head.ref,
+      })
+      if (!Array.isArray(fileData) && fileData.type === "file") {
+        currentPrText = Buffer.from(fileData.content, "base64").toString("utf8")
+        if (currentPrText.includes("<<<<<<< Current Change")) {
+          // It has leftover literal conflict markers, we MUST treat it as a conflict
+          // even if GitHub says it's technically mergeable based on tree history!
+          hasConflict = true
+          isMergeable = false
+          rawContent = currentPrText
+        }
+      }
+    } catch (e) {
+      console.error(e)
+    }
+
     if (hasConflict) {
-      try {
-        const { data: mainRef } = await octokit.git.getRef({
+      if (rawContent && rawContent.includes("<<<<<<< Current Change")) {
+        // We already have the completely formatted conflict text!
+        // No need to run diff3Merge again.
+      } else {
+        try {
+          const { data: mainRef } = await octokit.git.getRef({
           owner,
           repo,
           ref: "heads/main",
@@ -125,34 +152,11 @@ export default async function ReviewDetailPage({
         rawContent = output.join("\n")
       } catch (e) {
         console.error("Three-way merge failed, falling back to PR text", e)
-        try {
-          const { data: fileData } = await octokit.repos.getContent({
-            owner,
-            repo,
-            path: mainFile.filename,
-            ref: pr.head.ref,
-          })
-          if (!Array.isArray(fileData) && fileData.type === "file") {
-            rawContent = Buffer.from(fileData.content, "base64").toString("utf8")
-          }
-        } catch (e2) {
-          console.error(e2)
-        }
+        if (!rawContent) rawContent = currentPrText
+      }
       }
     } else {
-      try {
-        const { data: fileData } = await octokit.repos.getContent({
-          owner,
-          repo,
-          path: mainFile.filename,
-          ref: pr.head.ref,
-        })
-        if (!Array.isArray(fileData) && fileData.type === "file") {
-          rawContent = Buffer.from(fileData.content, "base64").toString("utf8")
-        }
-      } catch (e) {
-        console.error(e)
-      }
+      if (!rawContent) rawContent = currentPrText
     }
   }
 
