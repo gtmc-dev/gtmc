@@ -199,11 +199,13 @@ const IGNORED_DIRS = new Set([
   "source",
   "asset",
   "exampleworld",
+  "desynchronized",
 ])
 const IGNORED_ROOT_FILES = new Set([
   "readme.md",
   "contributors.md",
   "_sidebar.md",
+  "desynchronized.md",
 ])
 
 export interface RepoTreeNode {
