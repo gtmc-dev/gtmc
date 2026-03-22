@@ -200,7 +200,6 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
           {
             access: "public",
             handleUploadUrl: "/api/upload/feature/token",
-            multipart: true,
             clientPayload: JSON.stringify({
               mimeType: file.type,
               originalSize: file.size,
