@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 
-const SAFE_INLINE_TYPES = new Set([
-  "video/mp4",
-  "video/webm",
-  "application/pdf",
-])
+const EXT_TO_INLINE_MIME: Record<string, string> = {
+  mp4: "video/mp4",
+  webm: "video/webm",
+  pdf: "application/pdf",
+}
 
 const PATH_REGEX = /^data\/(images|videos|files)\/[^/]+$/
 
@@ -52,6 +52,11 @@ export async function GET(req: NextRequest) {
     )
   }
 
+  // Derive MIME from extension — GitHub's CDN returns application/octet-stream
+  const pathFilename = decodedPath.split("/").pop() || ""
+  const pathExt = pathFilename.split(".").pop()?.toLowerCase() || ""
+  const derivedMime = EXT_TO_INLINE_MIME[pathExt]
+
   const owner = process.env.GITHUB_REPO_OWNER
   const repo = process.env.GITHUB_REPO_NAME
   const token = process.env.GITHUB_FEATURES_ISSUES_PAT
@@ -96,23 +101,12 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  const upstreamContentType = (
-    upstream.headers.get("content-type") || ""
-  )
-    .split(";")[0]
-    .trim()
-    .toLowerCase()
-
-  if (!SAFE_INLINE_TYPES.has(upstreamContentType)) {
+  if (!derivedMime) {
     return NextResponse.redirect(githubUrl, 302)
   }
 
   const responseHeaders = new Headers()
-  responseHeaders.set(
-    "Content-Type",
-    upstream.headers.get("content-type") ||
-      "application/octet-stream",
-  )
+  responseHeaders.set("Content-Type", derivedMime)
   responseHeaders.set("Content-Disposition", "inline")
   responseHeaders.set("X-Content-Type-Options", "nosniff")
 
