@@ -238,7 +238,8 @@ export function generateMarkdownBlock(
   const emoji = classification.category === "videos" ? "🎬" : "📎"
 
   if (classification.proxyable && storagePath) {
-    const proxyUrl = `/api/files/proxy?path=${encodeURIComponent(storagePath)}`
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || ""
+    const proxyUrl = `${appUrl}/api/files/proxy?path=${encodeURIComponent(storagePath)}`
     return `${emoji} **${displayName}** (${sizeStr})\n[▶ Open](${proxyUrl})`
   }
 
