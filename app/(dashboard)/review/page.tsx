@@ -12,6 +12,7 @@ import {
 import { auth } from "@/lib/auth"
 import { PageHeader } from "@/components/ui/page-header"
 import { EmptyState } from "@/components/ui/empty-state"
+import { CornerBrackets } from "@/components/ui/corner-brackets"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 0
@@ -125,18 +126,7 @@ export default async function ReviewHubPage() {
         p-6 backdrop-blur-sm
         md:flex-row md:items-center md:space-y-0
       `}>
-      <div
-        className="
-          absolute top-0 left-0 size-2 -translate-px border-t-2 border-l-2
-          border-tech-main/40 opacity-0 transition-opacity
-          group-hover:opacity-100
-        "></div>
-      <div
-        className="
-          absolute right-0 bottom-0 size-2 translate-px border-r-2 border-b-2
-          border-tech-main/40 opacity-0 transition-opacity
-          group-hover:opacity-100
-        "></div>
+      <CornerBrackets variant="hover" />
 
       <div className="relative z-10 flex-1">
         <div className="mb-3 flex items-center gap-3">
