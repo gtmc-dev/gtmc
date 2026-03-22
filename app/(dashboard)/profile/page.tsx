@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth"
+Ôªøimport { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { BrutalInput } from "@/components/ui/brutal-input"
@@ -68,7 +68,7 @@ export default async function ProfilePage() {
         <div className="bg-tech-main/5 border-tech-main/20 text-tech-main/60 absolute top-0 right-0 border-b border-l px-2 py-1 font-mono text-[9px] tracking-widest sm:text-[10px]">
           CONFIG.PANEL_V2
         </div>
-        {/* Ω«¬‰øÃ∂» */}
+        {/* ËßíËêΩÂàªÂ∫¶ */}
         <div className="border-tech-main absolute top-0 left-0 h-2 w-2 -translate-x-0.5 -translate-y-0.5 border-t-2 border-l-2"></div>
         <div className="border-tech-main absolute right-0 bottom-0 h-2 w-2 translate-x-0.5 translate-y-0.5 border-r-2 border-b-2"></div>
 

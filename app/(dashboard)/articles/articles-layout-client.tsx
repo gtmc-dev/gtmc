@@ -80,7 +80,7 @@ export function ArticlesLayoutClient({
             TREE
           </span>
           <span className="font-mono text-sm font-bold">
-            {isOpen ? "â–? : "â–?}
+            {isOpen ? "â–¼" : "â–¶"}
           </span>
         </button>
 

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         }
       },
       onUploadCompleted: async () => {
-        // No-op â€?commit step handles GitHub transfer
+        // No-op â€” commit step handles GitHub transfer
       },
     })
 

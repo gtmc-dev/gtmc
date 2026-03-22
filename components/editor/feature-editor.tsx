@@ -526,7 +526,7 @@ export function FeatureEditor({ initialData }: FeatureEditorProps) {
                     onClick={clearBadge}
                     className="ml-2 text-red-300 hover:text-white"
                     aria-label="Dismiss">
-                    âœ?
+                    âœ•
                   </button>
                 )}
               </div>

@@ -181,7 +181,7 @@ export function FeatureList({ features }: { features: Feature[] }) {
 
   return (
     <div className="space-y-6">
-      {/* 过滤�?*/}
+      {/* 过滤器 */}
       <RevealSection delay={0}>
         <BrutalCard className="border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm">
           <div className="space-y-4">
@@ -245,19 +245,19 @@ export function FeatureList({ features }: { features: Feature[] }) {
         ) : (
           <>
             {renderFeatureGroup(
-              "待解�?/ PENDING",
+              "待解决 / PENDING",
               pendingFeatures,
               "No pending features",
               200,
             )}
             {renderFeatureGroup(
-              "解决�?/ IN PROGRESS",
+              "解决中 / IN PROGRESS",
               inProgressFeatures,
               "No features in progress",
               300,
             )}
             {renderFeatureGroup(
-              "已解�?/ RESOLVED",
+              "已解决 / RESOLVED",
               resolvedFeatures,
               "No resolved features",
               400,

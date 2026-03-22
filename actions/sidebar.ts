@@ -129,7 +129,7 @@ export async function createDocument({
     where: { slug },
   })
   if (existing) {
-    throw new Error("该路�?(Slug) 已存�?)
+    throw new Error("该路径 (Slug) 已存在")
   }
 
   const newDoc = await prisma.article.create({

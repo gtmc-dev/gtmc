@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+﻿import { prisma } from "@/lib/prisma"
 import ReactMarkdown from "react-markdown"
 import "katex/dist/katex.min.css"
 import { notFound } from "next/navigation"

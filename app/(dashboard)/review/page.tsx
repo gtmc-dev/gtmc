@@ -105,7 +105,7 @@ export default async function ReviewHubPage() {
                   <BrutalButton
                     variant="primary"
                     className="flex min-h-[44px] w-full items-center justify-center px-6 text-xs tracking-widest uppercase transition-transform hover:scale-[1.02] md:w-auto">
-                    REVIEW CONTENT â†?
+                    REVIEW CONTENT â†’
                   </BrutalButton>
                 </Link>
               </div>

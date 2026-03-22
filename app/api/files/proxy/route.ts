@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  // Derive MIME from extension â€?GitHub's CDN returns application/octet-stream
+  // Derive MIME from extension â€” GitHub's CDN returns application/octet-stream
   const pathFilename = decodedPath.split("/").pop() || ""
   const pathExt = pathFilename.split(".").pop()?.toLowerCase() || ""
   const derivedMime = EXT_TO_INLINE_MIME[pathExt]

@@ -25,7 +25,7 @@ export const BrutalCard = React.forwardRef<
       ref={ref}
       className={`${baseStyles} ${className} group`}
       {...props}>
-      {/* 卡片的十字定位角�?*/}
+      {/* 卡片的十字定位角标 */}
       <div className="border-tech-main/40 pointer-events-none absolute top-0 left-0 h-2 w-2 -translate-x-[1px] -translate-y-[1px] border-t-2 border-l-2"></div>
       <div className="border-tech-main/40 pointer-events-none absolute top-0 right-0 h-2 w-2 translate-x-[1px] -translate-y-[1px] border-t-2 border-r-2"></div>
       <div className="border-tech-main/40 pointer-events-none absolute bottom-0 left-0 h-2 w-2 -translate-x-[1px] translate-y-[1px] border-b-2 border-l-2"></div>
