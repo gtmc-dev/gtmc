@@ -59,7 +59,13 @@ export function FeatureReadonlyView({
 
           <div className="min-h-[200px]">
             {content?.trim() ? (
-              <div className="prose prose-tech w-full max-w-none overflow-hidden wrap-break-word p-6 sm:p-8 selection:bg-tech-main/20 selection:text-slate-900">
+              <div
+                className="
+                  prose w-full max-w-none overflow-hidden p-6 wrap-break-word
+                  prose-tech
+                  selection:bg-tech-main/20 selection:text-slate-900
+                  sm:p-8
+                ">
                 <ReactMarkdown
                   remarkPlugins={remarkPlugins}
                   rehypePlugins={rehypePlugins}
@@ -74,19 +80,16 @@ export function FeatureReadonlyView({
             )}
           </div>
 
-          <details className="border-t border-tech-main/20">
+          <details className="border-t guide-line">
             <summary
               className="
-                cursor-pointer list-none border-b border-tech-main/20 bg-tech-main/5
-                px-4 py-2 font-mono text-xs text-tech-main/70
+                cursor-pointer list-none border-b guide-line bg-tech-main/5 px-4
+                py-2 font-mono text-xs text-tech-main/70
               ">
               SOURCE_
             </summary>
             {content?.trim() ? (
-              <pre
-                className="
-                  p-6 font-mono text-sm/relaxed whitespace-pre-wrap
-                ">
+              <pre className="p-6 font-mono text-sm/relaxed whitespace-pre-wrap">
                 {content}
               </pre>
             ) : (
