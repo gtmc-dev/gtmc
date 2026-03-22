@@ -58,28 +58,103 @@ export default async function ReviewDetailPage({
   const mainFile =
     files.find((f) => f.filename.endsWith(".md")) || files[0]
 
-  let rawContent = ""
-  if (mainFile) {
-    try {
-      const { data: fileData } = await octokit.repos.getContent({
-        owner,
-        repo,
-        path: mainFile.filename,
-        ref: pr.head.ref,
-      })
-      if (!Array.isArray(fileData) && fileData.type === "file") {
-        rawContent = Buffer.from(fileData.content, "base64").toString(
-          "utf8",
-        )
-      }
-    } catch (e) {
-      console.error(e)
-      // maybe file was deleted or something
-    }
-  }
-
   const isMergeable = pr.mergeable === true
   const hasConflict = pr.mergeable === false
+
+  let rawContent = ""
+  if (mainFile) {
+    if (hasConflict) {
+      try {
+        const { data: mainRef } = await octokit.git.getRef({
+          owner,
+          repo,
+          ref: "heads/main",
+        })
+        const mainSha = mainRef.object.sha
+        const prHeadSha = pr.head.sha
+
+        const { data: compare } = await octokit.repos.compareCommits({
+          owner,
+          repo,
+          base: mainSha,
+          head: prHeadSha,
+        })
+        const ancestorSha = compare.merge_base_commit.sha
+
+        const fetchFileRaw = async (refStr: string) => {
+          try {
+            const { data } = await octokit.repos.getContent({
+              owner,
+              repo,
+              path: mainFile.filename,
+              ref: refStr,
+            })
+            if (!Array.isArray(data) && data.type === "file") {
+              return Buffer.from(data.content, "base64").toString("utf8")
+            }
+          } catch {
+            return ""
+          }
+          return ""
+        }
+
+        const [mainText, ancestorText, prText] = await Promise.all([
+          fetchFileRaw(mainSha),
+          fetchFileRaw(ancestorSha),
+          fetchFileRaw(prHeadSha),
+        ])
+
+        const { diff3Merge } = await import("node-diff3")
+        const merged = diff3Merge(
+          mainText.split(/\r?\n/),
+          ancestorText.split(/\r?\n/),
+          prText.split(/\r?\n/)
+        )
+        const output: string[] = []
+        for (const block of merged) {
+          if (block.ok) {
+            output.push(...block.ok)
+          } else if (block.conflict) {
+            output.push(`<<<<<<< Current Change (main)`)
+            output.push(...block.conflict.a)
+            output.push("=======")
+            output.push(...block.conflict.b)
+            output.push(`>>>>>>> Incoming Change (PR)`)
+          }
+        }
+        rawContent = output.join("\n")
+      } catch (e) {
+        console.error("Three-way merge failed, falling back to PR text", e)
+        try {
+          const { data: fileData } = await octokit.repos.getContent({
+            owner,
+            repo,
+            path: mainFile.filename,
+            ref: pr.head.ref,
+          })
+          if (!Array.isArray(fileData) && fileData.type === "file") {
+            rawContent = Buffer.from(fileData.content, "base64").toString("utf8")
+          }
+        } catch (e2) {
+          console.error(e2)
+        }
+      }
+    } else {
+      try {
+        const { data: fileData } = await octokit.repos.getContent({
+          owner,
+          repo,
+          path: mainFile.filename,
+          ref: pr.head.ref,
+        })
+        if (!Array.isArray(fileData) && fileData.type === "file") {
+          rawContent = Buffer.from(fileData.content, "base64").toString("utf8")
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 p-4 pb-32 md:p-8">
