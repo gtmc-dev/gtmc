@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react"
 import { resolveConflictAction } from "@/actions/review"
 import { BrutalButton } from "@/components/ui/brutal-button"
+import { InlineDiff } from "./InlineDiff"
 
 type BlockType = "text" | "conflict"
 
@@ -296,7 +297,11 @@ export default function ConflictResolver({
                       <div className="text-blue-600/80 text-xs font-bold mb-1 opacity-70">
                         {b.currentName}
                       </div>
-                      <pre className="whitespace-pre-wrap">{b.current}</pre>
+                      <InlineDiff
+                        currentText={b.current || ""}
+                        incomingText={b.incoming || ""}
+                        mode="current"
+                      />
                     </div>
 
                     {/* Incoming Change */}
@@ -304,7 +309,11 @@ export default function ConflictResolver({
                       <div className="text-green-600/80 text-xs font-bold mb-1 opacity-70">
                         {b.incomingName}
                       </div>
-                      <pre className="whitespace-pre-wrap">{b.incoming}</pre>
+                      <InlineDiff
+                        currentText={b.current || ""}
+                        incomingText={b.incoming || ""}
+                        mode="incoming"
+                      />
                     </div>
                   </div>
                 )
