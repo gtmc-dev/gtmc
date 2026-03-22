@@ -25,7 +25,7 @@ export default function LoginPage() {
 
       {/* 左上角系统序列号 */}
       <div className="
-        absolute top-8 left-8 z-0 flex hidden flex-col space-y-1
+        absolute top-8 left-8 z-0 hidden flex-col space-y-1
         md:flex
       ">
         <div className="
@@ -89,7 +89,7 @@ export default function LoginPage() {
 
       {/* 贯穿全图的低调主辅助线 */}
       <div className="
-        absolute top-[50%] left-0 decor-desktop-only flex hidden h-px w-full
+        absolute top-[50%] left-0 decor-desktop-only hidden h-px w-full
         items-center justify-center bg-tech-main/10
         md:flex
       ">

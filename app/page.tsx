@@ -402,7 +402,7 @@ export default function Home() {
         style={{ x: mgTransform.x, y: mgTransform.y }}>
         {/* 左上角系统序列号 */}
         <div className="
-          absolute top-8 left-8 flex hidden flex-col space-y-1
+          absolute top-8 left-8 hidden flex-col space-y-1
           md:flex
         ">
           <div className="
@@ -535,8 +535,8 @@ export default function Home() {
           </span>
         </div>
         <div className="
-          absolute top-0 left-[25%] decor-desktop-only flex hidden w-pxfull
-          flex-col items-center bg-tech-main/10
+          absolute top-0 left-[25%] decor-desktop-only hidden w-pxfull flex-col
+          items-center bg-tech-main/10
           md:flex
         ">
           <div className="
@@ -546,7 +546,7 @@ export default function Home() {
 
         {/* 技术图纸刻度尺 */}
         <div className="
-          absolute top-0 left-0 decor-desktop-only flex hidden h-2 w-full
+          absolute top-0 left-0 decor-desktop-only hidden h-2 w-full
           overflow-hidden border-b border-tech-main/10 opacity-30
           md:flex
         ">
@@ -565,8 +565,8 @@ export default function Home() {
           ))}
         </div>
         <div className="
-          absolute top-0 left-0 decor-desktop-only flex hidden h-full w-2
-          flex-col overflow-hidden border-r border-tech-main/10 opacity-30
+          absolute top-0 left-0 decor-desktop-only hidden h-full w-2 flex-col
+          overflow-hidden border-r border-tech-main/10 opacity-30
           md:flex
         ">
           {Array.from({ length: 50 }).map((_, i) => (

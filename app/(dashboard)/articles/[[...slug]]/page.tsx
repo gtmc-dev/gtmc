@@ -49,15 +49,15 @@ export default async function ArticlePage({
     const normalizedPath = rawPath.replace(/^\/+/, "")
     const pathsToTry = normalizedPath.endsWith(".md")
       ? [
-          normalizedPath,
-          normalizedPath.replace(/\.md$/, ""),
-          `${normalizedPath.replace(/\.md$/, "")}/Preface.md`,
-        ]
+        normalizedPath,
+        normalizedPath.replace(/\.md$/, ""),
+        `${normalizedPath.replace(/\.md$/, "")}/Preface.md`,
+      ]
       : [
-          normalizedPath,
-          `${normalizedPath}.md`,
-          `${normalizedPath}/Preface.md`,
-        ]
+        normalizedPath,
+        `${normalizedPath}.md`,
+        `${normalizedPath}/Preface.md`,
+      ]
 
     for (const tryPath of pathsToTry) {
       const githubContent = await getRepoFileContent(tryPath)
@@ -160,7 +160,7 @@ export default async function ArticlePage({
         <Link
           href={`/draft/new?file=${encodeURIComponent(editPath)}`}>
           <button className="
-            relative flex min-h-[44px] w-full cursor-pointer items-center gap-2
+            relative flex min-h-11 w-full cursor-pointer items-center gap-2
             overflow-hidden border border-tech-main/40 bg-tech-main/10 px-4 py-2
             font-mono text-xs tracking-widest text-tech-main uppercase
             transition-all duration-300
