@@ -30,9 +30,13 @@ function TreeLoadingPlaceholder() {
   return (
     <div
       className="
-        relative h-full min-h-full min-h-[30rem] overflow-hidden border
-        guide-line bg-white/80 px-3 py-4 md:min-h-[40rem] md:px-4 md:py-5
+        relative h-full min-h-full min-h-[30rem] animate-tree-drop-in
+        overflow-hidden border guide-line bg-white/80 px-3 py-4
+        motion-reduce:animate-none md:min-h-[40rem] md:px-4 md:py-5
       "
+      style={{
+        animation: "tree-drop-in 1.05s cubic-bezier(0.16, 1, 0.3, 1) both",
+      }}
       aria-hidden="true">
       <ScanConfirmOverlay className="opacity-40" />
       <SectionRail
