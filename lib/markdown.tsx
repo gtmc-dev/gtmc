@@ -70,7 +70,7 @@ export function getMarkdownComponents(rawPath: string) {
     table: ({ ...props }: MarkdownComponentProps) => (
       <div
         className="
-          my-6 w-full overflow-x-auto border border-tech-main/30
+          custom-bottom-scrollbar my-6 w-full overflow-x-auto border border-tech-main/30
           bg-tech-bg/50 backdrop-blur-sm
         ">
         <table
@@ -372,7 +372,7 @@ export function getMarkdownComponents(rawPath: string) {
             {/* Scroll container */}
             <div
               className="
-                code-scrollbar overflow-x-auto px-4
+                custom-bottom-scrollbar overflow-x-auto px-4
                 sm:px-6
               ">
               <div className="px-0" dir="ltr">
