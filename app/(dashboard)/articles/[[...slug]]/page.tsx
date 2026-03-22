@@ -7,7 +7,7 @@ import {
   calculateReadingMetrics,
   getMarkdownComponents,
   getPluginsForContent,
-} from "../markdown-helpers"
+} from "@/lib/markdown"
 import { getRepoFileContent } from "@/lib/github-pr"
 
 interface ArticlePageProps {
