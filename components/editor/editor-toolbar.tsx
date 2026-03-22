@@ -17,7 +17,8 @@ export function EditorToolbar({
   const smBtnClass = `hidden border border-transparent px-3 py-1.5 transition-colors select-none hover:border-white/20 hover:bg-tech-accent/20 sm:block ${!disabled ? "cursor-pointer" : ""}`
 
   return (
-    <div className="
+    <div
+      className="
       sticky top-0 z-10 flex flex-wrap items-center gap-1 border-b
       border-tech-main/40 bg-tech-main p-2 px-2 font-mono text-xs text-white/90
       sm:gap-2 sm:px-4
@@ -44,10 +45,12 @@ export function EditorToolbar({
         Link
       </button>
       {fileUploadSlot}
-      <div className="
+      <div
+        className="
         mx-1 hidden h-4 w-px bg-white/30
         sm:block
-      " />
+      "
+      />
       <button
         type="button"
         onClick={() => onInsert("### ")}
@@ -64,12 +67,13 @@ export function EditorToolbar({
       </button>
       <button
         type="button"
-        onClick={() => onInsert("```\\n", "\\n```")}
+        onClick={() => onInsert("```\n", "\n```")}
         disabled={disabled}
         className={smBtnClass}>
         Block
       </button>
-      <span className="
+      <span
+        className="
         ml-auto hidden items-center gap-2 text-xs text-tech-accent/60 opacity-60
         sm:flex
       ">
