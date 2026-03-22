@@ -56,12 +56,12 @@ export function ArticlesLayoutClient({
 
   const treeContent = (
     <div className="
-      prose prose-base prose-tech w-full pb-4 font-mono text-[15px]
-      wrap-break-word
+      prose prose-base w-full pb-4 font-mono text-[15px] wrap-break-word
+      prose-tech
       [&_li]:mt-1.5
       [&_ul]:list-none
-      [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l
-      [&_ul_ul]:border-tech-main/20 [&_ul_ul]:pl-3
+      [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
+      [&_ul_ul]:pl-3
       [&>ul]:pl-0
     ">
       <SidebarClient
@@ -117,7 +117,7 @@ export function ArticlesLayoutClient({
             <div className="overflow-hidden">
               <div className="
                 max-h-[calc(100vh-12rem)] overflow-y-auto overscroll-contain
-                border-t border-tech-main/20 px-4 pt-3 pb-4
+                border-t guide-line px-4 pt-3 pb-4
               ">
                 {treeContent}
               </div>
@@ -163,7 +163,7 @@ export function ArticlesLayoutClient({
 
       {/* Desktop sidebar */}
       <aside className="
-        hidden w-64 shrink-0 border-r border-tech-main/20
+        hidden w-64 shrink-0 border-r guide-line
         md:block
         lg:w-75
       ">
@@ -174,8 +174,8 @@ export function ArticlesLayoutClient({
           lg:top-28 lg:h-[calc(100vh-144px)]
         ">
           <div className="
-            group relative flex min-h-0 flex-1 flex-col border-b
-            border-tech-main/20 py-4 pr-2 pl-0 text-tech-main
+            group relative flex min-h-0 flex-1 flex-col border-b guide-line py-4
+            pr-2 pl-0 text-tech-main
             md:py-6 md:pl-0
           ">
             <div className="
@@ -186,7 +186,7 @@ export function ArticlesLayoutClient({
 
             <div className="
               group/title mb-6 flex shrink-0 items-center justify-between
-              border-b border-tech-main/20 pt-8 pb-2 pl-6
+              border-b guide-line pt-8 pb-2 pl-6
             ">
               <div className="
                 flex items-center font-mono text-xs font-bold tracking-tech-wide
@@ -200,16 +200,16 @@ export function ArticlesLayoutClient({
             </div>
 
             <div className="
-              custom-left-scrollbar -mt-2 h-full min-h-0 flex-1 overflow-y-auto
+              -mt-2 custom-left-scrollbar h-full min-h-0 flex-1 overflow-y-auto
               pl-6
             ">
               <div className="
-                prose prose-base prose-tech w-full overflow-hidden pt-2 pb-8
-                font-mono text-base wrap-break-word
+                prose prose-base w-full overflow-hidden pt-2 pb-8 font-mono
+                text-base wrap-break-word prose-tech
                 [&_li]:mt-1.5
                 [&_ul]:list-none
                 [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l
-                [&_ul_ul]:border-tech-main/20 [&_ul_ul]:pl-3
+                [&_ul_ul]:guide-line [&_ul_ul]:pl-3
                 [&>ul]:pl-0
               ">
                 <SidebarClient tree={tree} />

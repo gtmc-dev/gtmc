@@ -112,8 +112,8 @@ export function FeatureList({ features }: { features: Feature[] }) {
       <RevealSection delay={delay}>
         <div className="mb-8">
           <h2 className="
-            mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
-            tracking-widest text-tech-main-dark uppercase
+            mb-6 border-b guide-line pb-2 text-lg font-bold tracking-widest
+            text-tech-main-dark uppercase
             md:text-xl
           ">
             {title} ({groupFeatures.length})
@@ -200,9 +200,8 @@ export function FeatureList({ features }: { features: Feature[] }) {
                           <span
                             key={tag}
                             className="
-                              border border-tech-main/20 bg-tech-main/5 px-1.5
-                              py-0.5 font-mono text-[10px] text-tech-main/70
-                              uppercase
+                              border guide-line bg-tech-main/5 px-1.5 py-0.5
+                              font-mono text-[10px] text-tech-main/70 uppercase
                             ">
                             {tag}
                           </span>

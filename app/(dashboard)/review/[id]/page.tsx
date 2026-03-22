@@ -283,8 +283,8 @@ export default async function ReviewDetailPage({
               border-tech-main/50
             "></div>
             <div className="
-              prose prose-tech w-full max-w-none overflow-hidden wrap-break-word
-              text-tech-main-dark
+              prose w-full max-w-none overflow-hidden wrap-break-word
+              text-tech-main-dark prose-tech
               selection:bg-tech-main/20 selection:text-tech-main-dark
             ">
               {rawContent ? (

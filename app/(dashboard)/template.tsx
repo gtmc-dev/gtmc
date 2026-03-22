@@ -12,7 +12,7 @@ export default function Template({
   return (
     <div
       key={pathname}
-      className="animate-page-transit min-h-[calc(100vh-8rem)]">
+      className="min-h-[calc(100vh-8rem)] animate-page-transit">
       {children}
     </div>
   )

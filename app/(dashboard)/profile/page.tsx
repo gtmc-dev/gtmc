@@ -102,9 +102,8 @@ export default async function ProfilePage() {
         backdrop-blur-md
       ">
         <div className="
-          absolute top-0 right-0 border-b border-l border-tech-main/20
-          bg-tech-main/5 px-2 py-1 font-mono text-[9px] tracking-widest
-          text-tech-main/60
+          absolute top-0 right-0 border-b border-l guide-line bg-tech-main/5
+          px-2 py-1 font-mono text-[9px] tracking-widest text-tech-main/60
           sm:text-[10px]
         ">
           CONFIG.PANEL_V2
@@ -251,9 +250,9 @@ export default async function ProfilePage() {
                 defaultValue={user.email || ""}
                 disabled
                 className="
-                  w-full cursor-not-allowed rounded-none border
-                  border-tech-main/20 bg-tech-main/5 font-mono text-xs
-                  tracking-wide text-tech-main/60 shadow-none
+                  w-full cursor-not-allowed rounded-none border guide-line
+                  bg-tech-main/5 font-mono text-xs tracking-wide
+                  text-tech-main/60 shadow-none
                   sm:text-sm
                 "
               />

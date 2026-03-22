@@ -140,7 +140,7 @@ export default async function DraftDashboardPage() {
       ">
         <div className="
           absolute top-0 right-0 size-8 translate-x-px -translate-y-px border-t
-          border-r border-tech-main/20
+          border-r guide-line
         "></div>
         <div className="
           mb-0 w-full
@@ -190,8 +190,8 @@ export default async function DraftDashboardPage() {
       <div className="space-y-8">
         <div>
           <h2 className="
-            mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
-            tracking-widest text-tech-main-dark uppercase
+            mb-6 border-b guide-line pb-2 text-lg font-bold tracking-widest
+            text-tech-main-dark uppercase
             md:text-xl
           ">
             Active Records
@@ -227,8 +227,8 @@ export default async function DraftDashboardPage() {
         {archivedDrafts.length > 0 && (
           <div>
             <h2 className="
-              mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
-              tracking-widest text-tech-main-dark uppercase
+              mb-6 border-b guide-line pb-2 text-lg font-bold tracking-widest
+              text-tech-main-dark uppercase
               md:text-xl
             ">
               Archived / Approved Records

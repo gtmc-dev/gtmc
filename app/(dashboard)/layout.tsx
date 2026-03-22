@@ -83,11 +83,11 @@ export default function DashboardLayout({
         lg:p-8
       ">
         <div className="
-          absolute top-0 left-0 hidden h-full w-px bg-tech-main/20
+          absolute top-0 left-0 hidden w-pxfull bg-tech-main/20
           lg:block
         "></div>
         <div className="
-          absolute top-0 right-0 hidden h-full w-px bg-tech-main/20
+          absolute top-0 right-0 hidden w-pxfull bg-tech-main/20
           lg:block
         "></div>
         {children}

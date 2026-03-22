@@ -136,20 +136,14 @@ export default function FeatureDetailLoading() {
 
           <div className="flex flex-col space-y-4">
             <div className="flex flex-col space-y-2">
-              <label className="
-                mb-2 inline-block border-b border-tech-main/30 pb-1 font-mono
-                text-sm tracking-tech-wide text-tech-main uppercase
-              ">
+              <label className="section-label">
                 TITLE_
               </label>
               <SegmentedBar opacity="high" className="h-10 w-full" />
             </div>
 
             <div className="flex flex-col space-y-2">
-              <label className="
-                mb-2 inline-block border-b border-tech-main/30 pb-1 font-mono
-                text-sm tracking-tech-wide text-tech-main uppercase
-              ">
+              <label className="section-label">
                 TAGS_ (comma separated)
               </label>
               <SegmentedBar

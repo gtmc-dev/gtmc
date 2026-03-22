@@ -156,7 +156,7 @@ export function SidebarClient({
 
   const renderTree = (items: TreeNode[], level = 0) => {
     return (
-      <ul className="my-1 border-l border-tech-main/20 pl-4">
+      <ul className="my-1 border-l guide-line pl-4">
         {items.map((item) => {
           const fileRoute = `/articles/${item.slug}`
           const decodedPathname = decodeURIComponent(pathname)
@@ -266,8 +266,7 @@ export function SidebarClient({
                       `}>
                       <div className="overflow-hidden">
                         <ul className="
-                          mt-1 mb-2 ml-1 space-y-2 border-l border-tech-main/20
-                          pl-4
+                          mt-1 mb-2 ml-1 space-y-2 border-l guide-line pl-4
                         ">
                           {toc.map((h2) => (
                             <li
@@ -361,8 +360,8 @@ export function SidebarClient({
 
       {isModalOpen && (
         <div className="
-          animate-in fade-in fixed inset-0 z-50 flex items-center justify-center
-          bg-black/80 p-4 duration-300
+          fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4
+          duration-300 animate-in fade-in
         ">
           <div className="
             w-full max-w-md rounded-sm border-2 border-tech-main bg-white p-6
@@ -370,7 +369,7 @@ export function SidebarClient({
             dark:bg-black
           ">
             <h3 className="
-              mb-6 border-b border-tech-main/20 pb-2 font-mono text-lg font-bold
+              mb-6 border-b guide-line pb-2 font-mono text-lg font-bold
               tracking-widest text-tech-main uppercase
             ">
               CREATE_SYS_OBJECT
@@ -428,8 +427,8 @@ export function SidebarClient({
               </div>
 
               <div className="
-                flex items-center gap-3 border border-tech-main/20
-                bg-tech-main/5 px-3 py-2
+                flex items-center gap-3 border guide-line bg-tech-main/5 px-3
+                py-2
               ">
                 <input
                   type="checkbox"
@@ -481,7 +480,7 @@ export function SidebarClient({
               </div>
 
               <div className="
-                mt-6 flex justify-end gap-2 border-t border-tech-main/20 pt-4
+                mt-6 flex justify-end gap-2 border-t guide-line pt-4
               ">
                 <button
                   type="button"

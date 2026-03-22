@@ -64,7 +64,7 @@ export default function FeaturesLoading() {
                     <SegmentedBar
                       key={i}
                       opacity="low"
-                      className="h-8 w-24 border border-tech-main/20"
+                      className="h-8 w-24 border guide-line"
                     />
                   ))}
                 </div>
@@ -81,7 +81,7 @@ export default function FeaturesLoading() {
                     <SegmentedBar
                       key={i}
                       opacity="low"
-                      className="h-8 w-20 border border-tech-main/20"
+                      className="h-8 w-20 border guide-line"
                     />
                   ))}
                 </div>
@@ -100,7 +100,7 @@ export default function FeaturesLoading() {
               style={{ animationDelay: group.delay }}>
               <div className="mb-8">
                 <h2 className="
-                  mb-6 border-b border-tech-main/20 pb-2 text-lg font-bold
+                  mb-6 border-b guide-line pb-2 text-lg font-bold
                   tracking-widest text-tech-main-dark uppercase
                   md:text-xl
                 ">
@@ -168,11 +168,11 @@ export default function FeaturesLoading() {
                       <div className="mt-auto flex flex-wrap gap-1 pt-4">
                         <SegmentedBar
                           opacity="low"
-                          className="h-5 w-20 border border-tech-main/20"
+                          className="h-5 w-20 border guide-line"
                         />
                         <SegmentedBar
                           opacity="low"
-                          className="h-5 w-24 border border-tech-main/20"
+                          className="h-5 w-24 border guide-line"
                         />
                       </div>
                     </BrutalCard>

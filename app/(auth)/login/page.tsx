@@ -59,13 +59,13 @@ export default function LoginPage() {
 
       {/* Java 代码片段漂浮层 (Decompiled Source Code) */}
       <div className="
-        decor-desktop-only pointer-events-none absolute right-10 bottom-[20%]
+        pointer-events-none absolute right-10 bottom-[20%] decor-desktop-only
         hidden rotate-2 opacity-20 select-none
         md:right-20
         lg:block
       ">
         <div className="
-          border-r-2 border-tech-main/20 pr-4 text-right font-mono text-[10px]
+          border-r-2 guide-line pr-4 text-right font-mono text-[10px]
           leading-relaxed whitespace-pre text-tech-main
         ">
           <span className="font-bold text-tech-main-dark">
@@ -89,21 +89,21 @@ export default function LoginPage() {
 
       {/* 贯穿全图的低调主辅助线 */}
       <div className="
-        decor-desktop-only absolute top-[50%] left-0 flex hidden h-px w-full
+        absolute top-[50%] left-0 decor-desktop-only flex hidden h-px w-full
         items-center justify-center bg-tech-main/10
         md:flex
       ">
         <div className="size-2 border border-tech-main/50 bg-tech-bg"></div>
       </div>
       <div className="
-        w-pxfull decor-desktop-only absolute top-0 left-[50%] hidden
+        absolute top-0 left-[50%] decor-desktop-only hidden w-pxfull
         bg-tech-main/10
         md:block
       "></div>
 
       {/* 巨型背景水印 */}
       <div className="
-        decor-desktop-only pointer-events-none absolute bottom-0 -left-20 hidden
+        pointer-events-none absolute bottom-0 -left-20 decor-desktop-only hidden
         text-[8rem] font-black tracking-tighter whitespace-nowrap text-tech-main
         opacity-[0.03] select-none
         lg:block
@@ -122,13 +122,12 @@ export default function LoginPage() {
         {/* 信息卡片主体 */}
         <div className="
           group relative mb-8 w-full animate-tech-pop-in opacity-0
-          [animation-delay:0.2s] [animation-duration:0.8s]
-          [animation-fill-mode:forwards]
+          [animation-delay:0.2s] [animation-duration:0.8s] fill-mode-forwards
         ">
           {/* 下层错位阴影框 */}
           <div className="
-            absolute inset-0 -z-10 translate-2 border border-tech-main/20
-            bg-transparent transition-transform duration-500 ease-out
+            absolute inset-0 -z-10 translate-2 border guide-line bg-transparent
+            transition-transform duration-500 ease-out
             group-hover:translate-3
             md:translate-3
             md:group-hover:translate-4
@@ -138,7 +137,7 @@ export default function LoginPage() {
           <div className="
             absolute top-1/2 -right-6 hidden h-full -translate-y-1/2
             animate-fade-in flex-col items-center font-mono text-[10px]
-            opacity-0 [animation-delay:1.5s] [animation-fill-mode:forwards]
+            opacity-0 [animation-delay:1.5s] fill-mode-forwards
             sm:flex
           ">
             <span className="block h-10 w-px border-l border-tech-main/30"></span>
@@ -182,7 +181,7 @@ export default function LoginPage() {
               <div className="
                 mb-4 flex size-12 animate-tech-pop-in items-center
                 justify-center border border-tech-main/40 bg-tech-main/5
-                opacity-0 [animation-delay:0.6s] [animation-fill-mode:forwards]
+                opacity-0 [animation-delay:0.6s] fill-mode-forwards
               ">
                 <svg
                   width="24"
@@ -208,14 +207,14 @@ export default function LoginPage() {
               ">
                 <span className="
                   inline-block animate-tech-slide-in opacity-0
-                  [animation-delay:0.7s] [animation-fill-mode:forwards]
+                  [animation-delay:0.7s] fill-mode-forwards
                 ">
                   IDENTITY
                 </span>
                 <span className="
                   ml-2 inline-block animate-tech-slide-in font-light
                   text-tech-main opacity-0 [animation-delay:0.9s]
-                  [animation-fill-mode:forwards]
+                  fill-mode-forwards
                 ">
                   VERIFICATION
                 </span>
@@ -225,7 +224,7 @@ export default function LoginPage() {
             <p className="
               mx-auto mb-8 max-w-xs animate-fade-in text-sm
               text-tech-main-dark/70 opacity-0 [animation-delay:1.1s]
-              [animation-fill-mode:forwards]
+              fill-mode-forwards
             ">
               Please authenticate with your GitHub account to access
               the restricted database.
@@ -233,7 +232,7 @@ export default function LoginPage() {
 
             <div className="
               w-full animate-slide-up-fade opacity-0 [animation-delay:1.3s]
-              [animation-fill-mode:forwards]
+              fill-mode-forwards
             ">
               <BrutalButton
                 onClick={handleLogin}
@@ -260,7 +259,7 @@ export default function LoginPage() {
 
             <div className="
               mt-6 animate-fade-in font-mono text-[10px] opacity-40
-              [animation-delay:1.6s] [animation-fill-mode:forwards]
+              [animation-delay:1.6s] fill-mode-forwards
             ">
               <p>PROTECTED BY GTMC_SECURE_GATEWAY v2.0</p>
               <Link

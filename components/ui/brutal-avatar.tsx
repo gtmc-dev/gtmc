@@ -19,7 +19,7 @@ export function BrutalAvatar({
     <div
       className={`
         group relative box-border flex aspect-square size-full items-center
-        justify-center overflow-hidden border-2 border-tech-main/40 bg-slate-100
+        justify-center overflow-hidden corner-bracket bg-slate-100
         transition-all duration-300
         hover:border-tech-main
         ${className}
@@ -77,7 +77,7 @@ export function BrutalAvatar({
 
       {/* 内层框架 */}
       <div className="
-        pointer-events-none absolute inset-1 z-5 border border-tech-main/20
+        pointer-events-none absolute inset-1 z-5 border guide-line
       "></div>
 
       {src ? (

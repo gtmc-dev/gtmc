@@ -66,7 +66,7 @@ export default async function FeaturesPage({
         ">
           <div className="
             absolute top-0 right-0 size-8 translate-x-px -translate-y-px
-            border-t border-r border-tech-main/20
+            border-t border-r guide-line
           "></div>
           <div className="
             mb-0 w-full

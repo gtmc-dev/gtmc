@@ -100,8 +100,8 @@ export default async function ArticlePage({
 
       {/* Article Header Region - Mobile-first in-flow card */}
       <div className="
-        relative mb-8 flex flex-col gap-4 border border-tech-main/20 bg-white/80
-        p-4 backdrop-blur-sm
+        relative mb-8 flex flex-col gap-4 border guide-line bg-white/80 p-4
+        backdrop-blur-sm
         sm:p-6
       ">
         {/* Corner markers matching BrutalCard pattern */}
@@ -175,8 +175,8 @@ export default async function ArticlePage({
       </div>
 
       <div className="
-        prose prose-tech w-full max-w-none overflow-hidden wrap-break-word
-        text-slate-800
+        prose w-full max-w-none overflow-hidden wrap-break-word text-slate-800
+        prose-tech
         selection:bg-tech-main/20 selection:text-slate-900
       ">
         <ReactMarkdown
