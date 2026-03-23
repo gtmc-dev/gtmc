@@ -47,6 +47,11 @@ export function SidebarClient({
 
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [mounted, setMounted] = useState(false)
+  const activeItemRef = useRef<HTMLLIElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const folderGridRefs = useRef<Map<string, HTMLDivElement>>(new Map())
+  const locatePendingRef = useRef(false)
+  const pendingExpandIdsRef = useRef<string[]>([])
 
   useEffect(() => {
     setMounted(true)
@@ -127,6 +132,117 @@ export function SidebarClient({
     setIsFileExpanded(false)
   }, [])
 
+  const getEffectivePathname = useCallback(() => {
+    if (pathname === "/articles" || pathname === "/articles/")
+      return "/articles/Preface"
+    return pathname
+  }, [pathname])
+
+  const findItemAndParents = useCallback(
+    (
+      items: TreeNode[],
+      target: string,
+      parents: string[] = []
+    ): { item: TreeNode | null; parentIds: string[] } => {
+      for (const item of items) {
+        const slug = `/articles/${item.slug}`
+        if (slug === target || `${slug}/` === target)
+          return { item, parentIds: parents }
+        if (item.children?.length > 0) {
+          const r = findItemAndParents(item.children, target, [
+            ...parents,
+            item.id,
+          ])
+          if (r.item) return r
+        }
+      }
+      return { item: null, parentIds: [] }
+    },
+    []
+  )
+
+  const scrollActiveItem = useCallback(() => {
+    const item = activeItemRef.current
+    const container = scrollContainerRef.current
+    if (!item) return
+    if (container) {
+      const ir = item.getBoundingClientRect()
+      const cr = container.getBoundingClientRect()
+      const top = ir.top - cr.top + container.scrollTop - cr.height / 4
+      container.scrollTo({ top: Math.max(0, top), behavior: "smooth" })
+    } else {
+      item.scrollIntoView({ block: "start", behavior: "smooth" })
+    }
+  }, [])
+
+  const expandAndScroll = useCallback(
+    (parentIds: string[]) => {
+      const needExpand = parentIds.filter((id) => !expandedFolders.has(id))
+      if (needExpand.length === 0) {
+        scrollActiveItem()
+        return
+      }
+      setExpandedFolders((prev) => {
+        const next = new Set(prev)
+        needExpand.forEach((id) => next.add(id))
+        return next
+      })
+      pendingExpandIdsRef.current = needExpand
+      locatePendingRef.current = true
+    },
+    [expandedFolders, scrollActiveItem]
+  )
+
+  useEffect(() => {
+    if (!locatePendingRef.current) return
+    const ids = pendingExpandIdsRef.current
+    const allGrids = folderGridRefs.current
+    const watchGrids = ids
+      .map((id) => allGrids.get(id))
+      .filter((el): el is HTMLDivElement => !!el)
+    if (watchGrids.length === 0) {
+      locatePendingRef.current = false
+      scrollActiveItem()
+      return
+    }
+    let remaining = watchGrids.length
+    const onEnd = (e: TransitionEvent) => {
+      if (e.propertyName !== "grid-template-rows") return
+      remaining--
+      if (remaining <= 0) {
+        locatePendingRef.current = false
+        pendingExpandIdsRef.current = []
+        scrollActiveItem()
+        watchGrids.forEach((el) =>
+          el.removeEventListener("transitionend", onEnd)
+        )
+      }
+    }
+    watchGrids.forEach((el) => el.addEventListener("transitionend", onEnd))
+    return () => {
+      watchGrids.forEach((el) => el.removeEventListener("transitionend", onEnd))
+    }
+  }, [expandedFolders, scrollActiveItem])
+
+  useEffect(() => {
+    if (!mounted || tree.length === 0) return
+    const { parentIds } = findItemAndParents(tree, getEffectivePathname())
+    expandAndScroll(parentIds)
+  }, [
+    pathname,
+    mounted,
+    tree,
+    findItemAndParents,
+    getEffectivePathname,
+    expandAndScroll,
+  ])
+
+  const scrollToCurrent = useCallback(() => {
+    const { parentIds } = findItemAndParents(tree, getEffectivePathname())
+    if (window.scrollY >= window.innerHeight / 2) setIsFileExpanded(true)
+    expandAndScroll(parentIds)
+  }, [tree, findItemAndParents, getEffectivePathname, expandAndScroll])
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
@@ -164,6 +280,7 @@ export function SidebarClient({
           return (
             <li
               key={item.id}
+              ref={!item.isFolder && isActive ? activeItemRef : undefined}
               className="
                 my-1.5 list-none font-mono text-[15px] transition-all
                 duration-300
@@ -295,6 +412,10 @@ export function SidebarClient({
               )}
               {item.children && item.children.length > 0 && (
                 <div
+                  ref={(el) => {
+                    if (el) folderGridRefs.current.set(item.id, el)
+                    else folderGridRefs.current.delete(item.id)
+                  }}
                   className={`
                     grid transition-all duration-300 ease-out
                     ${!item.isFolder || folderExpanded
@@ -355,6 +476,15 @@ export function SidebarClient({
           ">
           ⊟ COLLAPSE ALL
         </button>
+        <button
+          onClick={scrollToCurrent}
+          className="
+            cursor-pointer border border-tech-main/40 px-3 py-1.5 font-mono
+            text-[11px] transition-colors
+            hover:bg-tech-main hover:text-white
+          ">
+          ◎ LOCATE
+        </button>
       </div>
     </div>
   )
@@ -374,6 +504,7 @@ export function SidebarClient({
         <div className="flex min-h-0 flex-1 flex-col">
           <div className="pl-3">{buttonsPanel}</div>
           <div
+            ref={scrollContainerRef}
             className={`
               custom-left-scrollbar min-h-0 flex-1 overflow-y-auto pl-6
               ${scrollClass}
@@ -406,6 +537,15 @@ export function SidebarClient({
                   hover:bg-tech-main hover:text-white
                 ">
                 ⊟ COLLAPSE ALL
+              </button>
+              <button
+                onClick={scrollToCurrent}
+                className="
+                  cursor-pointer border border-tech-main/40 px-3 py-1.5
+                  font-mono text-[11px] transition-colors
+                  hover:bg-tech-main hover:text-white
+                ">
+                ◎ LOCATE
               </button>
             </div>
           </div>
