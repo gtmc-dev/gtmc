@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { getSidebarTree } from "@/actions/sidebar"
+import { CJK_TOKENIZER, getSearchIndex } from "@/lib/search-index"
 
 interface SearchResult {
   title: string
@@ -9,141 +8,133 @@ interface SearchResult {
   matchType: "title" | "content"
 }
 
-interface TreeNode {
-  id: string
-  title: string
-  slug: string
-  isFolder: boolean
-  parentId: string | null
-  children: TreeNode[]
-}
+type SearchMatchMap = Record<string, string[]>
 
-function flattenTree(nodes: TreeNode[]): { title: string; slug: string }[] {
-  const result: { title: string; slug: string }[] = []
-  for (const node of nodes) {
-    if (!node.isFolder) {
-      result.push({ title: node.title, slug: node.slug })
-    }
-    if (node.children?.length) {
-      result.push(...flattenTree(node.children))
+function isSearchMatchMap(value: unknown): value is SearchMatchMap {
+  if (!value || typeof value !== "object") {
+    return false
+  }
+
+  for (const entry of Object.values(value as Record<string, unknown>)) {
+    if (
+      !Array.isArray(entry) ||
+      !entry.every((item) => typeof item === "string")
+    ) {
+      return false
     }
   }
-  return result
+
+  return true
 }
 
-/** Strip markdown syntax for cleaner snippets */
-function stripMarkdown(text: string): string {
-  return text
-    .replace(/^#{1,6}\s+/gm, "") // headings
-    .replace(/\*\*(.+?)\*\*/g, "$1") // bold
-    .replace(/\*(.+?)\*/g, "$1") // italic
-    .replace(/__(.+?)__/g, "$1") // bold alt
-    .replace(/_(.+?)_/g, "$1") // italic alt
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links
-    .replace(/`{1,3}[^`]*`{1,3}/g, "") // inline/block code
-    .replace(/^\s*[-*+]\s+/gm, "") // list markers
-    .replace(/^\s*>\s+/gm, "") // blockquotes
-    .replace(/\n{2,}/g, " ") // collapse newlines
-    .replace(/\s+/g, " ") // collapse whitespace
-    .trim()
-}
+function extractSnippet(
+  content: string,
+  query: string,
+  terms: string[]
+): string | null {
+  if (!content) {
+    return null
+  }
 
-function extractSnippet(content: string, query: string): string | null {
-  const clean = stripMarkdown(content)
-  const lower = clean.toLowerCase()
-  const idx = lower.indexOf(query.toLowerCase())
-  if (idx === -1) return null
+  const loweredContent = content.toLowerCase()
+  const candidates = [query, ...terms]
+    .map((term) => term.trim())
+    .filter((term) => term.length > 0)
+    .sort((a, b) => b.length - a.length)
 
-  const start = Math.max(0, idx - 50)
-  const end = Math.min(clean.length, idx + query.length + 70)
-  let snippet = clean.slice(start, end).trim()
-  if (start > 0) snippet = "\u2026" + snippet
-  if (end < clean.length) snippet += "\u2026"
+  let bestIndex = -1
+  let bestLength = query.length
+
+  for (const candidate of candidates) {
+    const index = loweredContent.indexOf(candidate.toLowerCase())
+    if (index === -1) {
+      continue
+    }
+    if (bestIndex === -1 || index < bestIndex) {
+      bestIndex = index
+      bestLength = candidate.length
+    }
+  }
+
+  if (bestIndex === -1) {
+    const fallback = content.slice(0, 120).trim()
+    return fallback.length > 0 && fallback.length < content.length
+      ? `${fallback}...`
+      : fallback || null
+  }
+
+  const start = Math.max(0, bestIndex - 50)
+  const end = Math.min(content.length, bestIndex + bestLength + 70)
+  let snippet = content.slice(start, end).trim()
+
+  if (start > 0) {
+    snippet = `...${snippet}`
+  }
+  if (end < content.length) {
+    snippet = `${snippet}...`
+  }
+
   return snippet
 }
 
-export async function GET(req: NextRequest) {
-  const q = req.nextUrl.searchParams.get("q")?.trim()
-  if (!q || q.length < 2) {
-    return NextResponse.json({ results: [] })
-  }
-
-  const results: SearchResult[] = []
-  const seenSlugs = new Set<string>()
-
-  try {
-    const titleMatches = await prisma.article.findMany({
-      where: {
-        isFolder: false,
-        title: { contains: q, mode: "insensitive" },
-      },
-      select: { title: true, slug: true, content: true },
-      take: 20,
-    })
-
-    for (const article of titleMatches) {
-      seenSlugs.add(article.slug)
-      results.push({
-        title: article.title,
-        slug: article.slug,
-        snippet: null,
-        matchType: "title",
-      })
-    }
-
-    const contentMatches = await prisma.article.findMany({
-      where: {
-        isFolder: false,
-        content: { contains: q, mode: "insensitive" },
-        NOT: { title: { contains: q, mode: "insensitive" } },
-      },
-      select: { title: true, slug: true, content: true },
-      take: 20,
-    })
-
-    for (const article of contentMatches) {
-      seenSlugs.add(article.slug)
-      results.push({
-        title: article.title,
-        slug: article.slug,
-        snippet: extractSnippet(article.content, q),
-        matchType: "content",
-      })
-    }
-  } catch (error) {
-    console.error("DB search failed:", error)
-  }
-
-  // 2. Search tree titles (covers GitHub-only articles)
-  try {
-    const tree = await getSidebarTree()
-    const allArticles = flattenTree(tree)
-
-    for (const article of allArticles) {
-      if (seenSlugs.has(article.slug)) continue
-      if (article.title.toLowerCase().includes(q.toLowerCase())) {
-        seenSlugs.add(article.slug)
-        results.push({
-          title: article.title,
-          slug: article.slug,
-          snippet: null,
-          matchType: "title",
-        })
-      }
-    }
-  } catch (error) {
-    console.error("Tree search failed:", error)
-  }
-
-  // Sort: title matches first, then content matches
-  results.sort((a, b) => {
-    if (a.matchType === "title" && b.matchType !== "title") return -1
-    if (a.matchType !== "title" && b.matchType === "title") return 1
-    return 0
-  })
-
+function jsonResponse(results: SearchResult[]) {
   return NextResponse.json(
-    { results: results.slice(0, 20) },
+    { results },
     { headers: { "Cache-Control": "private, no-store" } }
   )
+}
+
+export async function GET(req: NextRequest) {
+  const query = req.nextUrl.searchParams.get("q")?.trim()
+  if (!query || query.length < 2) {
+    return jsonResponse([])
+  }
+
+  try {
+    const index = await getSearchIndex()
+    const rawResults = index.search(query, {
+      tokenize: CJK_TOKENIZER,
+      boost: { title: 2 },
+      fuzzy: 0.2,
+      prefix: true,
+    })
+
+    const loweredQuery = query.toLowerCase()
+    const results: SearchResult[] = []
+
+    for (const result of rawResults.slice(0, 20)) {
+      const title = typeof result.title === "string" ? result.title : ""
+      const slug = typeof result.slug === "string" ? result.slug : ""
+      const content = typeof result.content === "string" ? result.content : ""
+      if (!title || !slug) {
+        continue
+      }
+
+      const matchMap = isSearchMatchMap(result.match) ? result.match : {}
+      const matchedTerms = Object.keys(matchMap)
+      const titleMatchedByTerm = matchedTerms.some((term) =>
+        matchMap[term]?.includes("title")
+      )
+
+      const matchType: "title" | "content" =
+        title.toLowerCase().includes(loweredQuery) || titleMatchedByTerm
+          ? "title"
+          : "content"
+
+      results.push({
+        title,
+        slug,
+        snippet:
+          matchType === "content"
+            ? extractSnippet(content, query, matchedTerms)
+            : null,
+        matchType,
+      })
+    }
+
+    return jsonResponse(results)
+  } catch (error) {
+    console.error("MiniSearch query failed:", error)
+    return jsonResponse([])
+  }
 }
