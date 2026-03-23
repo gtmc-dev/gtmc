@@ -162,7 +162,7 @@ export function SearchCommand() {
   const shortcutLabel = useMemo(() => {
     if (typeof navigator === "undefined") return "Ctrl+K"
     return navigator.platform?.toLowerCase().includes("mac")
-      ? "\u2318K"
+      ? <span className="flex flex-row leading-none items-center gap-0.5"><span className="text-xs">{"\u2318"}</span>K</span>
       : "Ctrl+K"
   }, [])
 
@@ -182,7 +182,7 @@ export function SearchCommand() {
         <span
           className="ml-1 border border-tech-main/30 px-1 py-0.5
           text-[9px] text-tech-main/40">
-          {"\u2318K"}
+          <span className="flex flex-row leading-none items-center gap-0.5"><span className="text-xs">{"\u2318"}</span>K</span>
         </span>
       </button>
     )
@@ -200,8 +200,9 @@ export function SearchCommand() {
           hover:bg-tech-main hover:text-white
           md:flex
         ">
-        <span className="text-xs">&#x2315;</span>
+        <span className="text-sm leading-none">&#x2315;</span>
         SEARCH
+        <div className="w-4" />
         <span
           className="ml-1 border border-tech-main/30 px-1 py-0.5
           text-[9px] text-tech-main/40">
@@ -341,10 +342,9 @@ export function SearchCommand() {
                           className={`
                             group relative w-full cursor-pointer px-4 py-3
                             text-left transition-colors
-                            ${
-                              index === selectedIndex
-                                ? "bg-tech-main/10"
-                                : "hover:bg-tech-accent/10"
+                            ${index === selectedIndex
+                              ? "bg-tech-main/10"
+                              : "hover:bg-tech-accent/10"
                             }
                           `}
                           aria-label={`Select ${result.title}`}
