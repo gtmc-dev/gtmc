@@ -348,7 +348,9 @@ export function SearchCommand() {
                     ">
                     {isLoading
                       ? "SCANNING\u2026"
-                      : `SCAN_RESULTS (${results.length})`}
+                      : results.length === 20
+                        ? `SCAN_RESULTS (${results.length} - TOP MATCHES)`
+                        : `SCAN_RESULTS (${results.length})`}
                   </div>
                 )}
 
