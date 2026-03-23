@@ -274,7 +274,7 @@ export function SearchCommand() {
         onClick={() => setIsOpen(true)}
         className="
           flex min-h-11 min-w-11 cursor-pointer items-center justify-center p-2
-          font-mono text-sm text-tech-main transition-colors
+          font-mono text-[2.5rem] text-tech-main transition-colors
           hover:bg-tech-main/10
           md:hidden
         "
