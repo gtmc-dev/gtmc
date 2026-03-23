@@ -86,9 +86,8 @@ export function BrutalAvatar({
       </div>
 
       {/* 内层框架 */}
-      <div className="
-        pointer-events-none absolute inset-1 z-5 border guide-line
-      "></div>
+      <div
+        className="pointer-events-none absolute inset-1 z-5 border guide-line"></div>
 
       {src ? (
         <Image

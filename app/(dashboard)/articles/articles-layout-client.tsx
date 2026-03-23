@@ -242,9 +242,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           aria-expanded={isOpen}
           data-testid="mobile-tree-toggle">
           <span
-            className="
-            font-mono text-xs font-bold tracking-[0.15em] uppercase
-          ">
+            className="font-mono text-xs font-bold tracking-[0.15em] uppercase">
             TREE
           </span>
           <span className="font-mono text-sm font-bold">
