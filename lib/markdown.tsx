@@ -277,7 +277,7 @@ export function getMarkdownComponents(rawPath: string) {
           <code
             className="
               mx-1 rounded-none border border-tech-main/30 bg-tech-main/10 px-1
-              py-[0.05rem] font-mono text-[0.8em] text-tech-main
+              py-[0.05rem] font-mono text-[0.8em] text-tech-main not-italic
             "
             {...props}>
             {children}
