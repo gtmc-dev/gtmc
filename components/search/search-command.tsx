@@ -1,7 +1,14 @@
 "use client"
 
 import * as React from "react"
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  useSyncExternalStore,
+} from "react"
 import { createPortal } from "react-dom"
 import { useRouter } from "next/navigation"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
@@ -13,9 +20,15 @@ interface SearchResult {
   matchType: "title" | "content"
 }
 
+const emptySubscribe = () => () => {}
+
 export function SearchCommand() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isMounted, setIsMounted] = useState(false)
+  const isMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  )
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -24,8 +37,12 @@ export function SearchCommand() {
   const abortRef = useRef<AbortController | null>(null)
   const router = useRouter()
 
-  useEffect(() => {
-    setIsMounted(true)
+  const closeModal = useCallback(() => {
+    setIsOpen(false)
+    setQuery("")
+    setResults([])
+    setSelectedIndex(0)
+    setIsLoading(false)
   }, [])
 
   // Global Cmd+K / Ctrl+K handler
@@ -33,7 +50,16 @@ export function SearchCommand() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault()
-        setIsOpen((prev) => !prev)
+        setIsOpen((prev) => {
+          if (prev) {
+            // Closing — reset state synchronously
+            setQuery("")
+            setResults([])
+            setSelectedIndex(0)
+            setIsLoading(false)
+          }
+          return !prev
+        })
       }
     }
     document.addEventListener("keydown", handleKeyDown)
@@ -46,29 +72,21 @@ export function SearchCommand() {
       requestAnimationFrame(() => {
         inputRef.current?.focus()
       })
-    } else {
-      setQuery("")
-      setResults([])
-      setSelectedIndex(0)
-      setIsLoading(false)
     }
   }, [isOpen])
 
   // Debounced search
   useEffect(() => {
     if (!query || query.length < 2) {
-      setResults([])
-      setIsLoading(false)
       return
     }
-
-    setIsLoading(true)
-    setSelectedIndex(0)
 
     const timer = setTimeout(() => {
       abortRef.current?.abort()
       const controller = new AbortController()
       abortRef.current = controller
+
+      setIsLoading(true)
 
       fetch(`/api/articles/search?q=${encodeURIComponent(query)}`, {
         signal: controller.signal,
@@ -92,16 +110,29 @@ export function SearchCommand() {
     }
   }, [query])
 
+  const handleQueryChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
+      setQuery(value)
+      setSelectedIndex(0)
+      if (!value || value.length < 2) {
+        setResults([])
+        setIsLoading(false)
+      }
+    },
+    []
+  )
+
   const navigateToResult = useCallback(
     (result: SearchResult) => {
-      setIsOpen(false)
+      closeModal()
       const encodedSlug = result.slug
         .split("/")
         .map(encodeURIComponent)
         .join("/")
       router.push(`/articles/${encodedSlug}`)
     },
-    [router]
+    [router, closeModal]
   )
 
   // Keyboard navigation inside modal
@@ -124,11 +155,11 @@ export function SearchCommand() {
           break
         case "Escape":
           e.preventDefault()
-          setIsOpen(false)
+          closeModal()
           break
       }
     },
-    [results, selectedIndex, navigateToResult]
+    [results, selectedIndex, navigateToResult, closeModal]
   )
 
   // Highlight matched text in title/snippet
@@ -241,7 +272,7 @@ export function SearchCommand() {
               sm:pt-[15vh]
             "
             onClick={(e) => {
-              if (e.target === e.currentTarget) setIsOpen(false)
+              if (e.target === e.currentTarget) closeModal()
             }}
             role="dialog"
             aria-modal="true"
@@ -274,7 +305,7 @@ export function SearchCommand() {
                   SYS.QUERY_ENGINE
                 </div>
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeModal}
                   className="
                     cursor-pointer border border-tech-main/30 px-2 py-0.5
                     font-mono text-[10px] text-tech-main/50 transition-colors
@@ -290,7 +321,7 @@ export function SearchCommand() {
                   ref={inputRef}
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={handleQueryChange}
                   placeholder="Search articles by title or content..."
                   className="
                     w-full border border-tech-main/30 bg-white/50 px-3 py-2.5
@@ -305,7 +336,8 @@ export function SearchCommand() {
               </div>
 
               {/* Results area */}
-              <div className="
+              <div
+                className="
                 custom-left-scrollbar max-h-[50vh] overflow-y-auto
               ">
                 {/* Status line */}
@@ -327,12 +359,8 @@ export function SearchCommand() {
                     <div className="space-y-3">
                       {[1, 2, 3].map((i) => (
                         <div key={i} className="space-y-1.5">
-                          <div
-                            className="h-4 w-3/5 animate-pulse bg-tech-main/10"
-                          />
-                          <div
-                            className="h-3 w-2/5 animate-pulse bg-tech-main/5"
-                          />
+                          <div className="h-4 w-3/5 animate-pulse bg-tech-main/10" />
+                          <div className="h-3 w-2/5 animate-pulse bg-tech-main/5" />
                         </div>
                       ))}
                     </div>
@@ -384,8 +412,7 @@ export function SearchCommand() {
 
                           {/* Content snippet */}
                           {result.snippet && (
-                            <div
-                              className="mt-1 text-xs/relaxed text-tech-main/60">
+                            <div className="mt-1 text-xs/relaxed text-tech-main/60">
                               {highlightMatch(result.snippet)}
                             </div>
                           )}
@@ -414,8 +441,7 @@ export function SearchCommand() {
                       ">
                       NO_MATCH_FOUND
                     </div>
-                    <div
-                      className="mt-1 font-mono text-[10px] text-tech-main/30">
+                    <div className="mt-1 font-mono text-[10px] text-tech-main/30">
                       Try different keywords
                     </div>
                   </div>
@@ -431,8 +457,7 @@ export function SearchCommand() {
                       ">
                       AWAITING_INPUT
                     </div>
-                    <div
-                      className="mt-1 font-mono text-[10px] text-tech-main/25">
+                    <div className="mt-1 font-mono text-[10px] text-tech-main/25">
                       Type at least 2 characters
                     </div>
                   </div>
@@ -446,20 +471,14 @@ export function SearchCommand() {
                   font-mono text-[10px] text-tech-main/40
                 ">
                 <span>
-                  <kbd className="border guide-line px-1">
-                    &#x2191;&#x2193;
-                  </kbd>{" "}
+                  <kbd className="border guide-line px-1">&#x2191;&#x2193;</kbd>{" "}
                   NAVIGATE
                 </span>
                 <span>
-                  <kbd className="border guide-line px-1">
-                    &#x23CE;
-                  </kbd>{" "}
-                  OPEN
+                  <kbd className="border guide-line px-1">&#x23CE;</kbd> OPEN
                 </span>
                 <span>
-                  <kbd className="border guide-line px-1">ESC</kbd>{" "}
-                  DISMISS
+                  <kbd className="border guide-line px-1">ESC</kbd> DISMISS
                 </span>
               </div>
             </div>
