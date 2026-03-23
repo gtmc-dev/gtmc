@@ -142,7 +142,7 @@ export function SearchCommand() {
       const parts = text.split(regex)
       return parts.map((part, i) =>
         regex.test(part) ? (
-          <mark key={i} className="bg-tech-main/20 text-tech-main-dark px-0.5">
+          <mark key={i} className="bg-tech-main/20 px-0.5 text-tech-main-dark">
             {part}
           </mark>
         ) : (
@@ -161,9 +161,13 @@ export function SearchCommand() {
   // Platform-aware shortcut label
   const shortcutLabel = useMemo(() => {
     if (typeof navigator === "undefined") return "Ctrl+K"
-    return navigator.platform?.toLowerCase().includes("mac")
-      ? <span className="flex flex-row leading-none items-center gap-0.5"><span className="text-xs">{"\u2318"}</span>K</span>
-      : "Ctrl+K"
+    return navigator.platform?.toLowerCase().includes("mac") ? (
+      <span className="flex flex-row items-center gap-0.5 leading-none">
+        <span className="text-xs">{"\u2318"}</span>K
+      </span>
+    ) : (
+      "Ctrl+K"
+    )
   }, [])
 
   // Don't render portal until mounted (SSR safety)
@@ -172,17 +176,20 @@ export function SearchCommand() {
       <button
         className="
           hidden cursor-pointer items-center gap-2 border border-tech-main/40
-          px-3 py-1.5 font-mono text-[11px] text-tech-main/60
-          transition-colors
+          px-3 py-1.5 font-mono text-[11px] text-tech-main/60 transition-colors
           hover:bg-tech-main hover:text-white
           md:flex
         ">
         <span className="text-xs">&#x2315;</span>
         SEARCH
         <span
-          className="ml-1 border border-tech-main/30 px-1 py-0.5
-          text-[9px] text-tech-main/40">
-          <span className="flex flex-row leading-none items-center gap-0.5"><span className="text-xs">{"\u2318"}</span>K</span>
+          className="
+            ml-1 border border-tech-main/30 px-1 py-0.5 text-[9px]
+            text-tech-main/40
+          ">
+          <span className="flex flex-row items-center gap-0.5 leading-none">
+            <span className="text-xs">{"\u2318"}</span>K
+          </span>
         </span>
       </button>
     )
@@ -195,8 +202,7 @@ export function SearchCommand() {
         onClick={() => setIsOpen(true)}
         className="
           hidden cursor-pointer items-center gap-2 border border-tech-main/40
-          px-3 py-1.5 font-mono text-[11px] text-tech-main/60
-          transition-colors
+          px-3 py-1.5 font-mono text-[11px] text-tech-main/60 transition-colors
           hover:bg-tech-main hover:text-white
           md:flex
         ">
@@ -204,8 +210,10 @@ export function SearchCommand() {
         SEARCH
         <div className="w-4" />
         <span
-          className="ml-1 border border-tech-main/30 px-1 py-0.5
-          text-[9px] text-tech-main/40">
+          className="
+            ml-1 border border-tech-main/30 px-1 py-0.5 text-[9px]
+            text-tech-main/40
+          ">
           {shortcutLabel}
         </span>
       </button>
@@ -214,8 +222,8 @@ export function SearchCommand() {
       <button
         onClick={() => setIsOpen(true)}
         className="
-          flex min-h-11 min-w-11 cursor-pointer items-center justify-center
-          p-2 font-mono text-sm text-tech-main transition-colors
+          flex min-h-11 min-w-11 cursor-pointer items-center justify-center p-2
+          font-mono text-sm text-tech-main transition-colors
           hover:bg-tech-main/10
           md:hidden
         "
@@ -228,8 +236,8 @@ export function SearchCommand() {
         createPortal(
           <div
             className="
-              fixed inset-0 z-9999 flex items-start justify-center
-              bg-black/80 p-4 pt-[10vh] animate-in fade-in duration-200
+              fixed inset-0 z-9999 flex items-start justify-center bg-black/80
+              p-4 pt-[10vh] duration-200 animate-in fade-in
               sm:pt-[15vh]
             "
             onClick={(e) => {
@@ -240,9 +248,9 @@ export function SearchCommand() {
             aria-label="Search articles">
             <div
               className="
-                relative w-full max-w-xl border-2 border-tech-main
-                bg-white shadow-[8px_8px_0_0_rgba(96,112,143,1)]
-                animate-in slide-in-from-top-4 duration-200
+                relative w-full max-w-xl border-2 border-tech-main bg-white
+                shadow-[8px_8px_0_0_rgba(96,112,143,1)] duration-200 animate-in
+                slide-in-from-top-4
               "
               onKeyDown={handleKeyDown}>
               <CornerBrackets variant="static" />
@@ -250,18 +258,18 @@ export function SearchCommand() {
               {/* Header */}
               <div
                 className="
-                flex items-center justify-between border-b guide-line
-                px-4 py-3
-              ">
+                  flex items-center justify-between border-b guide-line px-4
+                  py-3
+                ">
                 <div
                   className="
-                  flex items-center gap-2 font-mono text-xs font-bold
-                  tracking-tech-wide text-tech-main/60 uppercase
-                ">
+                    flex items-center gap-2 font-mono text-xs font-bold
+                    tracking-tech-wide text-tech-main/60 uppercase
+                  ">
                   <span
                     className="
-                    inline-block size-1.5 animate-pulse bg-tech-main/60
-                  "
+                      inline-block size-1.5 animate-pulse bg-tech-main/60
+                    "
                   />
                   SYS.QUERY_ENGINE
                 </div>
@@ -285,9 +293,9 @@ export function SearchCommand() {
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search articles by title or content..."
                   className="
-                    w-full border border-tech-main/30 bg-white/50 px-3
-                    py-2.5 font-mono text-sm text-tech-main-dark outline-none
-                    transition-colors
+                    w-full border border-tech-main/30 bg-white/50 px-3 py-2.5
+                    font-mono text-sm text-tech-main-dark transition-colors
+                    outline-none
                     placeholder:text-tech-main/30
                     focus:border-tech-main
                   "
@@ -297,14 +305,16 @@ export function SearchCommand() {
               </div>
 
               {/* Results area */}
-              <div className="max-h-[50vh] overflow-y-auto custom-left-scrollbar">
+              <div className="
+                custom-left-scrollbar max-h-[50vh] overflow-y-auto
+              ">
                 {/* Status line */}
                 {query.length >= 2 && (
                   <div
                     className="
-                    border-b guide-line px-4 py-2 font-mono text-[10px]
-                    tracking-wider text-tech-main/50 uppercase
-                  ">
+                      border-b guide-line px-4 py-2 font-mono text-[10px]
+                      tracking-wider text-tech-main/50 uppercase
+                    ">
                     {isLoading
                       ? "SCANNING\u2026"
                       : `SCAN_RESULTS (${results.length})`}
@@ -318,12 +328,10 @@ export function SearchCommand() {
                       {[1, 2, 3].map((i) => (
                         <div key={i} className="space-y-1.5">
                           <div
-                            className="h-4 w-3/5 animate-pulse
-                            bg-tech-main/10"
+                            className="h-4 w-3/5 animate-pulse bg-tech-main/10"
                           />
                           <div
-                            className="h-3 w-2/5 animate-pulse
-                            bg-tech-main/5"
+                            className="h-3 w-2/5 animate-pulse bg-tech-main/5"
                           />
                         </div>
                       ))}
@@ -342,9 +350,10 @@ export function SearchCommand() {
                           className={`
                             group relative w-full cursor-pointer px-4 py-3
                             text-left transition-colors
-                            ${index === selectedIndex
-                              ? "bg-tech-main/10"
-                              : "hover:bg-tech-accent/10"
+                            ${
+                              index === selectedIndex
+                                ? "bg-tech-main/10"
+                                : "hover:bg-tech-accent/10"
                             }
                           `}
                           aria-label={`Select ${result.title}`}
@@ -359,26 +368,24 @@ export function SearchCommand() {
                           {/* Title */}
                           <div
                             className="
-                            font-mono text-sm font-medium text-tech-main-dark
-                          ">
+                              font-mono text-sm font-medium text-tech-main-dark
+                            ">
                             {highlightMatch(result.title)}
                           </div>
 
                           {/* Path */}
                           <div
                             className="
-                            mt-0.5 font-mono text-[10px] tracking-wider
-                            text-tech-main/40 uppercase
-                          ">
+                              mt-0.5 font-mono text-[10px] tracking-wider
+                              text-tech-main/40 uppercase
+                            ">
                             PATH: {slugToPath(result.slug)}
                           </div>
 
                           {/* Content snippet */}
                           {result.snippet && (
                             <div
-                              className="
-                              mt-1 text-xs leading-relaxed text-tech-main/60
-                            ">
+                              className="mt-1 text-xs/relaxed text-tech-main/60">
                               {highlightMatch(result.snippet)}
                             </div>
                           )}
@@ -386,9 +393,9 @@ export function SearchCommand() {
                           {/* Match type badge */}
                           <div
                             className="
-                            absolute top-3 right-4 font-mono text-[9px]
-                            tracking-wider text-tech-main/30 uppercase
-                          ">
+                              absolute top-3 right-4 font-mono text-[9px]
+                              tracking-wider text-tech-main/30 uppercase
+                            ">
                             {result.matchType === "content" ? "BODY" : "TITLE"}
                           </div>
                         </button>
@@ -402,15 +409,13 @@ export function SearchCommand() {
                   <div className="px-4 py-8 text-center">
                     <div
                       className="
-                      font-mono text-xs tracking-wider text-tech-main/40
-                      uppercase
-                    ">
+                        font-mono text-xs tracking-wider text-tech-main/40
+                        uppercase
+                      ">
                       NO_MATCH_FOUND
                     </div>
                     <div
-                      className="
-                      mt-1 font-mono text-[10px] text-tech-main/30
-                    ">
+                      className="mt-1 font-mono text-[10px] text-tech-main/30">
                       Try different keywords
                     </div>
                   </div>
@@ -421,15 +426,13 @@ export function SearchCommand() {
                   <div className="px-4 py-8 text-center">
                     <div
                       className="
-                      font-mono text-xs tracking-wider text-tech-main/30
-                      uppercase
-                    ">
+                        font-mono text-xs tracking-wider text-tech-main/30
+                        uppercase
+                      ">
                       AWAITING_INPUT
                     </div>
                     <div
-                      className="
-                      mt-1 font-mono text-[10px] text-tech-main/25
-                    ">
+                      className="mt-1 font-mono text-[10px] text-tech-main/25">
                       Type at least 2 characters
                     </div>
                   </div>
@@ -439,23 +442,23 @@ export function SearchCommand() {
               {/* Footer hints */}
               <div
                 className="
-                flex items-center gap-4 border-t guide-line px-4 py-2
-                font-mono text-[10px] text-tech-main/40
-              ">
+                  flex items-center gap-4 border-t guide-line px-4 py-2
+                  font-mono text-[10px] text-tech-main/40
+                ">
                 <span>
-                  <kbd className="border border-tech-main/20 px-1">
+                  <kbd className="border guide-line px-1">
                     &#x2191;&#x2193;
                   </kbd>{" "}
                   NAVIGATE
                 </span>
                 <span>
-                  <kbd className="border border-tech-main/20 px-1">
+                  <kbd className="border guide-line px-1">
                     &#x23CE;
                   </kbd>{" "}
                   OPEN
                 </span>
                 <span>
-                  <kbd className="border border-tech-main/20 px-1">ESC</kbd>{" "}
+                  <kbd className="border guide-line px-1">ESC</kbd>{" "}
                   DISMISS
                 </span>
               </div>
