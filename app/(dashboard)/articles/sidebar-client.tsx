@@ -290,9 +290,10 @@ export function SidebarClient({
                 my-1.5 list-none font-mono text-[15px] transition-all
                 duration-300
                 md:text-base
-                ${!item.isFolder && isActive && highlightActive
-                  ? "bg-tech-main/10 -ml-1 pl-1"
-                  : ""
+                ${
+                  !item.isFolder && isActive && highlightActive
+                    ? "-ml-1 bg-tech-main/10 pl-1"
+                    : ""
                 }
               `}>
               {item.isFolder ? (
@@ -316,9 +317,10 @@ export function SidebarClient({
                     className={`
                       group relative -ml-4 flex items-center py-1.5 pl-4
                       transition-colors
-                      ${isActive
-                        ? `font-bold text-tech-main`
-                        : `
+                      ${
+                        isActive
+                          ? `font-bold text-tech-main`
+                          : `
                             text-slate-700
                             hover:text-tech-main
                           `
@@ -344,9 +346,10 @@ export function SidebarClient({
                           absolute top-1/2 left-0 -translate-y-1/2 text-xs
                           transition-opacity
                           md:text-sm
-                          ${isActive
-                            ? `text-tech-main opacity-100`
-                            : `
+                          ${
+                            isActive
+                              ? `text-tech-main opacity-100`
+                              : `
                                 text-tech-main opacity-0
                                 group-hover:opacity-100
                               `
@@ -367,9 +370,10 @@ export function SidebarClient({
                       }}
                       className={`
                         block w-full border-b pb-px pl-1
-                        ${isActive
-                          ? `cursor-pointer border-tech-main/50`
-                          : `
+                        ${
+                          isActive
+                            ? `cursor-pointer border-tech-main/50`
+                            : `
                               border-transparent
                               group-hover:border-tech-main/30
                             `
@@ -383,9 +387,10 @@ export function SidebarClient({
                     <div
                       className={`
                         grid transition-all duration-300 ease-out
-                        ${isFileExpanded
-                          ? "grid-rows-[1fr] opacity-100"
-                          : "grid-rows-[0fr] opacity-0"
+                        ${
+                          isFileExpanded
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
                         }
                       `}>
                       <div className="overflow-hidden">
@@ -423,9 +428,10 @@ export function SidebarClient({
                 <div
                   className={`
                     grid transition-all duration-300 ease-out
-                    ${!item.isFolder || folderExpanded
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
+                    ${
+                      !item.isFolder || folderExpanded
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
                     }
                   `}>
                   <div className="overflow-hidden">
@@ -458,7 +464,10 @@ export function SidebarClient({
   )
 
   const buttonsPanel = (
-    <div className="shrink-0 bg-white/95 backdrop-blur-sm py-3 px-6 border-b guide-line">
+    <div
+      className="
+        shrink-0 border-b guide-line bg-white/95 px-6 py-3 backdrop-blur-sm
+      ">
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setIsModalOpen(true)}
@@ -507,19 +516,26 @@ export function SidebarClient({
           <div className="pl-3">{buttonsPanel}</div>
           <div
             ref={scrollContainerRef}
-            className={`custom-left-scrollbar min-h-0 flex-1 overflow-y-auto pl-6 ${scrollClass}`}>
+            className={`
+              custom-left-scrollbar min-h-0 flex-1 overflow-y-auto pl-6
+              ${scrollClass}
+            `}>
             {treePanel}
           </div>
         </div>
       ) : (
         <div>
-          <div className="sticky top-0 z-10 mb-4 bg-white/95 backdrop-blur-sm py-3 px-6 border-b guide-line">
+          <div
+            className="
+              sticky top-0 z-10 mb-4 border-b guide-line bg-white/95 px-6 py-3
+              backdrop-blur-sm
+            ">
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="
-                  cursor-pointer border border-tech-main/40 px-3 py-1.5 font-mono
-                  text-[11px] transition-colors
+                  cursor-pointer border border-tech-main/40 px-3 py-1.5
+                  font-mono text-[11px] transition-colors
                   hover:bg-tech-main hover:text-white
                 ">
                 + NEW DIR / FILE
@@ -527,8 +543,8 @@ export function SidebarClient({
               <button
                 onClick={collapseAll}
                 className="
-                  cursor-pointer border border-tech-main/40 px-3 py-1.5 font-mono
-                  text-[11px] transition-colors
+                  cursor-pointer border border-tech-main/40 px-3 py-1.5
+                  font-mono text-[11px] transition-colors
                   hover:bg-tech-main hover:text-white
                 ">
                 ⊟ COLLAPSE ALL
@@ -536,8 +552,8 @@ export function SidebarClient({
               <button
                 onClick={scrollToCurrent}
                 className="
-                  cursor-pointer border border-tech-main/40 px-3 py-1.5 font-mono
-                  text-[11px] transition-colors
+                  cursor-pointer border border-tech-main/40 px-3 py-1.5
+                  font-mono text-[11px] transition-colors
                   hover:bg-tech-main hover:text-white
                 ">
                 ◎ LOCATE
@@ -553,15 +569,15 @@ export function SidebarClient({
         createPortal(
           <div
             className="
-              fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4
-              duration-300 animate-in fade-in
+              fixed inset-0 z-9999 flex items-center justify-center bg-black/80
+              p-4 duration-300 animate-in fade-in
             ">
             <div
               className="
-              w-full max-w-md rounded-sm border-2 border-tech-main bg-white p-6
-              shadow-[8px_8px_0_0_rgba(var(--tech-main),1)]
-              dark:bg-black
-            ">
+                w-full max-w-md rounded-sm border-2 border-tech-main bg-white
+                p-6 shadow-[8px_8px_0_0_rgba(var(--tech-main),1)]
+                dark:bg-black
+              ">
               <h3
                 className="
                   mb-6 border-b guide-line pb-2 font-mono text-lg font-bold
@@ -623,8 +639,8 @@ export function SidebarClient({
 
                 <div
                   className="
-                    flex items-center gap-3 border guide-line bg-tech-main/5 px-3
-                    py-2
+                    flex items-center gap-3 border guide-line bg-tech-main/5
+                    px-3 py-2
                   ">
                   <input
                     type="checkbox"
@@ -676,7 +692,10 @@ export function SidebarClient({
                   </select>
                 </div>
 
-                <div className="mt-6 flex justify-end gap-2 border-t guide-line pt-4">
+                <div
+                  className="
+                    mt-6 flex justify-end gap-2 border-t guide-line pt-4
+                  ">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
@@ -691,8 +710,8 @@ export function SidebarClient({
                   <button
                     type="submit"
                     className="
-                      cursor-pointer bg-tech-main px-4 py-2 text-[11px] font-bold
-                      tracking-widest text-white uppercase
+                      cursor-pointer bg-tech-main px-4 py-2 text-[11px]
+                      font-bold tracking-widest text-white uppercase
                       shadow-[2px_2px_0_0_rgba(var(--tech-main),0.4)]
                       transition-opacity
                       hover:opacity-90

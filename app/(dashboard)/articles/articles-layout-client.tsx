@@ -242,7 +242,9 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           aria-label="Toggle article tree"
           aria-expanded={isOpen}
           data-testid="mobile-tree-toggle">
-          <span className="font-mono text-xs font-bold tracking-[0.15em] uppercase">
+          <span className="
+            font-mono text-xs font-bold tracking-[0.15em] uppercase
+          ">
             TREE
           </span>
           <span className="font-mono text-sm font-bold">
@@ -356,8 +358,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
             {showTreePlaceholder ? (
               <div
                 className="
-                  custom-left-scrollbar h-full min-h-0 flex-1
-                  overflow-y-auto pl-6
+                  custom-left-scrollbar h-full min-h-0 flex-1 overflow-y-auto
+                  pl-6
                 ">
                 <div className="h-full min-h-full pr-4">
                   <TreeLoadingPlaceholder />
