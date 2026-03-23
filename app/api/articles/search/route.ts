@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
     const loweredQuery = query.toLowerCase()
     const results: SearchResult[] = []
 
-    for (const result of rawResults.slice(0, 20)) {
+    for (const result of rawResults) {
       const title = typeof result.title === "string" ? result.title : ""
       const slug = typeof result.slug === "string" ? result.slug : ""
       const content = typeof result.content === "string" ? result.content : ""
@@ -132,7 +132,33 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    return jsonResponse(results)
+    // Sort by phrase match priority: exact phrase in title > exact phrase in content > fuzzy matches
+    results.sort((a, b) => {
+      const aTitleExact = a.title.toLowerCase().includes(loweredQuery)
+      const bTitleExact = b.title.toLowerCase().includes(loweredQuery)
+      const aContentExact =
+        a.matchType === "content" &&
+        (typeof rawResults.find((r) => r.slug === a.slug)?.content === "string"
+          ? (rawResults.find((r) => r.slug === a.slug)?.content as string)
+              .toLowerCase()
+              .includes(loweredQuery)
+          : false)
+      const bContentExact =
+        b.matchType === "content" &&
+        (typeof rawResults.find((r) => r.slug === b.slug)?.content === "string"
+          ? (rawResults.find((r) => r.slug === b.slug)?.content as string)
+              .toLowerCase()
+              .includes(loweredQuery)
+          : false)
+
+      if (aTitleExact && !bTitleExact) return -1
+      if (!aTitleExact && bTitleExact) return 1
+      if (aContentExact && !bContentExact) return -1
+      if (!aContentExact && bContentExact) return 1
+      return 0
+    })
+
+    return jsonResponse(results.slice(0, 20))
   } catch (error) {
     console.error("MiniSearch query failed:", error)
     return jsonResponse([])
