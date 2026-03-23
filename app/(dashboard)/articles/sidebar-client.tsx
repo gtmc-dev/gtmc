@@ -6,6 +6,8 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createDocument } from "@/actions/sidebar"
+import { list } from "@vercel/blob"
+import { CornerBrackets } from "@/components/ui/corner-brackets"
 
 interface TocItem {
   id: string
@@ -281,7 +283,7 @@ export function SidebarClient({
     const effectivePath = getEffectivePathname()
     const decodedPathname = decodeURIComponent(effectivePath)
     return (
-      <ul className="my-1 border-l guide-line pl-4">
+      <ul className="my-1 border-l guide-line pl-6">
         {items.map((item) => {
           const fileRoute = `/articles/${item.slug}`
           const decodedRoute = decodeURIComponent(fileRoute)
@@ -300,10 +302,30 @@ export function SidebarClient({
               ref={!item.isFolder && isActive ? activeItemRef : undefined}
               className={`
                 my-1.5 list-none font-mono text-[15px] transition-all
-                duration-300
+                duration-300 relative
                 md:text-base
-                ${!item.isFolder && isActive && highlightActive ? "bg-tech-main/10 -mx-2 px-2 rounded-sm" : ""}
+                ${!item.isFolder && isActive && highlightActive ? "bg-tech-main/10 px-1 py-0.5" : ""}
               `}>
+              {!item.isFolder && isActive && highlightActive && (<div><div
+                className="
+            pointer-events-none absolute top-0 left-0 size-2 -translate-px
+            border-t-2 border-l-2 border-tech-main/40
+          "/>
+                <div
+                  className="
+            pointer-events-none absolute top-0 right-0.5 size-2 translate-x-px
+            -translate-y-px border-t-2 border-r-2 border-tech-main/40
+          "/>
+                <div
+                  className="
+            pointer-events-none absolute bottom-0 left-0 size-2 -translate-x-px
+            translate-y-px border-b-2 border-l-2 border-tech-main/40
+          "/>
+                <div
+                  className="
+            pointer-events-none absolute right-0.5 bottom-0 size-2 translate-px
+            border-r-2 border-b-2 border-tech-main/40
+          "/></div>)}
               {item.isFolder ? (
                 <button
                   onClick={(e) => toggleFolder(item.id, e)}
@@ -325,10 +347,9 @@ export function SidebarClient({
                     className={`
                       group relative -ml-4 flex items-center py-1.5 pl-4
                       transition-colors
-                      ${
-                        isActive
-                          ? `font-bold text-tech-main`
-                          : `
+                      ${isActive
+                        ? `font-bold text-tech-main`
+                        : `
                             text-slate-700
                             hover:text-tech-main
                           `
@@ -354,10 +375,9 @@ export function SidebarClient({
                           absolute top-1/2 left-0 -translate-y-1/2 text-xs
                           transition-opacity
                           md:text-sm
-                          ${
-                            isActive
-                              ? `text-tech-main opacity-100`
-                              : `
+                          ${isActive
+                            ? `text-tech-main opacity-100`
+                            : `
                                 text-tech-main opacity-0
                                 group-hover:opacity-100
                               `
@@ -378,10 +398,9 @@ export function SidebarClient({
                       }}
                       className={`
                         block w-full border-b pb-px pl-1
-                        ${
-                          isActive
-                            ? `cursor-pointer border-tech-main/50`
-                            : `
+                        ${isActive
+                          ? `cursor-pointer border-tech-main/50`
+                          : `
                               border-transparent
                               group-hover:border-tech-main/30
                             `
@@ -395,10 +414,9 @@ export function SidebarClient({
                     <div
                       className={`
                         grid transition-all duration-300 ease-out
-                        ${
-                          isFileExpanded
-                            ? "grid-rows-[1fr] opacity-100"
-                            : "grid-rows-[0fr] opacity-0"
+                        ${isFileExpanded
+                          ? "grid-rows-[1fr] opacity-100"
+                          : "grid-rows-[0fr] opacity-0"
                         }
                       `}>
                       <div className="overflow-hidden">
@@ -440,10 +458,9 @@ export function SidebarClient({
                   }}
                   className={`
                     grid transition-all duration-300 ease-out
-                    ${
-                      !item.isFolder || folderExpanded
-                        ? "grid-rows-[1fr] opacity-100"
-                        : "grid-rows-[0fr] opacity-0"
+                    ${!item.isFolder || folderExpanded
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                     }
                   `}>
                   <div className="overflow-hidden">
