@@ -6,8 +6,6 @@ import { createPortal } from "react-dom"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { createDocument } from "@/actions/sidebar"
-import { list } from "@vercel/blob"
-import { CornerBrackets } from "@/components/ui/corner-brackets"
 
 interface TocItem {
   id: string
