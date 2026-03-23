@@ -228,6 +228,11 @@ export function SidebarClient({
         return next
       })
     }
+    const userScrolledHalfScreen =
+      typeof window !== "undefined" && window.scrollY >= window.innerHeight / 2
+    if (userScrolledHalfScreen) {
+      setIsFileExpanded(true)
+    }
     const delay = alreadyExpanded ? 50 : 400
     setTimeout(() => {
       scrollActiveItemIntoContainer()
@@ -236,6 +241,7 @@ export function SidebarClient({
     }, delay)
   }, [
     tree,
+    expandedFolders,
     getEffectivePathname,
     findItemAndParents,
     scrollActiveItemIntoContainer,
@@ -284,10 +290,9 @@ export function SidebarClient({
                 my-1.5 list-none font-mono text-[15px] transition-all
                 duration-300
                 md:text-base
-                ${
-                  !item.isFolder && isActive && highlightActive
-                    ? "bg-tech-main/10 -ml-1 pl-1"
-                    : ""
+                ${!item.isFolder && isActive && highlightActive
+                  ? "bg-tech-main/10 -ml-1 pl-1"
+                  : ""
                 }
               `}>
               {item.isFolder ? (
@@ -311,10 +316,9 @@ export function SidebarClient({
                     className={`
                       group relative -ml-4 flex items-center py-1.5 pl-4
                       transition-colors
-                      ${
-                        isActive
-                          ? `font-bold text-tech-main`
-                          : `
+                      ${isActive
+                        ? `font-bold text-tech-main`
+                        : `
                             text-slate-700
                             hover:text-tech-main
                           `
@@ -340,10 +344,9 @@ export function SidebarClient({
                           absolute top-1/2 left-0 -translate-y-1/2 text-xs
                           transition-opacity
                           md:text-sm
-                          ${
-                            isActive
-                              ? `text-tech-main opacity-100`
-                              : `
+                          ${isActive
+                            ? `text-tech-main opacity-100`
+                            : `
                                 text-tech-main opacity-0
                                 group-hover:opacity-100
                               `
@@ -364,10 +367,9 @@ export function SidebarClient({
                       }}
                       className={`
                         block w-full border-b pb-px pl-1
-                        ${
-                          isActive
-                            ? `cursor-pointer border-tech-main/50`
-                            : `
+                        ${isActive
+                          ? `cursor-pointer border-tech-main/50`
+                          : `
                               border-transparent
                               group-hover:border-tech-main/30
                             `
@@ -381,10 +383,9 @@ export function SidebarClient({
                     <div
                       className={`
                         grid transition-all duration-300 ease-out
-                        ${
-                          isFileExpanded
-                            ? "grid-rows-[1fr] opacity-100"
-                            : "grid-rows-[0fr] opacity-0"
+                        ${isFileExpanded
+                          ? "grid-rows-[1fr] opacity-100"
+                          : "grid-rows-[0fr] opacity-0"
                         }
                       `}>
                       <div className="overflow-hidden">
@@ -422,10 +423,9 @@ export function SidebarClient({
                 <div
                   className={`
                     grid transition-all duration-300 ease-out
-                    ${
-                      !item.isFolder || folderExpanded
-                        ? "grid-rows-[1fr] opacity-100"
-                        : "grid-rows-[0fr] opacity-0"
+                    ${!item.isFolder || folderExpanded
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
                     }
                   `}>
                   <div className="overflow-hidden">
@@ -504,7 +504,7 @@ export function SidebarClient({
     <>
       {internalScroll ? (
         <div className="flex min-h-0 flex-1 flex-col">
-          {buttonsPanel}
+          <div className="pl-3">{buttonsPanel}</div>
           <div
             ref={scrollContainerRef}
             className={`custom-left-scrollbar min-h-0 flex-1 overflow-y-auto pl-6 ${scrollClass}`}>
