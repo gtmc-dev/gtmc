@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import {
   ARTICLES_REPO_NAME,
   ARTICLES_REPO_OWNER,
+  getGitHubWriteToken,
   getOctokit,
 } from "@/lib/github-pr";
 import { prisma } from "@/lib/prisma";
@@ -20,7 +21,7 @@ export async function mergePRAction(prNumber: number) {
     throw new Error("Unauthorized");
   }
 
-  const token = (session.user as { githubPat?: string }).githubPat || process.env.GITHUB_TOKEN;
+  const token = getGitHubWriteToken((session.user as { githubPat?: string }).githubPat);
   const octokit = getOctokit(token);
 
   try {
@@ -42,7 +43,7 @@ export async function closePRAction(prNumber: number) {
     throw new Error("Unauthorized");
   }
 
-  const token = (session.user as { githubPat?: string }).githubPat || process.env.GITHUB_TOKEN;
+  const token = getGitHubWriteToken((session.user as { githubPat?: string }).githubPat);
   const octokit = getOctokit(token);
 
   try {
@@ -83,7 +84,7 @@ export async function resolveConflictAction(prNumber: number, formData: FormData
     throw new Error("The linked draft is missing PR metadata");
   }
 
-  const token = (session.user as { githubPat?: string }).githubPat || process.env.GITHUB_TOKEN;
+  const token = getGitHubWriteToken((session.user as { githubPat?: string }).githubPat);
   const authorName = session.user.name || "GTMC Admin";
   const authorEmail = session.user.email || "admin@gtmc.dev";
 

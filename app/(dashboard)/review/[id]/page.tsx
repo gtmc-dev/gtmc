@@ -10,7 +10,12 @@ import "katex/dist/katex.min.css";
 import Link from "next/link";
 import { BrutalButton } from "@/components/ui/brutal-button";
 import { getMarkdownComponents } from "@/lib/markdown";
-import { getOctokit, ARTICLES_REPO_OWNER, ARTICLES_REPO_NAME } from "@/lib/github-pr";
+import {
+  getGitHubWriteToken,
+  getOctokit,
+  ARTICLES_REPO_OWNER,
+  ARTICLES_REPO_NAME,
+} from "@/lib/github-pr";
 import { mergePRAction, closePRAction } from "@/actions/review";
 import { prisma } from "@/lib/prisma";
 import ConflictResolver from "./components/conflict-resolver";
@@ -30,7 +35,7 @@ export default async function ReviewDetailPage({ params }: { params: Promise<{ i
     notFound();
   }
 
-  const token = (session.user as { githubPat?: string }).githubPat || process.env.GITHUB_TOKEN;
+  const token = getGitHubWriteToken((session.user as { githubPat?: string }).githubPat);
   const octokit = getOctokit(token);
 
   let pr;

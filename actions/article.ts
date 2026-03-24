@@ -8,6 +8,7 @@ import {
   getMainBranchHeadSha,
   openDraftPullRequest,
 } from "@/lib/article-submission";
+import { getGitHubWriteToken } from "@/lib/github-pr";
 import { prisma } from "@/lib/prisma";
 
 const EDITABLE_STATUSES = new Set(["DRAFT"]);
@@ -117,10 +118,14 @@ export async function submitForReviewAction(revisionId: string) {
     throw new Error("File path is required. Please specify the target file path in editor.");
   }
 
-  const token = existing.author.githubPat || process.env.GITHUB_TOKEN;
+  const token = getGitHubWriteToken(existing.author.githubPat);
   const authorName = session.user.name || "GTMC Author";
   const authorEmail = session.user.email || "author@gtmc.dev";
   const baseMainSha = existing.baseMainSha || (await getMainBranchHeadSha(token));
+
+  if (!token) {
+    throw new Error("Failed to create PR: missing GITHUB_ARTICLES_WRITE_PAT or another token with repo write permission.");
+  }
 
   try {
     const result = await openDraftPullRequest({
@@ -154,7 +159,11 @@ export async function submitForReviewAction(revisionId: string) {
     revalidatePath("/review");
     return { success: true, status: result.status };
   } catch (error) {
-    throw new Error(`Failed to create PR: ${error instanceof Error ? error.message : "Unknown error"}`);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    if (message.includes("Resource not accessible by personal access token")) {
+      throw new Error("Failed to create PR: the configured GitHub token cannot create branches in the Articles repo. Set GITHUB_ARTICLES_WRITE_PAT with repo write access on Vercel.");
+    }
+    throw new Error(`Failed to create PR: ${message}`);
   }
 }
 
