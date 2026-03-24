@@ -54,7 +54,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       if (githubContent !== null) {
         content = githubContent;
         rawPath = tryPath;
-        editPath = tryPath.replace(/\.md$/, "");
+        editPath = normalizeDraftTargetPath(tryPath);
         break;
       }
     }
@@ -131,4 +131,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       </div>
     </div>
   );
+}
+
+function normalizeDraftTargetPath(filePath: string) {
+  if (filePath === "README.md" || filePath.endsWith("/README.md")) {
+    return filePath;
+  }
+
+  return filePath.replace(/\.md$/, "");
 }
