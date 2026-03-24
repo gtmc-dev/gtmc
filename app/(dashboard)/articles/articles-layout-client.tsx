@@ -241,7 +241,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           aria-label="Toggle article tree"
           aria-expanded={isOpen}
           data-testid="mobile-tree-toggle">
-          <span className="
+          <span
+            className="
             font-mono text-xs font-bold tracking-[0.15em] uppercase
           ">
             TREE
@@ -279,19 +280,19 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         ? createPortal(
             <div
               className="
-                fixed top-20 right-4 z-58 flex animate-tech-pop-in items-center
-                md:hidden
-              "
+              fixed top-20 right-4 z-58 flex animate-tech-pop-in items-center
+              md:hidden
+            "
               data-testid="mobile-tree-floating-trigger">
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="
-                  min-h-[44px] cursor-pointer border border-tech-main/40
-                  bg-white/95 px-4 py-2 font-mono text-xs font-bold
-                  tracking-[0.15em] text-tech-main uppercase backdrop-blur-md
-                  transition-all duration-300
-                  hover:bg-tech-main/5
-                "
+                min-h-11 cursor-pointer border border-tech-main/40 bg-white/95
+                px-4 py-2 font-mono text-xs font-bold tracking-[0.15em]
+                text-tech-main uppercase backdrop-blur-md transition-all
+                duration-300
+                hover:bg-tech-main/5
+              "
                 aria-label="Toggle article tree"
                 aria-expanded={isOpen}>
                 TREE
@@ -314,33 +315,25 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         className="
           hidden w-64 shrink-0 border-r guide-line
           md:block
-          lg:w-75
+          lg:w-80
         ">
         <div
           className="
-            sticky top-20 flex h-[calc(100vh-96px)] flex-col
+            sticky top-20 flex flex-col justify-center
             hover:z-20
             sm:top-26 sm:h-[calc(100vh-128px)]
             lg:top-28 lg:h-[calc(100vh-144px)]
           ">
           <div
             className="
-              group relative flex min-h-0 flex-1 flex-col border-b guide-line
-              py-4 pr-2 pl-0 text-tech-main
-              md:py-6 md:pl-0
+              group relative flex max-h-4/5 min-h-0 flex-1 flex-col border-b
+              guide-line text-tech-main
+              md:px-4 md:py-2
             ">
             <div
               className="
-                absolute top-0 left-0 h-0 w-px bg-tech-main opacity-20
-                transition-all duration-500 ease-out
-                group-hover:h-full
-              "
-            />
-
-            <div
-              className="
-                group/title mb-4 flex shrink-0 items-center justify-between
-                border-b guide-line pt-8 pb-2 pl-6
+                group/title flex shrink-0 items-center justify-between border-b
+                guide-line px-4 pb-2
               ">
               <div
                 className="
@@ -349,8 +342,9 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                 ">
                 <span
                   className="
-                    mr-2 inline-block size-1.5 animate-pulse bg-tech-main/60
-                  "></span>
+                  mr-2 inline-block size-1.5 animate-pulse bg-tech-main/60
+                "
+                />
                 SYS.DIR_TREE
               </div>
             </div>
@@ -359,11 +353,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
               <div
                 className="
                   custom-left-scrollbar h-full min-h-0 flex-1 overflow-y-auto
-                  pl-6
                 ">
-                <div className="h-full min-h-full pr-4">
-                  <TreeLoadingPlaceholder />
-                </div>
+                <TreeLoadingPlaceholder />
               </div>
             ) : (
               <SidebarClient
@@ -372,6 +363,18 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                 scrollClass="pr-4"
               />
             )}
+
+            <div
+              className="
+                pointer-events-none absolute inset-x-0 bottom-0 z-50 h-24
+                bg-linear-to-b from-white/0 via-white/25 to-white/75
+                backdrop-blur-2xl
+              "
+              style={{
+                backdropFilter: "blur(40px)",
+                WebkitBackdropFilter: "blur(40px)",
+              }}
+            />
           </div>
         </div>
       </aside>
@@ -380,8 +383,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         className="
           relative min-w-0 flex-1 overflow-x-hidden border-l border-transparent
           py-6
-          md:pl-10
-          lg:pl-16
+          md:pl-14
+          lg:pl-24
         ">
         {children}
       </main>

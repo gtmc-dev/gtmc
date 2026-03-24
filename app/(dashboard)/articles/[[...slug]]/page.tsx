@@ -60,11 +60,11 @@ export async function generateMetadata({
   const pathsToTry = normalizedPath.endsWith(".md")
     ? [normalizedPath, `${normalizedPath.replace(/\.md$/, "")}/Preface.md`]
     : [
-        `${normalizedPath}.md`,
-        ...(normalizedPath.includes("/")
-          ? [`${normalizedPath}/Preface.md`]
-          : []),
-      ]
+      `${normalizedPath}.md`,
+      ...(normalizedPath.includes("/")
+        ? [`${normalizedPath}/Preface.md`]
+        : []),
+    ]
 
   for (const tryPath of pathsToTry) {
     const githubContent = await getRepoFileContent(tryPath)
@@ -132,11 +132,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     const pathsToTry = normalizedPath.endsWith(".md")
       ? [normalizedPath, `${folderCandidate}/Preface.md`]
       : [
-          `${normalizedPath}.md`,
-          ...(normalizedPath.includes("/")
-            ? [`${normalizedPath}/Preface.md`]
-            : []),
-        ]
+        `${normalizedPath}.md`,
+        ...(normalizedPath.includes("/")
+          ? [`${normalizedPath}/Preface.md`]
+          : []),
+      ]
 
     let fileFound = false
     for (const tryPath of pathsToTry) {
@@ -183,8 +183,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   return (
     <div
       className="
-        relative min-h-screen border border-tech-main/40 bg-transparent p-6
-        pb-32 backdrop-blur-sm
+        relative min-h-screen max-w-3xl border border-tech-main/40
+        bg-transparent p-6 pb-32 backdrop-blur-sm
         sm:p-8
       ">
       <div
