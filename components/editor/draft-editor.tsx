@@ -4,7 +4,11 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import ReactMarkdown from "react-markdown"
 
-import { saveDraftAction, submitForReviewAction } from "@/actions/article"
+import {
+  resolveDraftConflictAction,
+  saveDraftAction,
+  submitForReviewAction,
+} from "@/actions/article"
 import { getMarkdownComponents, getPluginsForContent } from "@/lib/markdown"
 import { EditorToolbar } from "@/components/editor/editor-toolbar"
 import {
@@ -18,9 +22,11 @@ import "katex/dist/katex.min.css"
 
 interface DraftEditorProps {
   initialData?: {
+    conflictContent?: string
     id?: string
     articleId?: string
     filePath?: string
+    githubPrUrl?: string
     title: string
     content: string
     status?: string
@@ -29,8 +35,15 @@ interface DraftEditorProps {
 
 export function DraftEditor({ initialData }: DraftEditorProps) {
   const router = useRouter()
+  const initialStatus = initialData?.status || "DRAFT"
+  const initialEditorContent =
+    initialStatus === "SYNC_CONFLICT"
+      ? initialData?.conflictContent || initialData?.content || ""
+      : initialData?.content || ""
+
+  const [draftStatus, setDraftStatus] = React.useState(initialStatus)
   const [title, setTitle] = React.useState(initialData?.title || "")
-  const [content, setContent] = React.useState(initialData?.content || "")
+  const [content, setContent] = React.useState(initialEditorContent)
   const [filePath, setFilePath] = React.useState(initialData?.filePath || "")
   const [revisionId, setRevisionId] = React.useState<string | undefined>(
     initialData?.id
@@ -42,7 +55,9 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   const articleId = initialData?.articleId
-  const isReadOnly = initialData?.status === "SUBMITTED"
+  const githubPrUrl = initialData?.githubPrUrl
+  const isSyncConflict = draftStatus === "SYNC_CONFLICT"
+  const isReadOnly = draftStatus === "IN_REVIEW"
 
   const insertSyntax = (prefix: string, suffix: string = "") => {
     if (isReadOnly || !textareaRef.current) return
@@ -96,12 +111,46 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
 
     setIsSubmittingReview(true)
     try {
-      await submitForReviewAction(revisionId)
-      alert("已提交审核 / Submitted for Review!")
-      router.push("/draft")
+      const result = await submitForReviewAction(revisionId)
+      setDraftStatus(result.status)
+      alert(
+        result.status === "SYNC_CONFLICT"
+          ? "检测到与最新 main 的冲突，请继续解决 / Sync conflict detected. Please resolve it."
+          : "已开启 PR 并进入审核 / PR opened successfully."
+      )
+      router.push(`/draft/${revisionId}`)
+      router.refresh()
     } catch (error) {
       console.error(error)
       alert("提交审核失败 / Submit Failed")
+    } finally {
+      setIsSubmittingReview(false)
+    }
+  }
+
+  const handleResolveConflict = async () => {
+    if (!revisionId) {
+      alert("未找到草稿 ID / Missing draft ID")
+      return
+    }
+
+    setIsSubmittingReview(true)
+    try {
+      const formData = new FormData()
+      formData.append("content", content)
+
+      const result = await resolveDraftConflictAction(revisionId, formData)
+      setDraftStatus(result.status)
+      alert(
+        result.status === "SYNC_CONFLICT"
+          ? "main 已继续前进，请再处理一次冲突 / main moved again, please resolve once more."
+          : "冲突已解决，PR 已更新 / Conflict resolved and PR updated."
+      )
+      router.push(`/draft/${revisionId}`)
+      router.refresh()
+    } catch (error) {
+      console.error(error)
+      alert("处理冲突失败 / Conflict Resolution Failed")
     } finally {
       setIsSubmittingReview(false)
     }
@@ -159,6 +208,15 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
           />
         </div>
       </div>
+
+      {githubPrUrl ? (
+        <div className="border-tech-main/20 flex items-center justify-between gap-3 border bg-tech-main/5 px-4 py-3 font-mono text-xs text-tech-main">
+          <span>PR_STREAM_ACTIVE</span>
+          <a href={githubPrUrl} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+            OPEN_GITHUB_PR
+          </a>
+        </div>
+      ) : null}
 
       <div
         className="
@@ -291,20 +349,22 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
             {isSaving ? (
               <LoadingIndicator label={PENDING_LABELS.SAVING_DRAFT} />
             ) : (
-              "SAVE DRAFT"
+              isSyncConflict ? "SAVE PROGRESS" : "SAVE DRAFT"
             )}
           </BrutalButton>
 
           <BrutalButton
             type="button"
             variant="ghost"
-            onClick={handleSubmitReview}
+            onClick={isSyncConflict ? handleResolveConflict : handleSubmitReview}
             disabled={isSubmittingReview || isSaving}
             aria-busy={isSubmittingReview}>
             {isSubmittingReview ? (
-              <LoadingIndicator label={PENDING_LABELS.SUBMITTING_REVIEW} />
+              <LoadingIndicator
+                label={isSyncConflict ? PENDING_LABELS.UPDATING_PR : PENDING_LABELS.SUBMITTING_REVIEW}
+              />
             ) : (
-              "SUBMIT FOR REVIEW"
+              isSyncConflict ? "RESOLVE & UPDATE PR" : "OPEN PR & SYNC MAIN"
             )}
           </BrutalButton>
         </div>
