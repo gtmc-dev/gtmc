@@ -241,10 +241,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           aria-label="Toggle article tree"
           aria-expanded={isOpen}
           data-testid="mobile-tree-toggle">
-          <span
-            className="
-            font-mono text-xs font-bold tracking-[0.15em] uppercase
-          ">
+          <span className="font-mono text-xs font-bold tracking-[0.15em] uppercase">
             TREE
           </span>
           <span className="font-mono text-sm font-bold">
@@ -280,19 +277,19 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         ? createPortal(
             <div
               className="
-              fixed top-20 right-4 z-58 flex animate-tech-pop-in items-center
-              md:hidden
-            "
+                fixed top-20 right-4 z-58 flex animate-tech-pop-in items-center
+                md:hidden
+              "
               data-testid="mobile-tree-floating-trigger">
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="
-                min-h-11 cursor-pointer border border-tech-main/40 bg-white/95
-                px-4 py-2 font-mono text-xs font-bold tracking-[0.15em]
-                text-tech-main uppercase backdrop-blur-md transition-all
-                duration-300
-                hover:bg-tech-main/5
-              "
+                  min-h-11 cursor-pointer border border-tech-main/40 bg-white/95
+                  px-4 py-2 font-mono text-xs font-bold tracking-[0.15em]
+                  text-tech-main uppercase backdrop-blur-md transition-all
+                  duration-300
+                  hover:bg-tech-main/5
+                "
                 aria-label="Toggle article tree"
                 aria-expanded={isOpen}>
                 TREE
@@ -326,8 +323,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           ">
           <div
             className="
-              group relative flex max-h-4/5 min-h-0 flex-1 flex-col border-b
-              guide-line text-tech-main
+              group relative flex max-h-4/5 min-h-0 flex-1 flex-col
+              overflow-visible border-b guide-line text-tech-main
               md:px-4 md:py-2
             ">
             <div
@@ -342,8 +339,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                 ">
                 <span
                   className="
-                  mr-2 inline-block size-1.5 animate-pulse bg-tech-main/60
-                "
+                    mr-2 inline-block size-1.5 animate-pulse bg-tech-main/60
+                  "
                 />
                 SYS.DIR_TREE
               </div>
@@ -363,18 +360,6 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                 scrollClass="pr-4"
               />
             )}
-
-            <div
-              className="
-                pointer-events-none absolute inset-x-0 bottom-0 z-50 h-24
-                bg-linear-to-b from-white/0 via-white/25 to-white/75
-                backdrop-blur-2xl
-              "
-              style={{
-                backdropFilter: "blur(40px)",
-                WebkitBackdropFilter: "blur(40px)",
-              }}
-            />
           </div>
         </div>
       </aside>

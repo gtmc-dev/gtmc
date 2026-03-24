@@ -50,6 +50,7 @@ export function SidebarClient({
   const [highlightActive, setHighlightActive] = useState(false)
   const activeItemRef = useRef<HTMLLIElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const blurFrameRef = useRef<number | null>(null)
   const folderGridRefs = useRef<Map<string, HTMLDivElement>>(new Map())
   const locatePendingRef = useRef(false)
   const pendingExpandIdsRef = useRef<string[]>([])
@@ -253,6 +254,94 @@ export function SidebarClient({
     expandAndScroll,
   ])
 
+  const syncBottomRowBlur = useCallback(() => {
+    const container = scrollContainerRef.current
+    if (!container) return
+    const rows = container.querySelectorAll<HTMLElement>(
+      'li[data-sidebar-row="1"]'
+    )
+    const containerRect = container.getBoundingClientRect()
+    const blurZoneHeight = 80
+    const blurZoneTop = containerRect.bottom - blurZoneHeight
+
+    rows.forEach((row) => {
+      const rowRect = row.getBoundingClientRect()
+      const overlapTop = Math.max(rowRect.top, blurZoneTop)
+      const overlapBottom = Math.min(rowRect.bottom, containerRect.bottom)
+      const overlap = overlapBottom - overlapTop
+
+      if (overlap <= 0) {
+        row.style.filter = ""
+        row.style.opacity = ""
+        return
+      }
+
+      const ratio = Math.min(1, overlap / Math.max(1, rowRect.height))
+      const blur = 0.6 + ratio * 2.4
+      row.style.filter = `blur(${blur.toFixed(2)}px)`
+      row.style.opacity = `${(1 - ratio * 0.12).toFixed(3)}`
+    })
+  }, [])
+
+  const scheduleBottomRowBlurSync = useCallback(() => {
+    if (blurFrameRef.current !== null) return
+    blurFrameRef.current = window.requestAnimationFrame(() => {
+      blurFrameRef.current = null
+      syncBottomRowBlur()
+    })
+  }, [syncBottomRowBlur])
+
+  useEffect(() => {
+    if (!internalScroll) return
+    const container = scrollContainerRef.current
+    if (!container) return
+
+    const onScroll = () => scheduleBottomRowBlurSync()
+    const onResize = () => scheduleBottomRowBlurSync()
+
+    container.addEventListener("scroll", onScroll, { passive: true })
+    window.addEventListener("resize", onResize)
+
+    const resizeObserver = new ResizeObserver(() => {
+      scheduleBottomRowBlurSync()
+    })
+    resizeObserver.observe(container)
+    scheduleBottomRowBlurSync()
+
+    return () => {
+      container.removeEventListener("scroll", onScroll)
+      window.removeEventListener("resize", onResize)
+      resizeObserver.disconnect()
+
+      if (blurFrameRef.current !== null) {
+        window.cancelAnimationFrame(blurFrameRef.current)
+        blurFrameRef.current = null
+      }
+
+      const rows = container.querySelectorAll<HTMLElement>(
+        'li[data-sidebar-row="1"]'
+      )
+      rows.forEach((row) => {
+        row.style.filter = ""
+        row.style.opacity = ""
+      })
+    }
+  }, [internalScroll, scheduleBottomRowBlurSync])
+
+  useEffect(() => {
+    if (!internalScroll) return
+    scheduleBottomRowBlurSync()
+  }, [
+    internalScroll,
+    pathname,
+    tree,
+    expandedFolders,
+    toc,
+    isFileExpanded,
+    highlightActive,
+    scheduleBottomRowBlurSync,
+  ])
+
   const scrollToCurrent = useCallback(() => {
     console.log("[LOCATE] scrollToCurrent called")
     console.log("[LOCATE] window.scrollY:", window.scrollY)
@@ -292,7 +381,7 @@ export function SidebarClient({
     const effectivePath = getEffectivePathname()
     const decodedPathname = decodeURIComponent(effectivePath)
     return (
-      <ul className="my-1 pl-6" >
+      <ul className="my-1 pl-6">
         {items.map((item) => {
           const fileRoute = `/articles/${item.slug.split("/").map(encodeURIComponent).join("/")}`
           const decodedRoute = decodeURIComponent(fileRoute)
@@ -308,14 +397,16 @@ export function SidebarClient({
           return (
             <li
               key={item.id}
+              data-sidebar-row="1"
               ref={!item.isFolder && isActive ? activeItemRef : undefined}
               className={`
                 relative my-1.5 w-fit list-none font-mono text-[16px]
                 transition-all duration-300
                 md:text-base
-                ${!item.isFolder && isActive && highlightActive
-                  ? `bg-tech-main/10 px-1 py-0.5`
-                  : ""
+                ${
+                  !item.isFolder && isActive && highlightActive
+                    ? `bg-tech-main/10 px-1 py-0.5`
+                    : ""
                 }
               `}>
               {!item.isFolder && isActive && highlightActive && (
@@ -369,9 +460,10 @@ export function SidebarClient({
                     className={`
                       group relative -ml-4 flex items-center py-1.5 pl-4
                       transition-colors
-                      ${isActive
-                        ? `font-bold text-tech-main`
-                        : `
+                      ${
+                        isActive
+                          ? `font-bold text-tech-main`
+                          : `
                           text-slate-700
                           hover:text-tech-main
                         `
@@ -397,9 +489,10 @@ export function SidebarClient({
                           absolute top-1/2 left-0 -translate-y-1/2 text-xs
                           transition-opacity
                           md:text-sm
-                          ${isActive
-                            ? `text-tech-main opacity-100`
-                            : `
+                          ${
+                            isActive
+                              ? `text-tech-main opacity-100`
+                              : `
                               text-tech-main opacity-0
                               group-hover:opacity-100
                             `
@@ -420,9 +513,10 @@ export function SidebarClient({
                       }}
                       className={`
                         block w-full border-b pb-px pl-1
-                        ${isActive
-                          ? `cursor-pointer border-tech-main/50`
-                          : `
+                        ${
+                          isActive
+                            ? `cursor-pointer border-tech-main/50`
+                            : `
                             border-transparent
                             group-hover:border-tech-main/30
                           `
@@ -436,9 +530,10 @@ export function SidebarClient({
                     <div
                       className={`
                         grid transition-all duration-300 ease-out
-                        ${isFileExpanded
-                          ? "grid-rows-[1fr] opacity-100"
-                          : "grid-rows-[0fr] opacity-0"
+                        ${
+                          isFileExpanded
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
                         }
                       `}>
                       <div className="overflow-hidden">
@@ -480,9 +575,10 @@ export function SidebarClient({
                   }}
                   className={`
                     grid transition-all duration-300 ease-out
-                    ${!item.isFolder || folderExpanded
-                      ? "grid-rows-[1fr] opacity-100"
-                      : "grid-rows-[0fr] opacity-0"
+                    ${
+                      !item.isFolder || folderExpanded
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
                     }
                   `}>
                   <div className="overflow-hidden">
@@ -566,7 +662,7 @@ export function SidebarClient({
   return (
     <>
       {internalScroll ? (
-        <div className="flex min-h-0 flex-1 flex-col">
+        <div className="relative flex min-h-0 flex-1 flex-col">
           {buttonsPanel}
           <div
             ref={scrollContainerRef}
@@ -575,6 +671,21 @@ export function SidebarClient({
               ${scrollClass}
             `}>
             {treePanel}
+          </div>
+          <div
+            className="
+              pointer-events-none absolute right-0 bottom-0 left-0 z-20 h-20
+              border-t border-white/40
+            ">
+            <div
+              className="absolute inset-0"
+              style={{
+                WebkitBackdropFilter: "blur(32px)",
+                backdropFilter: "blur(32px)",
+                background:
+                  "repeating-linear-gradient(45deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 4px), linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.4) 100%)",
+              }}
+            />
           </div>
         </div>
       ) : (
