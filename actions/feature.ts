@@ -23,6 +23,7 @@ import {
   labelsToTags,
   getIssue,
   getGithubEmailVisibility,
+  createMetadataFromSession,
   type IssueMetadata,
 } from "@/lib/github-features"
 
@@ -127,11 +128,7 @@ export async function createFeature(data: {
 }) {
   const session = await requireAuth()
 
-  const metadata: IssueMetadata = {
-    appUserId: session.user.id,
-    authorName: session.user.name ?? null,
-    authorEmail: session.user.email ?? null,
-  }
+  const metadata = createMetadataFromSession(session)
 
   const body = serializeIssueBody(data.content, metadata, undefined)
 
@@ -449,11 +446,7 @@ export async function resolveFeature(id: string, resolutionComment?: string) {
   if (resolutionComment) {
     await addIssueComment(
       issue.number,
-      serializeCommentBody(`[Resolution]: ${resolutionComment}`, {
-        appUserId: session.user.id,
-        authorName: session.user.name ?? null,
-        authorEmail: session.user.email ?? null,
-      })
+      serializeCommentBody(`[Resolution]: ${resolutionComment}`, createMetadataFromSession(session))
     )
   }
 
@@ -500,8 +493,7 @@ export async function addFeatureComment(id: string, content: string) {
   const commentBody = serializeCommentBody(
     `<!-- GTMC_COMMENT_AUTHOR_LINE -->\n${authorLine}\n\n${content}`,
     {
-      appUserId: session.user.id,
-      authorName: session.user.name ?? null,
+      ...createMetadataFromSession(session),
       authorEmail,
       emailRedacted,
     }
