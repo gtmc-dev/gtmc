@@ -464,9 +464,9 @@ export function SidebarClient({
                         isActive
                           ? `font-bold text-tech-main`
                           : `
-                          text-slate-700
-                          hover:text-tech-main
-                        `
+                            text-slate-700
+                            hover:text-tech-main
+                          `
                       }
                     `}>
                     {isActive && toc.length > 0 ? (
@@ -493,9 +493,9 @@ export function SidebarClient({
                             isActive
                               ? `text-tech-main opacity-100`
                               : `
-                              text-tech-main opacity-0
-                              group-hover:opacity-100
-                            `
+                                text-tech-main opacity-0
+                                group-hover:opacity-100
+                              `
                           }
                         `}>
                         &gt;
@@ -517,9 +517,9 @@ export function SidebarClient({
                           isActive
                             ? `cursor-pointer border-tech-main/50`
                             : `
-                            border-transparent
-                            group-hover:border-tech-main/30
-                          `
+                              border-transparent
+                              group-hover:border-tech-main/30
+                            `
                         }
                       `}>
                       {item.title}
@@ -674,8 +674,8 @@ export function SidebarClient({
           </div>
           <div
             className="
-              pointer-events-none absolute right-0 bottom-0 left-0 z-20 h-20
-              border-t border-white/40
+              pointer-events-none absolute inset-x-0 bottom-0 z-20 h-20 border-t
+              border-white/40
             ">
             <div
               className="absolute inset-0"
