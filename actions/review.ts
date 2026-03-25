@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache"
 
 import { resolveDraftSyncConflict } from "@/lib/article-submission"
-import { auth } from "@/lib/auth"
+import { requireAuth } from "@/lib/auth-helpers"
 import {
   ARTICLES_REPO_NAME,
   ARTICLES_REPO_OWNER,
@@ -16,8 +16,8 @@ const owner = ARTICLES_REPO_OWNER
 const repo = ARTICLES_REPO_NAME
 
 export async function mergePRAction(prNumber: number) {
-  const session = await auth()
-  if (!session?.user || session.user.role !== "ADMIN") {
+  const session = await requireAuth()
+  if (session.user.role !== "ADMIN") {
     throw new Error("Unauthorized")
   }
 
@@ -42,8 +42,8 @@ export async function mergePRAction(prNumber: number) {
 }
 
 export async function closePRAction(prNumber: number) {
-  const session = await auth()
-  if (!session?.user || session.user.role !== "ADMIN") {
+  const session = await requireAuth()
+  if (session.user.role !== "ADMIN") {
     throw new Error("Unauthorized")
   }
 
@@ -72,8 +72,8 @@ export async function resolveConflictAction(
   prNumber: number,
   formData: FormData
 ) {
-  const session = await auth()
-  if (!session?.user || session.user.role !== "ADMIN") {
+  const session = await requireAuth()
+  if (session.user.role !== "ADMIN") {
     throw new Error("Unauthorized")
   }
 
