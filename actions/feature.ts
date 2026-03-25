@@ -24,6 +24,7 @@ import {
   getIssue,
   getGithubEmailVisibility,
   createMetadataFromSession,
+  parseIssueNumber,
   type IssueMetadata,
 } from "@/lib/github-features"
 
@@ -173,8 +174,7 @@ export async function updateFeature(
 ) {
   const session = await requireAuth()
 
-  const issueNumber = parseInt(id, 10)
-  if (isNaN(issueNumber)) throw new Error("Invalid issue number")
+  const issueNumber = parseIssueNumber(id)
 
   const feature = await getFeatureByIssueNumber(issueNumber)
   if (!feature) throw new Error("Not found")
@@ -238,8 +238,7 @@ export async function updateFeatureExplanation(
 ) {
   const session = await requireAuth()
 
-  const issueNumber = parseInt(id, 10)
-  if (isNaN(issueNumber)) throw new Error("Invalid issue number")
+  const issueNumber = parseIssueNumber(id)
 
   const feature = await getFeatureByIssueNumber(issueNumber)
   if (!feature) throw new Error("Not found")
@@ -273,8 +272,7 @@ export async function updateFeatureExplanation(
 export async function assignFeature(id: string) {
   const session = await requireAuth()
 
-  const issueNumber = parseInt(id, 10)
-  if (isNaN(issueNumber)) throw new Error("Invalid issue number")
+  const issueNumber = parseIssueNumber(id)
 
   const feature = await getFeatureByIssueNumber(issueNumber)
   if (!feature) throw new Error("Not found")
@@ -353,8 +351,7 @@ At: ${new Date().toISOString()}`
 export async function unassignFeature(id: string) {
   const session = await requireAuth()
 
-  const issueNumber = parseInt(id, 10)
-  if (isNaN(issueNumber)) throw new Error("Invalid issue number")
+  const issueNumber = parseIssueNumber(id)
 
   const feature = await getFeatureByIssueNumber(issueNumber)
   if (!feature) throw new Error("Not found")
@@ -423,8 +420,7 @@ At: ${new Date().toISOString()}`
 export async function resolveFeature(id: string, resolutionComment?: string) {
   const session = await requireAuth()
 
-  const issueNumber = parseInt(id, 10)
-  if (isNaN(issueNumber)) throw new Error("Invalid issue number")
+  const issueNumber = parseIssueNumber(id)
 
   if (session.user.role !== "ADMIN") throw new Error("Admin only")
 
@@ -458,8 +454,7 @@ export async function resolveFeature(id: string, resolutionComment?: string) {
 export async function addFeatureComment(id: string, content: string) {
   const session = await requireAuth()
 
-  const issueNumber = parseInt(id, 10)
-  if (isNaN(issueNumber)) throw new Error("Invalid issue number")
+  const issueNumber = parseIssueNumber(id)
 
   const feature = await getFeatureByIssueNumber(issueNumber)
   if (!feature) throw new Error("Not found")
