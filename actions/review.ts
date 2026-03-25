@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 
 import { resolveDraftSyncConflict } from "@/lib/article-submission"
 import { requireAuth } from "@/lib/auth-helpers"
+import { formatErrorMessage } from "@/lib/error-handling"
 import {
   ARTICLES_REPO_NAME,
   ARTICLES_REPO_OWNER,
@@ -35,9 +36,7 @@ export async function mergePRAction(prNumber: number) {
     revalidatePath("/review")
     return { success: true }
   } catch (error) {
-    throw new Error(
-      `Merge failed: ${error instanceof Error ? error.message : "Unknown error"}`
-    )
+    throw new Error(formatErrorMessage("Merge failed", error))
   }
 }
 
@@ -62,9 +61,7 @@ export async function closePRAction(prNumber: number) {
     revalidatePath("/review")
     return { success: true }
   } catch (error) {
-    throw new Error(
-      `Close failed: ${error instanceof Error ? error.message : "Unknown error"}`
-    )
+    throw new Error(formatErrorMessage("Close failed", error))
   }
 }
 

@@ -8,6 +8,7 @@ import {
   openDraftPullRequest,
 } from "@/lib/article-submission"
 import { requireAuth } from "@/lib/auth-helpers"
+import { formatErrorMessage } from "@/lib/error-handling"
 import { getGitHubWriteToken } from "@/lib/github-pr"
 import { prisma } from "@/lib/prisma"
 
@@ -169,7 +170,7 @@ export async function submitForReviewAction(revisionId: string) {
         "Failed to create PR: the configured GitHub token cannot create branches in the Articles repo. Set GITHUB_ARTICLES_WRITE_PAT with repo write access on Vercel."
       )
     }
-    throw new Error(`Failed to create PR: ${message}`)
+    throw new Error(formatErrorMessage("Failed to create PR", error))
   }
 }
 
