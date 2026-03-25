@@ -186,6 +186,51 @@ export function rehypeCJKSpacing() {
   }
 }
 
+const hasCodeChild = (children: React.ReactNode): boolean => {
+  return React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && child.type === "code"
+  )
+}
+
+const hasLinkChild = (children: React.ReactNode): boolean => {
+  return React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && child.type === "a"
+  )
+}
+
+const transformLinkChildren = (children: React.ReactNode): React.ReactNode => {
+  return React.Children.map(children, (child) => {
+    if (
+      React.isValidElement<{ className?: string }>(child) &&
+      child.type === "a"
+    ) {
+      const { ...rest } = child.props
+      return React.cloneElement(child, {
+        className:
+          "mx-1 inline-block border border-tech-main/30 border-b-2 bg-tech-main/10 px-1 py-[0.05rem] font-mono text-[0.8em] text-tech-main transition-colors hover:border-tech-main/80 hover:bg-tech-main/80 hover:text-white",
+        ...rest,
+      })
+    }
+    return child
+  })
+}
+
+const transformCodeChildrenForLink = (
+  children: React.ReactNode
+): React.ReactNode => {
+  return React.Children.map(children, (child) => {
+    if (
+      React.isValidElement<{ className?: string }>(child) &&
+      child.type === "code"
+    ) {
+      return React.cloneElement(child, {
+        className:
+          "mx-1 border border-tech-main/30 border-b-2 bg-tech-main/10 px-1 py-[0.05rem] font-mono text-[0.8em] text-tech-main not-italic transition-colors group-hover:border-tech-main/80 group-hover:bg-tech-main/80 group-hover:text-white",
+      })
+    }
+    return child
+  })
+}
 
 type MarkdownComponentProps = {
   children?: ReactNode
@@ -358,7 +403,7 @@ export function getMarkdownComponents(rawPath: string) {
         {...props}
       />
     ),
-    a: ({ href: initialHref, ...props }: MarkdownComponentProps) => {
+    a: ({ href: initialHref, children, ...props }: MarkdownComponentProps) => {
       let href = (initialHref as string) || ""
       if (href.startsWith("./") || href.startsWith("../")) {
         const currentDir = path.dirname("/" + rawPath).replace(/^\/+/, "")
@@ -377,16 +422,18 @@ export function getMarkdownComponents(rawPath: string) {
         const resolved = path.join(currentDir, href).replace(/\\/g, "/")
         href = `/articles/${resolved}`
       }
+      const hasCode = hasCodeChild(children)
       return (
         <Link
           href={href}
-          className="
-            border-b border-tech-main/50 font-mono text-tech-main
-            transition-colors
-            hover:bg-tech-main/80 hover:text-white
-          "
-          {...props}
-        />
+          className={
+            hasCode
+              ? "group font-mono text-tech-main"
+              : "border-b border-tech-main/50 font-mono text-tech-main transition-colors hover:bg-tech-main/80 hover:text-white"
+          }
+          {...props}>
+          {hasCode ? transformCodeChildrenForLink(children) : children}
+        </Link>
       )
     },
     ul: ({ ...props }: MarkdownComponentProps) => (
@@ -450,12 +497,17 @@ export function getMarkdownComponents(rawPath: string) {
     code: ({ className, children, ...props }: MarkdownComponentProps) => {
       const match = /language-(\w+)/.exec((className as string) || "")
       if (!match) {
+        const hasLink = hasLinkChild(children)
+        if (hasLink) {
+          return (
+            <code className="font-mono text-[0.8em] not-italic" {...props}>
+              {transformLinkChildren(children)}
+            </code>
+          )
+        }
         return (
           <code
-            className="
-              mx-1 rounded-none border border-tech-main/30 bg-tech-main/10 px-1
-              py-[0.05rem] font-mono text-[0.8em] text-tech-main not-italic
-            "
+            className="mx-1 rounded-none border border-tech-main/30 bg-tech-main/10 px-1 py-[0.05rem] font-mono text-[0.8em] text-tech-main not-italic"
             {...props}>
             {children}
           </code>
@@ -604,7 +656,7 @@ export function getPluginsForContent(content: string) {
     | typeof rehypeKatex
     | typeof rehypeSlug
     | typeof rehypeCJKSpacing
-  > = [rehypeRaw, rehypeCJKSpacing, rehypeSlug]
+  > = [rehypeRaw, rehypeSlug]
 
   if (
     content.includes("$") ||
@@ -612,8 +664,10 @@ export function getPluginsForContent(content: string) {
     content.includes("\\[")
   ) {
     remarkPlugins.push(remarkMath)
-    rehypePlugins.splice(2, 0, rehypeKatex)
+    rehypePlugins.push(rehypeKatex)
   }
+
+  rehypePlugins.push(rehypeCJKSpacing)
 
   return { remarkPlugins, rehypePlugins }
 }
