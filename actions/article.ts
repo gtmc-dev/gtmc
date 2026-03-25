@@ -3,6 +3,7 @@
 import type { Prisma } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
+import { revalidatePaths } from "@/lib/revalidation"
 import {
   getMainBranchHeadSha,
   openDraftPullRequest,
@@ -160,8 +161,7 @@ export async function submitForReviewAction(revisionId: string) {
       },
     })
 
-    revalidatePath("/draft")
-    revalidatePath("/review")
+    revalidatePaths(["/draft", "/review"])
     return { success: true, status: result.status }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error"

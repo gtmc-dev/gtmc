@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
+import { revalidatePaths } from "@/lib/revalidation"
 import { resolveDraftSyncConflict } from "@/lib/article-submission"
 import { getTokenFromSession, requireAuth } from "@/lib/auth-helpers"
 import { formatErrorMessage } from "@/lib/error-handling"
@@ -114,10 +115,7 @@ export async function resolveConflictAction(
     },
   })
 
-  revalidatePath("/draft")
-  revalidatePath(`/draft/${linkedDraft.id}`)
-  revalidatePath("/review")
-  revalidatePath(`/review/${prNumber}`)
+  revalidatePaths(["/draft", `/draft/${linkedDraft.id}`, "/review", `/review/${prNumber}`])
 
   return { success: true, status: result.status }
 }
