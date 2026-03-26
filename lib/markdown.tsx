@@ -701,25 +701,23 @@ export function getMarkdownComponents(rawPath: string) {
     ul: ({ ...props }: MarkdownComponentProps) => (
       <ul
         className="
-          mb-6 list-none space-y-2 border-l-[1.5] border-tech-main/30 pl-8
-          font-mono text-[0.9em] text-slate-800
+          mb-6 list-disc space-y-2 border-l border-tech-main/30 pl-8 font-mono
+          text-[14px] text-slate-800
         "
         {...props}
       />
     ),
     ol: ({ ...props }: MarkdownComponentProps) => (
       <ol
-        className="mb-6 list-decimal space-y-2 pl-6 font-mono text-slate-800"
+        className="
+          mb-6 list-decimal space-y-2 pl-8 font-mono text-[14px] text-slate-800
+        "
         {...props}
       />
     ),
     li: ({ ...props }: MarkdownComponentProps) => (
       <li
-        className="
-          relative text-slate-800
-          before:absolute before:-left-4 before:text-tech-main/50
-          before:content-['>']
-        "
+        className="relative text-slate-800"
         {...props}
       />
     ),
@@ -750,9 +748,9 @@ export function getMarkdownComponents(rawPath: string) {
           alt={(alt as string) || ""}
           loading="lazy"
           className="
-             my-8 h-auto max-w-full border border-tech-main/30 bg-tech-main/5 p-1
-             shadow-sm
-           "
+            my-8 h-auto max-w-full border border-tech-main/30 bg-tech-main/5 p-1
+            shadow-sm
+          "
         />
       )
     },
