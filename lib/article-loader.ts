@@ -17,7 +17,22 @@ export function isSubmoduleAvailable(): boolean {
 export async function getArticleContent(
   filePath: string
 ): Promise<string | null> {
-  throw new Error("not implemented")
+  if (isSubmoduleAvailable()) {
+    const localPath = path.join(ARTICLES_DIR, filePath)
+    try {
+      return fs.readFileSync(localPath, "utf-8")
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          `[article-loader] File not in submodule: ${filePath}, falling back to API`
+        )
+      }
+    }
+  }
+  if (process.env.NODE_ENV === "development" && !isSubmoduleAvailable()) {
+    console.warn("[article-loader] Submodule not available, using API")
+  }
+  return await getRepoFileContent(filePath)
 }
 
 export async function getArticleTree(): Promise<RepoTreeNode[]> {
