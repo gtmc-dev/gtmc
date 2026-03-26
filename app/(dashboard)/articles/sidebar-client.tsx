@@ -70,7 +70,6 @@ export const SidebarClient = React.forwardRef<
   const toggleFileExp = (e: React.MouseEvent) => {
     e.preventDefault()
     setIsFileExpanded((prev) => !prev)
-    scheduleBottomRowBlurSync()
   }
 
   const toggleFolder = (id: string, e: React.MouseEvent) => {
@@ -81,11 +80,11 @@ export const SidebarClient = React.forwardRef<
       else next.add(id)
       return next
     })
-    scheduleBottomRowBlurSync()
   }
 
   const collapseAll = React.useCallback(
     (e: React.MouseEvent) => {
+      e.preventDefault()
       setExpandedFolders(new Set())
       setIsFileExpanded(false)
     },
@@ -109,7 +108,7 @@ export const SidebarClient = React.forwardRef<
     setIsFileExpanded,
   })
 
-  const { scheduleBottomRowBlurSync } = useBlur({
+  useBlur({
     internalScroll,
     scrollContainerRef,
     pathname,
