@@ -117,5 +117,17 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
 export async function getArticleBuffer(
   filePath: string
 ): Promise<Buffer | null> {
-  throw new Error("not implemented")
+  if (isSubmoduleAvailable()) {
+    const localPath = path.join(ARTICLES_DIR, filePath)
+    try {
+      return fs.readFileSync(localPath)
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn(
+          `[article-loader] Buffer not in submodule: ${filePath}, falling back to API`
+        )
+      }
+    }
+  }
+  return await getRepoFileBuffer(filePath)
 }
