@@ -38,7 +38,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       })
       content = `# ${dbArticle.title}\n\n[SYS.DIR_CONTENTS]\n\n`
       children.forEach((child: typeof dbArticle) => {
-        content += `- [${child.title}](/articles/${child.slug})\n`
+        content += `- [${child.title}](/articles/${child.slug.split("/").map(encodeURIComponent).join("/")})\n`
       })
     } else {
       content = dbArticle.content

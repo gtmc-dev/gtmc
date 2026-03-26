@@ -92,7 +92,7 @@ export function getMarkdownComponents(rawPath: string) {
       const currentDir = path.dirname("/" + rawPath).replace(/^\/+/, "")
       try {
         const resolved = path.join(currentDir, href).replace(/\\/g, "/")
-        href = `/articles/${resolved}`
+        href = `/articles/${resolved.split("/").map(encodeURIComponent).join("/")}`
       } catch {
         return href
       }
@@ -103,7 +103,7 @@ export function getMarkdownComponents(rawPath: string) {
     ) {
       const currentDir = path.dirname("/" + rawPath).replace(/^\/+/, "")
       const resolved = path.join(currentDir, href).replace(/\\/g, "/")
-      href = `/articles/${resolved}`
+      href = `/articles/${resolved.split("/").map(encodeURIComponent).join("/")}`
     }
     return href
   }
