@@ -204,6 +204,17 @@
       opacity: 0;
     }
   }
+
+  @keyframes page-transit {
+    0% {
+      opacity: 0;
+      transform: translateX(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
 }
 
 @theme inline {
@@ -334,17 +345,6 @@ body {
   will-change: transform;
   transform-style: preserve-3d;
   perspective: 1000px;
-}
-
-@keyframes page-transit {
-  0% {
-    opacity: 0;
-    transform: translateX(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 /* Note: ::-webkit-scrollbar is WebKit-only (Chrome, Safari, Edge).
