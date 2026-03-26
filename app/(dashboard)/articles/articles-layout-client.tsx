@@ -281,8 +281,8 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         ? createPortal(
           <div
             className={`
-              floating-button-transition fixed top-20 right-8 z-30 flex
-              items-center
+              fixed top-20 right-8 z-30 flex items-center
+              floating-button-transition
               md:hidden
               ${isFloating ? "floating-button-enter" : "floating-button-exit"}
             `}
