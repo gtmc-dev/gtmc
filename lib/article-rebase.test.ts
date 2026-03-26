@@ -25,8 +25,9 @@ mock.module("@/lib/prisma", () => ({
   },
 }))
 
-const { rebaseArticleContent } = await import("./article-rebase")
-import type { RebaseInput } from "./article-rebase"
+const { rebaseArticleContent, analyzeRebaseNeed } =
+  await import("./article-rebase")
+import type { RebaseInput, AnalyzeRebaseInput } from "./article-rebase"
 
 describe("rebaseArticleContent", () => {
   beforeEach(() => {
@@ -257,5 +258,169 @@ describe("rebaseArticleContent", () => {
       expect(result.appliedCommits).toHaveLength(1)
       expect(result.appliedCommits[0].sha).toBe("c2")
     }
+  })
+})
+
+describe("analyzeRebaseNeed", () => {
+  beforeEach(() => {
+    mockCompareCommits.mockReset()
+    mockGetCommit.mockReset()
+    mockCompareCommits.mockImplementation(async () => ({
+      data: { commits: [] },
+    }))
+    mockGetCommit.mockImplementation(async () => ({ data: { files: [] } }))
+  })
+
+  it("returns QUICK_MERGE_OK when baseMainSha === latestMainSha", async () => {
+    const input: AnalyzeRebaseInput = {
+      filePath: "test.md",
+      baseMainSha: "abc123",
+      latestMainSha: "abc123",
+    }
+
+    const result = await analyzeRebaseNeed(input)
+
+    expect(result.recommendation).toBe("QUICK_MERGE_OK")
+    expect(result.totalCommits).toBe(0)
+    expect(result.fileEditCount).toBe(0)
+    expect(result.commitInfos).toHaveLength(0)
+    expect(result.adminMessage).toBe(
+      "No changes in main since draft was created."
+    )
+  })
+
+  it("returns REBASE_RECOMMENDED when file modified in multiple commits", async () => {
+    mockCompareCommits.mockImplementation(async () => ({
+      data: {
+        commits: [
+          {
+            sha: "c1",
+            commit: {
+              message: "Edit article part 1",
+              author: { name: "A1", date: "2024-01-01" },
+            },
+          },
+          {
+            sha: "c2",
+            commit: {
+              message: "Edit article part 2",
+              author: { name: "A2", date: "2024-01-02" },
+            },
+          },
+          {
+            sha: "c3",
+            commit: {
+              message: "Edit article part 3",
+              author: { name: "A3", date: "2024-01-03" },
+            },
+          },
+          {
+            sha: "c4",
+            commit: {
+              message: "Other file change",
+              author: { name: "A4", date: "2024-01-04" },
+            },
+          },
+          {
+            sha: "c5",
+            commit: {
+              message: "Another other change",
+              author: { name: "A5", date: "2024-01-05" },
+            },
+          },
+        ],
+      },
+    }))
+
+    const commitFileMap: Record<string, string[]> = {
+      c1: ["test.md"],
+      c2: ["test.md"],
+      c3: ["test.md"],
+      c4: ["other.md"],
+      c5: ["another.md"],
+    }
+    mockGetCommit.mockImplementation(async ({ ref }: any) => ({
+      data: {
+        files: (commitFileMap[ref] || []).map((filename) => ({ filename })),
+      },
+    }))
+
+    const input: AnalyzeRebaseInput = {
+      filePath: "test.md",
+      baseMainSha: "base",
+      latestMainSha: "latest",
+    }
+
+    const result = await analyzeRebaseNeed(input)
+
+    expect(result.recommendation).toBe("REBASE_RECOMMENDED")
+    expect(result.totalCommits).toBe(5)
+    expect(result.fileEditCount).toBe(3)
+    expect(result.commitInfos).toHaveLength(3)
+    expect(result.adminMessage).toBe(
+      "The article was modified in 3 separate commits. Fine-grained rebase is recommended to resolve each change individually."
+    )
+  })
+
+  it("returns QUICK_MERGE_OK when file modified in 0 or 1 commit", async () => {
+    const inputZero: AnalyzeRebaseInput = {
+      filePath: "test.md",
+      baseMainSha: "base",
+      latestMainSha: "latest",
+    }
+
+    const resultZero = await analyzeRebaseNeed(inputZero)
+
+    expect(resultZero.recommendation).toBe("QUICK_MERGE_OK")
+    expect(resultZero.fileEditCount).toBe(0)
+    expect(resultZero.adminMessage).toBe(
+      "The article was modified in no commit. A quick merge should suffice."
+    )
+
+    mockCompareCommits.mockImplementation(async () => ({
+      data: {
+        commits: [
+          {
+            sha: "c1",
+            commit: {
+              message: "Edit article",
+              author: { name: "A1", date: "2024-01-01" },
+            },
+          },
+          {
+            sha: "c2",
+            commit: {
+              message: "Unrelated",
+              author: { name: "A2", date: "2024-01-02" },
+            },
+          },
+        ],
+      },
+    }))
+
+    const commitFileMap: Record<string, string[]> = {
+      c1: ["test.md"],
+      c2: ["other.md"],
+    }
+    mockGetCommit.mockImplementation(async ({ ref }: any) => ({
+      data: {
+        files: (commitFileMap[ref] || []).map((filename) => ({ filename })),
+      },
+    }))
+
+    const inputOne: AnalyzeRebaseInput = {
+      filePath: "test.md",
+      baseMainSha: "base",
+      latestMainSha: "latest",
+    }
+
+    const resultOne = await analyzeRebaseNeed(inputOne)
+
+    expect(resultOne.recommendation).toBe("QUICK_MERGE_OK")
+    expect(resultOne.fileEditCount).toBe(1)
+    expect(resultOne.totalCommits).toBe(2)
+    expect(resultOne.adminMessage).toBe(
+      "The article was modified in 1 commit. A quick merge should suffice."
+    )
   })
 })
