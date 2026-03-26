@@ -60,11 +60,9 @@ export default async function ReviewDetailPage({
     pull_number: prNumber,
   })
   const mainFile = files.find((f) => f.filename.endsWith(".md")) || files[0]
-  const linkedDraft = (await (prisma.revision as any).findFirst({
+  const linkedDraft = await prisma.revision.findFirst({
     where: { githubPrNum: prNumber },
-  })) as Awaited<ReturnType<typeof prisma.revision.findFirst>> & {
-    rebaseState?: unknown
-  }
+  })
 
   let rawContent = ""
   if (mainFile) {
