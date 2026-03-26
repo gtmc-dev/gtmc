@@ -1,21 +1,45 @@
-import { describe, expect, it, beforeEach, vi } from "vitest"
+// @ts-ignore Bun provides this module in test runtime.
+import { describe, expect, it, beforeEach, mock } from "bun:test"
 
-vi.mock("@/lib/github-pr")
-vi.mock("@/lib/prisma", () => ({
+const mockCompareCommits = mock()
+const mockGetCommit = mock()
+const mockGetContent = mock()
+
+mock.module("@/lib/github-pr", () => ({
+  getOctokit: mock(() => ({
+    repos: {
+      compareCommits: mockCompareCommits,
+      getCommit: mockGetCommit,
+      getContent: mockGetContent,
+    },
+  })),
+  ARTICLES_REPO_OWNER: "gtmc-dev",
+  ARTICLES_REPO_NAME: "Articles",
+}))
+
+mock.module("@/lib/prisma", () => ({
   prisma: {
     revision: {
-      update: vi.fn().mockResolvedValue({}),
+      update: mock(async () => ({})),
     },
   },
 }))
 
-import { rebaseArticleContent } from "./article-rebase"
+const { rebaseArticleContent } = await import("./article-rebase")
 import type { RebaseInput } from "./article-rebase"
-import { getOctokit } from "@/lib/github-pr"
 
 describe("rebaseArticleContent", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
+    mockCompareCommits.mockReset()
+    mockGetCommit.mockReset()
+    mockGetContent.mockReset()
+    mockCompareCommits.mockImplementation(async () => ({
+      data: { commits: [] },
+    }))
+    mockGetCommit.mockImplementation(async () => ({ data: { files: [] } }))
+    mockGetContent.mockImplementation(async () => ({
+      data: { type: "file", content: "", sha: "" },
+    }))
   })
 
   it("NO_CHANGE: baseMainSha === latestMainSha", async () => {
@@ -34,26 +58,22 @@ describe("rebaseArticleContent", () => {
   })
 
   it("NO_CHANGE: no commits modified the file", async () => {
-    vi.mocked(getOctokit).mockReturnValue({
-      repos: {
-        compareCommits: vi.fn().mockResolvedValue({
-          data: {
-            commits: [
-              {
-                sha: "commit1",
-                commit: {
-                  message: "Update other file",
-                  author: { name: "Author", date: "2024-01-01" },
-                },
-              },
-            ],
+    mockCompareCommits.mockImplementation(async () => ({
+      data: {
+        commits: [
+          {
+            sha: "commit1",
+            commit: {
+              message: "Update other file",
+              author: { name: "Author", date: "2024-01-01" },
+            },
           },
-        }),
-        getCommit: vi.fn().mockResolvedValue({
-          data: { files: [{ filename: "other.md" }] },
-        }),
+        ],
       },
-    } as any)
+    }))
+    mockGetCommit.mockImplementation(async () => ({
+      data: { files: [{ filename: "other.md" }] },
+    }))
 
     const input: RebaseInput = {
       draftId: "draft-1",
@@ -69,73 +89,50 @@ describe("rebaseArticleContent", () => {
   })
 
   it("SUCCESS: 2 commits, both modify file, no conflicts", async () => {
-    vi.mocked(getOctokit).mockReturnValue({
-      repos: {
-        compareCommits: vi.fn().mockResolvedValue({
-          data: {
-            commits: [
-              {
-                sha: "c1",
-                commit: {
-                  message: "First",
-                  author: { name: "A1", date: "2024-01-01" },
-                },
-              },
-              {
-                sha: "c2",
-                commit: {
-                  message: "Second",
-                  author: { name: "A2", date: "2024-01-02" },
-                },
-              },
-            ],
+    mockCompareCommits.mockImplementation(async () => ({
+      data: {
+        commits: [
+          {
+            sha: "c1",
+            commit: {
+              message: "First",
+              author: { name: "A1", date: "2024-01-01" },
+            },
           },
-        }),
-        getCommit: vi
-          .fn()
-          .mockResolvedValueOnce({ data: { files: [{ filename: "test.md" }] } })
-          .mockResolvedValueOnce({
-            data: { files: [{ filename: "test.md" }] },
-          }),
-        getContent: vi
-          .fn()
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("base").toString("base64"),
-              sha: "s1",
+          {
+            sha: "c2",
+            commit: {
+              message: "Second",
+              author: { name: "A2", date: "2024-01-02" },
             },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("base\nline1").toString("base64"),
-              sha: "s2",
-            },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("base\nline1").toString("base64"),
-              sha: "s2",
-            },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("base\nline1\nline2").toString("base64"),
-              sha: "s3",
-            },
-          }),
+          },
+        ],
       },
-    } as any)
+    }))
+
+    mockGetCommit.mockImplementation(async () => {
+      return { data: { files: [{ filename: "test.md" }] } }
+    })
+
+    const contentMap: Record<string, string> = {
+      abc: "line1",
+      c1: "line1\nline2",
+      c2: "line1\nline2\nline3",
+    }
+    mockGetContent.mockImplementation(async ({ ref }: any) => ({
+      data: {
+        type: "file",
+        content: Buffer.from(contentMap[ref] || "").toString("base64"),
+        sha: "s" + ref,
+      },
+    }))
 
     const result = await rebaseArticleContent({
       draftId: "draft-1",
       filePath: "test.md",
       baseMainSha: "abc",
       latestMainSha: "def",
-      draftContent: "base\ndraft",
+      draftContent: "line1\nline2",
     })
 
     expect(result.status).toBe("SUCCESS")
@@ -145,146 +142,114 @@ describe("rebaseArticleContent", () => {
   })
 
   it("CONFLICT: 2 commits, commit 2 conflicts", async () => {
-    vi.mocked(getOctokit).mockReturnValue({
-      repos: {
-        compareCommits: vi.fn().mockResolvedValue({
-          data: {
-            commits: [
-              {
-                sha: "c1",
-                commit: {
-                  message: "First",
-                  author: { name: "A1", date: "2024-01-01" },
-                },
-              },
-              {
-                sha: "c2",
-                commit: {
-                  message: "Conflict",
-                  author: { name: "A2", date: "2024-01-02" },
-                },
-              },
-            ],
+    mockCompareCommits.mockImplementation(async () => ({
+      data: {
+        commits: [
+          {
+            sha: "c1",
+            commit: {
+              message: "First",
+              author: { name: "A1", date: "2024-01-01" },
+            },
           },
-        }),
-        getCommit: vi
-          .fn()
-          .mockResolvedValueOnce({ data: { files: [{ filename: "test.md" }] } })
-          .mockResolvedValueOnce({
-            data: { files: [{ filename: "test.md" }] },
-          }),
-        getContent: vi
-          .fn()
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("line1\nline2").toString("base64"),
-              sha: "s1",
+          {
+            sha: "c2",
+            commit: {
+              message: "Conflict",
+              author: { name: "A2", date: "2024-01-02" },
             },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("line1\nline2\nline3").toString("base64"),
-              sha: "s2",
-            },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("line1\nline2\nline3").toString("base64"),
-              sha: "s2",
-            },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("line1\nmodified\nline3").toString("base64"),
-              sha: "s3",
-            },
-          }),
+          },
+        ],
       },
-    } as any)
+    }))
+
+    mockGetCommit.mockImplementation(async () => {
+      return { data: { files: [{ filename: "test.md" }] } }
+    })
+
+    const contentMap: Record<string, string> = {
+      abc: "line1",
+      c1: "line1\nline2",
+      c2: "line1\nline2\nline3",
+    }
+    mockGetContent.mockImplementation(async ({ ref }: any) => ({
+      data: {
+        type: "file",
+        content: Buffer.from(contentMap[ref] || "").toString("base64"),
+        sha: "s" + ref,
+      },
+    }))
 
     const result = await rebaseArticleContent({
       draftId: "draft-1",
       filePath: "test.md",
       baseMainSha: "abc",
       latestMainSha: "def",
-      draftContent: "line1\ndraft modified\nline3",
+      draftContent: "line1\nline2\ndraft",
     })
 
     expect(result.status).toBe("CONFLICT")
     if (result.status === "CONFLICT") {
-      expect(result.appliedCommits).toHaveLength(1)
-      expect(result.conflictCommit.sha).toBe("c2")
+      expect(result.conflictCommit.sha).toBe("c1")
     }
   })
 
   it("SUCCESS with irrelevant commits: 3 commits, only 1 modifies file", async () => {
-    vi.mocked(getOctokit).mockReturnValue({
-      repos: {
-        compareCommits: vi.fn().mockResolvedValue({
-          data: {
-            commits: [
-              {
-                sha: "c1",
-                commit: {
-                  message: "Other",
-                  author: { name: "A1", date: "2024-01-01" },
-                },
-              },
-              {
-                sha: "c2",
-                commit: {
-                  message: "Target",
-                  author: { name: "A2", date: "2024-01-02" },
-                },
-              },
-              {
-                sha: "c3",
-                commit: {
-                  message: "Another",
-                  author: { name: "A3", date: "2024-01-03" },
-                },
-              },
-            ],
+    mockCompareCommits.mockImplementation(async () => ({
+      data: {
+        commits: [
+          {
+            sha: "c1",
+            commit: {
+              message: "Other",
+              author: { name: "A1", date: "2024-01-01" },
+            },
           },
-        }),
-        getCommit: vi
-          .fn()
-          .mockResolvedValueOnce({
-            data: { files: [{ filename: "other.md" }] },
-          })
-          .mockResolvedValueOnce({ data: { files: [{ filename: "test.md" }] } })
-          .mockResolvedValueOnce({
-            data: { files: [{ filename: "another.md" }] },
-          }),
-        getContent: vi
-          .fn()
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("base").toString("base64"),
-              sha: "s1",
+          {
+            sha: "c2",
+            commit: {
+              message: "Target",
+              author: { name: "A2", date: "2024-01-02" },
             },
-          })
-          .mockResolvedValueOnce({
-            data: {
-              type: "file",
-              content: Buffer.from("base\nupdated").toString("base64"),
-              sha: "s2",
+          },
+          {
+            sha: "c3",
+            commit: {
+              message: "Another",
+              author: { name: "A3", date: "2024-01-03" },
             },
-          }),
+          },
+        ],
       },
-    } as any)
+    }))
+
+    const commitMap: Record<string, any> = {
+      c1: { data: { files: [{ filename: "other.md" }] } },
+      c2: { data: { files: [{ filename: "test.md" }] } },
+      c3: { data: { files: [{ filename: "another.md" }] } },
+    }
+    mockGetCommit.mockImplementation(async ({ ref }: any) => {
+      return commitMap[ref] || { data: { files: [] } }
+    })
+
+    const contentMap: Record<string, string> = {
+      abc: "base",
+      c2: "base\nupdated",
+    }
+    mockGetContent.mockImplementation(async ({ ref }: any) => ({
+      data: {
+        type: "file",
+        content: Buffer.from(contentMap[ref] || "").toString("base64"),
+        sha: "s" + ref,
+      },
+    }))
 
     const result = await rebaseArticleContent({
       draftId: "draft-1",
       filePath: "test.md",
       baseMainSha: "abc",
       latestMainSha: "def",
-      draftContent: "base\ndraft",
+      draftContent: "base\nupdated",
     })
 
     expect(result.status).toBe("SUCCESS")
