@@ -5,11 +5,24 @@ import { getSingletonHighlighter, bundledLanguages } from "shiki"
 export type RehypeShikiPlugin = Awaited<ReturnType<typeof createRehypeShiki>>
 
 let cachedRehypeShikiPromise: Promise<RehypeShikiPlugin> | null = null
+const highlightCache = new Map<string, Element | null>()
 
-export async function createRehypeShiki() {
+function extractLangsFromMarkdown(content: string): string[] {
+  const matches = content.matchAll(/^```(\w+)/gm)
+  const langs = new Set<string>()
+  for (const match of matches) {
+    if (match[1] && match[1] !== "text" && match[1] !== "plain") {
+      langs.add(match[1].toLowerCase())
+    }
+  }
+  return [...langs]
+}
+
+export async function createRehypeShiki(langs?: string[]) {
+  const langsToLoad = langs && langs.length > 0 ? langs : ["javascript"]
   const highlighter = await getSingletonHighlighter({
     themes: ["solarized-light"],
-    langs: [...Object.keys(bundledLanguages)],
+    langs: langsToLoad,
   })
 
   return function rehypeShiki() {
@@ -31,8 +44,23 @@ export async function createRehypeShiki() {
 
         const lang = langClass.replace("language-", "")
         const rawCode = getTextContent(codeNode)
+        const cacheKey = `${lang}:${rawCode}`
 
         try {
+          if (highlightCache.has(cacheKey)) {
+            const cached = highlightCache.get(cacheKey)
+            if (cached) {
+              codeNode.children = cached.children
+              node.properties = node.properties ?? {}
+              node.properties["data-raw-code"] = rawCode
+              node.properties["data-lang"] = lang
+              node.properties["data-line-count"] = String(
+                rawCode.split("\n").filter(Boolean).length
+              )
+            }
+            return
+          }
+
           const highlighted = highlighter.codeToHast(rawCode, {
             lang,
             theme: "solarized-light",
@@ -48,9 +76,16 @@ export async function createRehypeShiki() {
           )
           if (!highlightedCode) return
 
-          codeNode.children = highlightedCode.children.filter(
+          const filtered = highlightedCode.children.filter(
             (child) => !(child.type === "text" && child.value.trim() === "")
           )
+
+          highlightCache.set(cacheKey, {
+            ...highlightedCode,
+            children: filtered,
+          })
+
+          codeNode.children = filtered
 
           node.properties = node.properties ?? {}
           node.properties["data-raw-code"] = rawCode
@@ -66,9 +101,14 @@ export async function createRehypeShiki() {
   }
 }
 
-export function getCachedRehypeShiki(): Promise<RehypeShikiPlugin> {
+export function getCachedRehypeShiki(
+  content?: string
+): Promise<RehypeShikiPlugin> {
+  const langs = content ? extractLangsFromMarkdown(content) : undefined
+  const cacheKey = langs ? langs.sort().join(",") : "default"
+
   if (!cachedRehypeShikiPromise) {
-    cachedRehypeShikiPromise = createRehypeShiki()
+    cachedRehypeShikiPromise = createRehypeShiki(langs)
   }
 
   return cachedRehypeShikiPromise
