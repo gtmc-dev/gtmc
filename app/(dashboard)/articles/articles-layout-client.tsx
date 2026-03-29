@@ -120,6 +120,12 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
     }
     return false
   })
+  const [showFullText, setShowFullText] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.scrollY <= 64
+    }
+    return true
+  })
   const [treeData, setTreeData] = useState<TreeNode[]>(tree)
   const [isTreeLoading, setIsTreeLoading] = useState(tree.length === 0)
   const pathname = usePathname()
@@ -132,9 +138,13 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
   }, [pathname])
 
   useEffect(() => {
-    if (isStuck) {
-      setIsOpen(false)
-    }
+    const timer = setTimeout(
+      () => {
+        setShowFullText(!isStuck)
+      },
+      isStuck ? 0 : 250
+    )
+    return () => clearTimeout(timer)
   }, [isStuck])
 
   useEffect(() => {
@@ -230,35 +240,60 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
       ">
       <div className="sticky top-16 z-30 md:hidden">
         <div
-          className={`
-            flex transition-all duration-500 ease-out
-            ${isStuck ? "justify-end px-4 pt-4 pb-0" : "justify-stretch px-0 pt-0 pb-0"}
-          `}>
+          className="flex transition-all duration-500 ease-out"
+          style={{
+            padding: isStuck ? "1rem 1rem 0 1rem" : "0",
+            justifyContent: isStuck ? "flex-end" : "stretch",
+          }}>
           <button
             type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            className={`
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsOpen(!isOpen)
+            }}
+            className="
               cursor-pointer overflow-hidden bg-white/70
               font-mono text-xs font-bold tracking-[0.15em] text-tech-main
               backdrop-blur-sm transition-all duration-500 ease-out
               hover:bg-tech-main/5
-              ${
-                isStuck
-                  ? "min-h-10 w-20 border border-tech-main/40 px-4 py-2 shadow-sm"
-                  : "min-h-12 w-full border-b border-tech-main/40 px-4"
-              }
-            `}
+              border border-tech-main/40
+            "
+            style={
+              {
+                width: isStuck ? "5rem" : "100%",
+                minHeight: isStuck ? "2.5rem" : "3rem",
+                padding: isStuck ? "0.5rem 1rem" : "1rem",
+                borderBottom: isStuck ? undefined : "1px solid",
+                boxShadow: isStuck ? "0 1px 2px 0 rgba(0, 0, 0, 0.05)" : "none",
+              } as React.CSSProperties
+            }
             aria-label="Toggle article tree"
             aria-expanded={isOpen}
             data-testid="mobile-tree-toggle">
-            {isStuck ? (
-              <span>ToC</span>
-            ) : (
-              <span className="flex w-full items-center justify-between">
-                <span>Table of Contents</span>
-                <span className="text-sm font-bold">{isOpen ? "▼" : "▶"}</span>
+            <div className="relative flex w-full items-center justify-between">
+              <span
+                className="transition-opacity duration-300"
+                style={{
+                  opacity: showFullText ? 1 : 0,
+                }}>
+                Table of Contents
               </span>
-            )}
+              <span
+                className="absolute left-1/2 -translate-x-1/2 transition-opacity duration-300"
+                style={{
+                  opacity: showFullText ? 0 : 1,
+                }}>
+                ToC
+              </span>
+              <span
+                className="text-sm font-bold transition-opacity duration-300"
+                style={{
+                  opacity: showFullText ? 1 : 0,
+                }}>
+                {isOpen ? "▼" : "▶"}
+              </span>
+            </div>
           </button>
         </div>
 
