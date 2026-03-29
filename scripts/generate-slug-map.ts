@@ -5,6 +5,7 @@ import { SLUG_REGEX } from "../lib/slug-validator"
 
 const ARTICLES_DIR = path.join(process.cwd(), "articles")
 const OUTPUT_FILE = path.join(process.cwd(), "lib", "slug-map.json")
+const MAX_DEPTH = 3
 
 interface SlugMap {
   [compositeSlug: string]: string
@@ -14,6 +15,124 @@ function getSlugFromFile(filePath: string): string | null {
   const content = fs.readFileSync(filePath, "utf-8")
   const { data } = matter(content)
   return typeof data.slug === "string" ? data.slug : null
+}
+
+/**
+ * Recursively processes a content directory and adds article slugs to slugMap.
+ *
+ * @param dirPath          - Absolute path to the directory
+ * @param relFromArticles  - Relative path from articles/ root (e.g. "SlimeTech/Molforte")
+ * @param slugPrefix       - Accumulated slug path prefix (e.g. "slime-tech/molforte")
+ * @param depth            - Current depth (1 = top-level folder inside articles/)
+ * @param slugMap          - Output map to populate
+ * @returns true if any validation errors occurred
+ */
+function processDirectory(
+  dirPath: string,
+  relFromArticles: string,
+  slugPrefix: string,
+  depth: number,
+  slugMap: SlugMap
+): boolean {
+  let hasError = false
+
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true })
+
+  const articleFiles = entries
+    .filter(
+      (e) => e.isFile() && e.name.endsWith(".md") && e.name !== "README.md"
+    )
+    .map((e) => e.name)
+
+  const slugsSeen = new Map<string, string>()
+
+  for (const articleFile of articleFiles) {
+    const articlePath = path.join(dirPath, articleFile)
+    const relPath = `${relFromArticles}/${articleFile}`
+
+    const articleSlug = getSlugFromFile(articlePath)
+
+    // Articles without slug frontmatter are silently skipped (not routable)
+    if (articleSlug === null) {
+      continue
+    }
+
+    if (!SLUG_REGEX.test(articleSlug)) {
+      process.stderr.write(
+        `Error: Invalid slug format "${articleSlug}" in: articles/${relPath}\n`
+      )
+      hasError = true
+      continue
+    }
+
+    if (slugsSeen.has(articleSlug)) {
+      const conflictFile = slugsSeen.get(articleSlug)!
+      process.stderr.write(
+        `Error: Duplicate slug "${articleSlug}" in ${slugPrefix}: articles/${relPath} ` +
+          `(conflicts with articles/${relFromArticles}/${conflictFile})\n`
+      )
+      hasError = true
+      continue
+    }
+
+    slugsSeen.set(articleSlug, articleFile)
+
+    const compositeSlug = `${slugPrefix}/${articleSlug}`
+    slugMap[compositeSlug] = `${relFromArticles}/${articleFile}`
+  }
+
+  const subDirs = entries.filter((e) => e.isDirectory())
+
+  for (const subDirEntry of subDirs) {
+    const subDirPath = path.join(dirPath, subDirEntry.name)
+    const subRelPath = `${relFromArticles}/${subDirEntry.name}`
+
+    if (depth >= MAX_DEPTH) {
+      process.stderr.write(
+        `Error: Directory nesting exceeds maximum depth of ${MAX_DEPTH}: ` +
+          `articles/${subRelPath}\n`
+      )
+      hasError = true
+      continue
+    }
+
+    const subReadmePath = path.join(subDirPath, "README.md")
+
+    // Skip directories without README.md (images, raw asset dirs, etc.)
+    if (!fs.existsSync(subReadmePath)) {
+      continue
+    }
+
+    const subSlug = getSlugFromFile(subReadmePath)
+
+    if (subSlug === null) {
+      process.stderr.write(
+        `Error: Missing slug in folder README: articles/${subRelPath}/README.md\n`
+      )
+      hasError = true
+      continue
+    }
+
+    if (!SLUG_REGEX.test(subSlug)) {
+      process.stderr.write(
+        `Error: Invalid slug format "${subSlug}" in: articles/${subRelPath}/README.md\n`
+      )
+      hasError = true
+      continue
+    }
+
+    const subSlugPrefix = `${slugPrefix}/${subSlug}`
+    const subError = processDirectory(
+      subDirPath,
+      subRelPath,
+      subSlugPrefix,
+      depth + 1,
+      slugMap
+    )
+    if (subError) hasError = true
+  }
+
+  return hasError
 }
 
 function main(): void {
@@ -27,12 +146,12 @@ function main(): void {
     process.exit(1)
   }
 
-  const folders = fs
+  const topLevelFolders = fs
     .readdirSync(ARTICLES_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
 
-  for (const folderName of folders) {
+  for (const folderName of topLevelFolders) {
     const folderPath = path.join(ARTICLES_DIR, folderName)
     const readmePath = path.join(folderPath, "README.md")
 
@@ -62,54 +181,14 @@ function main(): void {
       continue
     }
 
-    const articleFiles = fs
-      .readdirSync(folderPath, { withFileTypes: true })
-      .filter(
-        (entry) =>
-          entry.isFile() &&
-          entry.name.endsWith(".md") &&
-          entry.name !== "README.md"
-      )
-      .map((entry) => entry.name)
-
-    const folderSlugsSeen = new Map<string, string>()
-
-    for (const articleFile of articleFiles) {
-      const articlePath = path.join(folderPath, articleFile)
-      const relPath = `${folderName}/${articleFile}`
-
-      const articleSlug = getSlugFromFile(articlePath)
-
-      if (articleSlug === null) {
-        process.stderr.write(
-          `Error: Missing slug in article: articles/${relPath}\n`
-        )
-        hasError = true
-        continue
-      }
-
-      if (!SLUG_REGEX.test(articleSlug)) {
-        process.stderr.write(
-          `Error: Invalid slug format "${articleSlug}" in: articles/${relPath}\n`
-        )
-        hasError = true
-        continue
-      }
-
-      if (folderSlugsSeen.has(articleSlug)) {
-        const conflictFile = folderSlugsSeen.get(articleSlug)!
-        process.stderr.write(
-          `Error: Duplicate slug "${articleSlug}" in folder ${folderSlug}: articles/${relPath} (conflicts with articles/${folderName}/${conflictFile})\n`
-        )
-        hasError = true
-        continue
-      }
-
-      folderSlugsSeen.set(articleSlug, articleFile)
-
-      const compositeSlug = `${folderSlug}/${articleSlug}`
-      slugMap[compositeSlug] = relPath
-    }
+    const folderError = processDirectory(
+      folderPath,
+      folderName,
+      folderSlug,
+      1,
+      slugMap
+    )
+    if (folderError) hasError = true
   }
 
   if (hasError) {
