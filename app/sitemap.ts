@@ -5,6 +5,7 @@ import { execSync } from "child_process"
 import { prisma } from "@/lib/prisma"
 import { getRepoContentTree, type RepoTreeNode } from "@/lib/github-pr"
 import { listAllIssues } from "@/lib/github-features"
+import { getSiteUrl } from "@/lib/site-url"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 3600
@@ -48,7 +49,7 @@ function getArticleLastModified(filePath: string): Date {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const BASE = "https://beta.techmc.wiki"
+  const BASE = getSiteUrl()
   const seenSlugs = new Set<string>()
 
   const staticUrls: MetadataRoute.Sitemap = [
