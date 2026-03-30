@@ -1,4 +1,6 @@
 import MiniSearch from "minisearch"
+import { remark } from "remark"
+import stripMarkdownPlugin from "strip-markdown"
 import { getSidebarTree } from "@/actions/sidebar"
 import {
   getOctokit,
@@ -28,17 +30,10 @@ export const CJK_TOKENIZER = (text: string): string[] =>
   text.match(/[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]|[a-zA-Z0-9]+/g) || []
 
 function stripMarkdown(text: string): string {
-  return text
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/\*(.+?)\*/g, "$1")
-    .replace(/__(.+?)__/g, "$1")
-    .replace(/_(.+?)_/g, "$1")
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-    .replace(/`{1,3}[^`]*`{1,3}/g, "")
-    .replace(/^\s*[-*+]\s+/gm, "")
-    .replace(/^\s*>\s+/gm, "")
-    .replace(/\n{2,}/g, " ")
+  return remark()
+    .use(stripMarkdownPlugin)
+    .processSync(text)
+    .toString()
     .replace(/\s+/g, " ")
     .trim()
 }
