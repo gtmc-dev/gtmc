@@ -130,6 +130,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
   const [isTreeLoading, setIsTreeLoading] = useState(tree.length === 0)
   const pathname = usePathname()
   const desktopSidebarRef = useRef<SidebarClientHandle>(null)
+  const floatingCardSidebarRef = useRef<SidebarClientHandle>(null)
 
   useEffect(() => {
     if (pathname) {
@@ -151,7 +152,13 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
     const NAVBAR_HEIGHT = 64
 
     const handleScroll = () => {
-      setIsStuck(window.scrollY > NAVBAR_HEIGHT)
+      const currentlyStuck = window.scrollY > NAVBAR_HEIGHT
+      setIsStuck((prev) => {
+        if (currentlyStuck && !prev) {
+          setIsOpen(false)
+        }
+        return currentlyStuck
+      })
     }
 
     // Sync immediately on mount in case page is already scrolled
@@ -209,7 +216,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
 
   const showTreePlaceholder = isTreeLoading && treeData.length === 0
 
-  const treeContent = (
+  const fixedTreeContent = (
     <div
       className={`
         w-full pb-4 font-mono text-[15px] wrap-break-word
@@ -226,7 +233,39 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           <TreeLoadingPlaceholder />
         </div>
       ) : (
-        <SidebarClient tree={treeData} onNavigate={() => setIsOpen(false)} />
+        <SidebarClient
+          tree={treeData}
+          onNavigate={() => setIsOpen(false)}
+          ref={desktopSidebarRef}
+          internalScroll
+        />
+      )}
+    </div>
+  )
+
+  const floatingTreeContent = (
+    <div
+      className={`
+        w-full pb-4 font-mono text-[15px] wrap-break-word
+        [&_li]:mt-1.5
+        [&_ul]:list-none
+        [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
+        [&_ul_ul]:pl-3
+        [&>ul]:pl-0
+        ${showTreePlaceholder ? "h-full min-h-full pb-0" : ""}
+      `}
+      aria-busy={showTreePlaceholder}>
+      {showTreePlaceholder ? (
+        <div className="h-full min-h-full pr-4">
+          <TreeLoadingPlaceholder />
+        </div>
+      ) : (
+        <SidebarClient
+          tree={treeData}
+          onNavigate={() => setIsOpen(false)}
+          ref={floatingCardSidebarRef}
+          internalScroll
+        />
       )}
     </div>
   )
@@ -234,11 +273,15 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
   return (
     <div
       className="
-        relative mx-auto flex min-h-[calc(100vh-8rem)] max-w-full flex-col
-        isolate
+        relative isolate mx-auto flex min-h-[calc(100vh-8rem)] max-w-full
+        flex-col
         md:flex-row
       ">
-      <div className="sticky top-16 z-30 md:hidden">
+      <div
+        className="
+          sticky top-16 z-30
+          md:hidden
+        ">
         <div
           className="flex transition-all duration-500 ease-out"
           style={{
@@ -253,11 +296,11 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
               setIsOpen(!isOpen)
             }}
             className="
-              cursor-pointer overflow-hidden bg-white/70
-              font-mono text-xs font-bold tracking-[0.15em] text-tech-main
-              backdrop-blur-sm transition-all duration-500 ease-out
+              cursor-pointer overflow-hidden border border-tech-main/40
+              bg-white/70 font-mono text-xs font-bold tracking-[0.15em]
+              text-tech-main backdrop-blur-sm transition-all duration-500
+              ease-out
               hover:bg-tech-main/5
-              border border-tech-main/40
             "
             style={
               {
@@ -280,7 +323,10 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                 Table of Contents
               </span>
               <span
-                className="absolute left-1/2 -translate-x-1/2 transition-opacity duration-300"
+                className="
+                  absolute left-1/2 -translate-x-1/2 transition-opacity
+                  duration-300
+                "
                 style={{
                   opacity: showFullText ? 0 : 1,
                 }}>
@@ -312,7 +358,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                 max-h-[calc(100vh-12rem)] overflow-y-auto overscroll-contain
                 border-t guide-line bg-white/95 px-4 pt-3 pb-4
               ">
-              {treeContent}
+              {fixedTreeContent}
             </div>
           </div>
         </div>
@@ -323,7 +369,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         isFloating={isStuck}>
-        {treeContent}
+        {floatingTreeContent}
       </MobileTreeCard>
 
       {/* Desktop sidebar */}
