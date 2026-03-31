@@ -44,7 +44,7 @@ jobs:
           DATABASE_URL: "postgresql://localhost:5432/placeholder"
 
       - name: Run lint
-        run: pnpm lint
+        run: pnpm lint:check
 
       - name: Run build
         run: pnpm build
