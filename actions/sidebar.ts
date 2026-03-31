@@ -28,7 +28,7 @@ interface TreeNode {
 
 function isAppendixDirectoryName(name: string): boolean {
   const normalized = name.trim().toLowerCase()
-  return normalized === "appendix" || normalized === "附录"
+  return normalized.includes("appendix") || normalized.includes("附录")
 }
 
 function isReadmeArticle(node: TreeNode): boolean {
@@ -185,6 +185,21 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
   })
 
   function sortTree(nodes: TreeNode[]) {
+    const compareIndex = (a: number, b: number) => {
+      const aNoIndex = a === -1
+      const bNoIndex = b === -1
+
+      if (aNoIndex !== bNoIndex) {
+        return aNoIndex ? 1 : -1
+      }
+
+      if (aNoIndex && bNoIndex) {
+        return 0
+      }
+
+      return a - b
+    }
+
     nodes.sort((a, b) => {
       if (a.isPreface !== b.isPreface) {
         return a.isPreface ? -1 : 1
@@ -199,15 +214,9 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
           return a.isAppendix ? 1 : -1
         }
 
-        const aNoIndex = a.index === -1
-        const bNoIndex = b.index === -1
-
-        if (aNoIndex !== bNoIndex) {
-          return aNoIndex ? 1 : -1
-        }
-
-        if (a.index !== b.index) {
-          return a.index - b.index
+        const indexComparison = compareIndex(a.index, b.index)
+        if (indexComparison !== 0) {
+          return indexComparison
         }
       }
 
@@ -219,8 +228,6 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
       }
     }
   }
-  sortTree(mergedTree)
-
   // 7. Filter out ignored articles using centralized ignore logic
   function filterIgnoredNodes(nodes: TreeNode[], isRoot: boolean): TreeNode[] {
     const result: TreeNode[] = []
@@ -242,11 +249,16 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
       }
 
       if (node.isFolder && isAppendixDirectoryName(node.title)) {
-        result.push(
-          ...node.children.filter(
-            (child) => child.isFolder || !isReadmeArticle(child)
-          )
+        const promotedChildren = node.children.filter(
+          (child) => child.isFolder || !isReadmeArticle(child)
         )
+        const promotedParentId = node.parentId
+
+        for (const child of promotedChildren) {
+          child.parentId = promotedParentId
+        }
+
+        result.push(...promotedChildren)
         continue
       }
 
@@ -256,6 +268,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
   }
 
   const filteredTree = filterIgnoredNodes(mergedTree, true)
+  sortTree(filteredTree)
 
   return filteredTree
 }

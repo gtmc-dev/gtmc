@@ -78,21 +78,21 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
     if (shouldIgnoreDirectory(entry.name)) continue
     if (!parentPath && shouldIgnoreFile(entry.name, true)) continue
 
-    const slug = parentPath ? `${parentPath}/${entry.name}` : entry.name
+    const entryPath = parentPath ? `${parentPath}/${entry.name}` : entry.name
 
     if (entry.isDirectory()) {
-      const children = buildLocalTree(path.join(dir, entry.name), slug)
+      const children = buildLocalTree(path.join(dir, entry.name), entryPath)
       nodes.push({
-        id: `local-${slug}`,
+        id: `local-${entryPath}`,
         title: entry.name,
-        slug,
+        slug: entryPath,
         isFolder: true,
         parentId: parentPath ? `local-${parentPath}` : null,
         children,
       })
     } else if (entry.name.endsWith(".md")) {
       const titleName = entry.name.replace(/\.md$/, "")
-      const slugWithoutExt = slug.replace(/\.md$/, "")
+      const slugWithoutExt = entryPath.replace(/\.md$/, "")
       const content = fs.readFileSync(path.join(dir, entry.name), "utf-8")
       const fm = parseFrontMatter(content)
       const nodeSlug = fileToSlugKey[slugWithoutExt] ?? slugWithoutExt
@@ -109,9 +109,7 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
         slug: nodeSlug,
         isFolder: false,
         index: fm.index,
-        isAppendix:
-          parentPath.toLowerCase().includes("appendix") ||
-          parentPath.includes("附录"),
+        isAppendix: isAppendixPath(slugWithoutExt),
         isPreface: nodeSlug === "preface",
         parentId: parentPath ? `local-${parentPath}` : null,
         children: [],
@@ -126,6 +124,15 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
   })
 
   return nodes
+}
+
+function isAppendixPath(relativePath: string): boolean {
+  const normalizedPath = relativePath.replace(/\\/g, "/")
+  const pathSegments = normalizedPath.split("/")
+  return pathSegments.some(
+    (segment) =>
+      segment.toLowerCase().includes("appendix") || segment.includes("附录")
+  )
 }
 
 export async function getArticleBuffer(
