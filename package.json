@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "lint": "pnpm lint:fix",
-    "lint:fix": "prettier --write . && eslint --fix",
+    "lint:fix": "eslint --fix && prettier --write .",
     "lint:check": "prettier --check . && eslint",
     "postinstall": "prisma generate && pnpm articles:init && pnpm articles:update && pnpm generate-slug-map",
     "generate-slug-map": "tsx scripts/generate-slug-map.ts",
