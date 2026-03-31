@@ -30,8 +30,8 @@ export function rehypeLinkedCode() {
           node.properties["data-has-code"] = "true"
           node.children?.forEach((c) => {
             if (c.type === "element" && (c as Element).tagName === "code") {
-              ;(c as Element).properties = (c as Element).properties || {}
-              ;(c as Element).properties["data-linked-code"] = "true"
+              ; (c as Element).properties = (c as Element).properties || {}
+                ; (c as Element).properties["data-linked-code"] = "true"
             }
           })
         }
@@ -45,8 +45,8 @@ export function rehypeLinkedCode() {
           node.properties["data-has-link"] = "true"
           node.children?.forEach((c) => {
             if (c.type === "element" && (c as Element).tagName === "a") {
-              ;(c as Element).properties = (c as Element).properties || {}
-              ;(c as Element).properties["data-in-code"] = "true"
+              ; (c as Element).properties = (c as Element).properties || {}
+                ; (c as Element).properties["data-in-code"] = "true"
             }
           })
         }
@@ -497,6 +497,12 @@ export function getMarkdownComponents(rawPath: string) {
       }
       return <LazyImage src={src} alt={(alt as string) || ""} />
     },
+    hr: ({ ...props }: MarkdownComponentProps) => (
+      <hr
+        className="mx-auto my-8 w-4/5 border-t border-tech-main/30"
+        {...props}
+      />
+    ),
     pre: preComponent,
     code: codeComponent,
   } as Record<string, MarkdownComponent>
