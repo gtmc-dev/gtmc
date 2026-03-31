@@ -34,7 +34,7 @@ function isImageOnlyParagraph(node: unknown) {
   return (
     meaningfulChildren.length === 1 &&
     meaningfulChildren[0]?.type === "element" &&
-    meaningfulChildren[0]?.tagName === "img"
+    isImageUnit(meaningfulChildren[0])
   )
 }
 
@@ -80,10 +80,9 @@ export function getMarkdownComponents(rawPath: string) {
         <Link
           href={href}
           className="
-            mx-1 inline-block border border-b-2 border-tech-main/30
-            bg-tech-main/10 px-1 py-[0.05rem] font-mono text-[0.8em]
-            text-tech-main transition-colors
-            hover:border-tech-main hover:bg-tech-main/80 hover:text-white
+            inline-block cursor-pointer bg-tech-main/10 px-1 py-[0.05rem]
+            font-mono text-[0.8em] text-tech-main underline transition-colors
+            hover:bg-tech-main/80 hover:text-white hover:no-underline
           "
           {...rest}>
           {children}
@@ -105,9 +104,9 @@ export function getMarkdownComponents(rawPath: string) {
       <Link
         href={href}
         className="
-          border-b border-tech-main/50 font-mono text-tech-main
-          transition-colors
-          hover:bg-tech-main/80 hover:text-white
+          cursor-pointer px-0.5 font-sans text-tech-main underline
+          underline-offset-4 transition-colors
+          hover:bg-tech-main/80 hover:text-white hover:no-underline
         "
         {...props}>
         {children}
