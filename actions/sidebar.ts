@@ -214,6 +214,14 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
           return a.isAppendix ? 1 : -1
         }
 
+        const aIsReadme =
+          a.title === "<EMPTY>" || a.slug.toLowerCase().endsWith("/readme")
+        const bIsReadme =
+          b.title === "<EMPTY>" || b.slug.toLowerCase().endsWith("/readme")
+        if (aIsReadme !== bIsReadme) {
+          return aIsReadme ? -1 : 1
+        }
+
         const indexComparison = compareIndex(a.index, b.index)
         if (indexComparison !== 0) {
           return indexComparison
