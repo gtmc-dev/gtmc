@@ -172,17 +172,24 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <CornerBrackets />
 
         {/* Region 1: System/Read Label */}
-        <div className="flex items-center font-mono text-xs text-tech-main/50">
-          <span className="mr-2 size-2 animate-pulse bg-tech-main/50"></span>
-          SYS.READ_STREAM | UTF-8
+        <div className="
+          flex flex-wrap justify-between font-mono text-xs text-tech-main/50
+        ">
+
+          <span className="flex items-center gap-2">
+            <span className="size-2 animate-pulse bg-tech-main/50" />
+            SYS.READ_STREAM | UTF-8
+          </span>
+          <span>PATH: {result.filePath}</span>
         </div>
 
-        {/* Region 2: Path Line */}
-        <div className="font-mono text-xs break-all text-slate-500">
-          PATH: {result.filePath}
-        </div>
-
-        <h1 className="font-mono text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        {/* Region 2: Article Title */}
+        <h1
+          className="
+            font-mono text-lg leading-none font-bold tracking-tight
+            text-tech-main-dark
+            sm:text-xl
+          ">
           {articleTitle}
         </h1>
 
@@ -216,10 +223,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <button
             type="button"
             className="
-              relative flex min-h-[44px] w-full cursor-pointer items-center
-              gap-2 overflow-hidden border border-tech-main/40 bg-tech-main/10
-              px-4 py-2 font-mono text-xs tracking-widest text-tech-main
-              uppercase transition-all duration-300
+              relative flex min-h-11 w-full cursor-pointer items-center gap-2
+              overflow-hidden border border-tech-main/40 bg-tech-main/10 px-4
+              py-2 font-mono text-xs tracking-widest text-tech-main uppercase
+              transition-all duration-300
               hover:bg-tech-main hover:text-white
               sm:w-auto
             ">
