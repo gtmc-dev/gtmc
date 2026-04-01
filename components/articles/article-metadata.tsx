@@ -116,13 +116,15 @@ export function ArticleMetadata({
           sm:flex-row sm:items-center sm:gap-4
         ">
         <div className="flex items-center gap-2">
-          <Image
-            src={getAvatarUrl(author)}
-            alt={author}
-            className="border guide-line"
-            width={32}
-            height={32}
-          />
+          <Link href={`https://github.com/${author}`} target="_blank">
+            <Image
+              src={getAvatarUrl(author)}
+              alt={author}
+              className="border guide-line"
+              width={32}
+              height={32}
+            />
+          </Link>
           <span className="text-sm font-bold text-tech-main-dark">{author}</span>
         </div>
       </div>
@@ -137,15 +139,16 @@ export function ArticleMetadata({
           <span className="text-tech-accent">CONTRIBUTORS:</span>
           <div className="flex items-center gap-1">
             {displayContributors.slice(1).map((contributor) => (
-              <Image
-                key={contributor}
-                src={getAvatarUrl(contributor)}
-                alt={contributor}
-                className="border guide-line"
-                title={contributor}
-                width={20}
-                height={20}
-              />
+              <Link key={contributor} href={`https://github.com/${contributor}`} target="_blank">
+                <Image
+                  src={getAvatarUrl(contributor)}
+                  alt={contributor}
+                  className="border guide-line"
+                  title={contributor}
+                  width={20}
+                  height={20}
+                />
+              </Link>
             ))}
             {remainingCount > 0 && (
               <span className="ml-1 text-tech-accent">+{remainingCount}</span>
