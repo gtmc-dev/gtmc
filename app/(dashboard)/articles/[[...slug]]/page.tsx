@@ -19,6 +19,7 @@ import { ArticleNavigation } from "@/components/article-navigation"
 import {
   flattenArticleTree,
   getArticleNavigation,
+  getFirstArticleInChapter,
 } from "@/lib/article-navigation"
 import { getSidebarTree } from "@/actions/sidebar"
 import type { ArticleTreeNode as BaseArticleTreeNode } from "@/lib/github/sync"
@@ -208,7 +209,7 @@ async function resolveArticleTarget(
   }
 
   const canonicalSlug = targetNode.isFolder
-    ? (getFirstArticleInChapter(targetNode.children)?.slug ?? null)
+    ? resolveFirstArticleSlug(targetNode.children ?? [])
     : targetNode.slug
 
   if (!canonicalSlug) {
@@ -241,49 +242,33 @@ function findNodeBySlug(
   return null
 }
 
-function getFirstArticleInChapter(
-  children: ArticleTreeNode[]
-): ArticleTreeNode | null {
+function resolveFirstArticleSlug(children: ArticleTreeNode[]): string | null {
   if (!children || children.length === 0) {
     return null
   }
 
-  const sorted = [...children].sort((a, b) => {
-    const indexCmp = compareIndex(a.index ?? -1, b.index ?? -1)
-    if (indexCmp !== 0) {
-      return indexCmp
-    }
+  const chapterEntries = children.map((child) => ({
+    filePath: resolveSlug(child.slug) ?? `${child.slug}.md`,
+    slug: child.slug,
+    index: child.index ?? -1,
+    isFolder: child.isFolder,
+  }))
 
-    return a.slug.localeCompare(b.slug)
-  })
-
-  for (const child of sorted) {
-    if (!child.isFolder) {
-      return child
-    }
-
-    const nested = getFirstArticleInChapter(child.children ?? [])
-    if (nested) {
-      return nested
-    }
+  const firstEntry = getFirstArticleInChapter(chapterEntries)
+  if (!firstEntry) {
+    return null
   }
 
-  return null
-}
-
-function compareIndex(a: number, b: number): number {
-  const aNoIndex = a === -1
-  const bNoIndex = b === -1
-
-  if (aNoIndex !== bNoIndex) {
-    return aNoIndex ? 1 : -1
+  if (!firstEntry.isFolder) {
+    return firstEntry.slug
   }
 
-  if (aNoIndex && bNoIndex) {
-    return 0
+  const matchedFolder = children.find((child) => child.slug === firstEntry.slug)
+  if (!matchedFolder) {
+    return null
   }
 
-  return a - b
+  return resolveFirstArticleSlug(matchedFolder.children ?? [])
 }
 
 function resolveArticleTitle(rawTitle: unknown, fallbackPath: string): string {
