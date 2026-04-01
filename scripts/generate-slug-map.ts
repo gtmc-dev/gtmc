@@ -209,7 +209,7 @@ function processDirectory(
     const subSlug = getSlugFromFile(subReadmePath) ?? ""
 
     // Allow empty string slug in subdirectories (depth >= 1) to flatten the slug path
-    if (subSlug === "") {
+    if (subSlug === "" || subSlug === null) {
       if (depth < 1) {
         process.stderr.write(
           `Error: Empty slug not allowed in top-level folder: articles/${subRelPath}/README.md\n`
