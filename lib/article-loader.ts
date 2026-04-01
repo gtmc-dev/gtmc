@@ -1,18 +1,12 @@
 import fs from "fs"
 import path from "path"
-import {
-  getRepoFileContent,
-  getRepoFileBuffer,
-  getRepoContentTree,
-  type RepoTreeNode,
-} from "./github-repo-client"
+import { type RepoTreeNode } from "./github-repo-client"
 import { shouldIgnoreDirectory, shouldIgnoreFile } from "./article-ignore"
 import { parseFrontMatter } from "./frontmatter-parser"
 
 const ARTICLES_DIR = path.join(process.cwd(), "articles")
 const SUBMODULE_GIT = path.join(ARTICLES_DIR, ".git")
 const SLUG_MAP_PATH = path.join(process.cwd(), "lib/slug-map.json")
-const REPO_FETCH_RETRIES = 3
 
 const filePathToSlugKey: Record<string, string> = (() => {
   try {
@@ -50,7 +44,7 @@ export async function getArticleContent(
   if (process.env.NODE_ENV === "development" && !isSubmoduleAvailable()) {
     console.warn("[article-loader] Submodule not available, using API")
   }
-  return await getRepoFileContent(filePath, REPO_FETCH_RETRIES)
+  return null
 }
 
 export async function getArticleTree(): Promise<RepoTreeNode[]> {
@@ -68,7 +62,7 @@ export async function getArticleTree(): Promise<RepoTreeNode[]> {
   if (process.env.NODE_ENV === "development" && !isSubmoduleAvailable()) {
     console.warn("[article-loader] Submodule not available, using API for tree")
   }
-  return await getRepoContentTree()
+  return []
 }
 
 function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
@@ -96,8 +90,18 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
       const slugWithoutExt = entryPath.replace(/\.md$/, "")
       const content = fs.readFileSync(path.join(dir, entry.name), "utf-8")
       const fm = parseFrontMatter(content)
-      const nodeSlug = filePathToSlugKey[slugWithoutExt] ?? slugWithoutExt
       const isReadme = entry.name.toLowerCase() === "readme.md"
+
+      // For README.md files, try to use folder slug from slug map
+      let nodeSlug: string
+      if (isReadme) {
+        const folderSlug =
+          filePathToSlugKey[slugWithoutExt.replace(/\/readme$/i, "")]
+        nodeSlug = folderSlug ?? slugWithoutExt
+      } else {
+        nodeSlug = filePathToSlugKey[slugWithoutExt] ?? slugWithoutExt
+      }
+
       const mdNode: RepoTreeNode & {
         index: number
         isAppendix: boolean
@@ -151,5 +155,5 @@ export async function getArticleBuffer(
       }
     }
   }
-  return await getRepoFileBuffer(filePath, REPO_FETCH_RETRIES)
+  return null
 }
