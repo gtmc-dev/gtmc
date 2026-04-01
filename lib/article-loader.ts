@@ -78,11 +78,11 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
     if (entry.isDirectory()) {
       const children = buildLocalTree(path.join(dir, entry.name), entryPath)
       nodes.push({
-        id: `local-${entryPath}`,
+        id: entryPath,
         title: entry.name,
         slug: entryPath,
         isFolder: true,
-        parentId: parentPath ? `local-${parentPath}` : null,
+        parentId: parentPath || null,
         children,
       })
     } else if (entry.name.endsWith(".md")) {
@@ -107,7 +107,7 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
         isAppendix: boolean
         isPreface: boolean
       } = {
-        id: `local-${slugWithoutExt}`,
+        id: slugWithoutExt,
         title: isReadme
           ? fm.introTitle || fm.title || titleName
           : fm.title || titleName,
@@ -116,7 +116,7 @@ function buildLocalTree(dir: string, parentPath = ""): RepoTreeNode[] {
         index: fm.index,
         isAppendix: isAppendixPath(slugWithoutExt),
         isPreface: nodeSlug === "preface",
-        parentId: parentPath ? `local-${parentPath}` : null,
+        parentId: parentPath || null,
         children: [],
       }
       nodes.push(mdNode)
