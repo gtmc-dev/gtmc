@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next"
-import fs from "fs"
 import path from "path"
 import { execSync } from "child_process"
 import { prisma } from "@/lib/prisma"
@@ -10,21 +9,6 @@ import { shouldIgnoreFile } from "@/lib/article-ignore"
 
 export const dynamic = "force-dynamic"
 export const revalidate = 3600
-
-const filePathToSlug: Record<string, string> = (() => {
-  try {
-    const slugMapPath = path.join(process.cwd(), "lib/slug-map.json")
-    const raw = fs.readFileSync(slugMapPath, "utf-8")
-    const slugMap = JSON.parse(raw) as Record<string, string>
-    const inverted: Record<string, string> = {}
-    for (const [slugKey, filePath] of Object.entries(slugMap)) {
-      inverted[filePath.replace(/\.md$/i, "")] = slugKey
-    }
-    return inverted
-  } catch {
-    return {}
-  }
-})()
 
 function encodeSlug(slug: string): string {
   return slug.split("/").map(encodeURIComponent).join("/")
