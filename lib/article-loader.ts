@@ -109,8 +109,8 @@ function buildArticleTree(dir: string, parentPath = ""): ArticleTreeNode[] {
       } = {
         id: slugWithoutExt,
         title: isReadme
-          ? fm.introTitle || fm.title || titleName
-          : fm.title || titleName,
+          ? fm.introTitle || fm.chapterTitle || titleName
+          : fm.chapterTitle || titleName,
         slug: nodeSlug,
         isFolder: false,
         index: fm.index,
