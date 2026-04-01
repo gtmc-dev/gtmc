@@ -50,6 +50,50 @@ export function flattenArticleTree(tree: TreeNode[]): FlatArticle[] {
   return result
 }
 
+export interface SlugMapEntry {
+  filePath: string
+  slug: string
+  index: number
+  isFolder: boolean
+  children?: SlugMapEntry[]
+}
+
+function compareIndex(a: number, b: number): number {
+  const aNoIndex = a === -1
+  const bNoIndex = b === -1
+
+  if (aNoIndex !== bNoIndex) {
+    return aNoIndex ? 1 : -1
+  }
+
+  if (aNoIndex && bNoIndex) {
+    return 0
+  }
+
+  return a - b
+}
+
+export function getFirstArticleInChapter(
+  articles: SlugMapEntry[]
+): SlugMapEntry | null {
+  if (!articles || articles.length === 0) {
+    return null
+  }
+
+  const sorted = [...articles].sort((a, b) => {
+    const indexCmp = compareIndex(a.index, b.index)
+    if (indexCmp !== 0) {
+      return indexCmp
+    }
+
+    const aFileName = a.filePath.split("/").pop() || ""
+    const bFileName = b.filePath.split("/").pop() || ""
+    return aFileName.localeCompare(bFileName)
+  })
+
+  return sorted[0]
+}
+
 export function getArticleNavigation(
   currentSlug: string,
   articles: FlatArticle[]
