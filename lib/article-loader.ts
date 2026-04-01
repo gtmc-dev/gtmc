@@ -1,22 +1,52 @@
 import fs from "fs"
 import path from "path"
 import { type ArticleTreeNode } from "./github-repo-client"
-import { shouldIgnoreDirectory, shouldIgnoreFile } from "./article-ignore"
-import { parseFrontMatter } from "./frontmatter-parser"
+import { type SlugMapEntry } from "./slug-resolver"
 
 const ARTICLES_DIR = path.join(process.cwd(), "articles")
 const SUBMODULE_GIT = path.join(ARTICLES_DIR, ".git")
 const SLUG_MAP_PATH = path.join(process.cwd(), "lib/slug-map.json")
 
-const filePathToSlugKey: Record<string, string> = (() => {
+const slugMap: Record<string, SlugMapEntry> = (() => {
   try {
     const raw = fs.readFileSync(SLUG_MAP_PATH, "utf-8")
-    const slugMap = JSON.parse(raw) as Record<string, string>
-    const inverted: Record<string, string> = {}
-    for (const [slugKey, filePath] of Object.entries(slugMap)) {
-      inverted[filePath.replace(/\.md$/i, "")] = slugKey
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    const normalized: Record<string, SlugMapEntry> = {}
+
+    for (const [slugKey, value] of Object.entries(parsed)) {
+      if (typeof value !== "object" || value === null) continue
+
+      const entry = value as Partial<SlugMapEntry>
+      if (typeof entry.filePath !== "string") continue
+
+      normalized[slugKey] = {
+        filePath: entry.filePath,
+        slug: typeof entry.slug === "string" ? entry.slug : slugKey,
+        chapterTitle:
+          typeof entry.chapterTitle === "string" ? entry.chapterTitle : "",
+        chapterTitleEn:
+          typeof entry.chapterTitleEn === "string" ? entry.chapterTitleEn : "",
+        introTitle:
+          typeof entry.introTitle === "string" ? entry.introTitle : "",
+        introTitleEn:
+          typeof entry.introTitleEn === "string" ? entry.introTitleEn : "",
+        index: typeof entry.index === "number" ? entry.index : 0,
+        isFolder: entry.isFolder === true,
+        isAppendix: entry.isAppendix === true,
+        isPreface: entry.isPreface === true,
+        parentSlug:
+          typeof entry.parentSlug === "string" ? entry.parentSlug : undefined,
+        children: Array.isArray(entry.children)
+          ? (entry.children as SlugMapEntry[])
+          : undefined,
+        author: typeof entry.author === "string" ? entry.author : undefined,
+        coAuthors: Array.isArray(entry.coAuthors) ? entry.coAuthors : undefined,
+        date: typeof entry.date === "string" ? entry.date : undefined,
+        lastmod: typeof entry.lastmod === "string" ? entry.lastmod : undefined,
+      }
     }
-    return inverted
+
+    return normalized
   } catch {
     return {}
   }
@@ -50,7 +80,7 @@ export async function getArticleContent(
 export async function getArticleTree(): Promise<ArticleTreeNode[]> {
   if (isSubmoduleAvailable()) {
     try {
-      return buildArticleTree(ARTICLES_DIR)
+      return buildLocalTree()
     } catch {
       if (process.env.NODE_ENV === "development") {
         console.warn(
@@ -65,78 +95,87 @@ export async function getArticleTree(): Promise<ArticleTreeNode[]> {
   return []
 }
 
-function buildArticleTree(dir: string, parentPath = ""): ArticleTreeNode[] {
-  const entries = fs.readdirSync(dir, { withFileTypes: true })
-  const nodes: ArticleTreeNode[] = []
-
-  for (const entry of entries) {
-    if (shouldIgnoreDirectory(entry.name)) continue
-    if (!parentPath && shouldIgnoreFile(entry.name, true)) continue
-
-    const entryPath = parentPath ? `${parentPath}/${entry.name}` : entry.name
-
-    if (entry.isDirectory()) {
-      const children = buildArticleTree(path.join(dir, entry.name), entryPath)
-      nodes.push({
-        id: entryPath,
-        title: entry.name,
-        slug: entryPath,
-        isFolder: true,
-        parentId: parentPath || null,
-        children,
-      })
-    } else if (entry.name.endsWith(".md")) {
-      const titleName = entry.name.replace(/\.md$/, "")
-      const slugWithoutExt = entryPath.replace(/\.md$/, "")
-      const content = fs.readFileSync(path.join(dir, entry.name), "utf-8")
-      const fm = parseFrontMatter(content)
-      const isReadme = entry.name.toLowerCase() === "readme.md"
-
-      // For README.md files, try to use folder slug from slug map
-      let nodeSlug: string
-      if (isReadme) {
-        const folderSlug =
-          filePathToSlugKey[slugWithoutExt.replace(/\/readme$/i, "")]
-        nodeSlug = folderSlug ?? slugWithoutExt
-      } else {
-        nodeSlug = filePathToSlugKey[slugWithoutExt] ?? slugWithoutExt
-      }
-
-      const mdNode: ArticleTreeNode & {
-        index: number
-        isAppendix: boolean
-        isPreface: boolean
-      } = {
-        id: slugWithoutExt,
-        title: isReadme
-          ? fm.introTitle || fm.chapterTitle || titleName
-          : fm.chapterTitle || titleName,
-        slug: nodeSlug,
-        isFolder: false,
-        index: fm.index,
-        isAppendix: isAppendixPath(slugWithoutExt),
-        isPreface: nodeSlug === "preface",
-        parentId: parentPath || null,
-        children: [],
-      }
-      nodes.push(mdNode)
-    }
+function buildLocalTree(): ArticleTreeNode[] {
+  const entries = Object.values(slugMap)
+  if (entries.length === 0) {
+    return []
   }
 
-  nodes.sort((a, b) => {
-    if (a.isFolder === b.isFolder) return a.title.localeCompare(b.title)
-    return a.isFolder ? -1 : 1
-  })
+  const parentIndex = new Map<string, SlugMapEntry[]>()
+  for (const entry of entries) {
+    if (!entry.parentSlug) continue
+    const siblings = parentIndex.get(entry.parentSlug) ?? []
+    siblings.push(entry)
+    parentIndex.set(entry.parentSlug, siblings)
+  }
 
-  return nodes
+  const roots = entries
+    .filter((entry) => !entry.parentSlug || !slugMap[entry.parentSlug])
+    .sort(compareEntries)
+
+  return roots.map((entry) => buildTreeNode(entry, parentIndex))
 }
 
-function isAppendixPath(relativePath: string): boolean {
-  const normalizedPath = relativePath.replace(/\\/g, "/")
-  const pathSegments = normalizedPath.split("/")
-  return pathSegments.some(
-    (segment) =>
-      segment.toLowerCase().includes("appendix") || segment.includes("附录")
+function buildTreeNode(
+  entry: SlugMapEntry,
+  parentIndex: Map<string, SlugMapEntry[]>
+): ArticleTreeNode {
+  const childrenFromSlug = entry.children ?? []
+  const childrenFromParent = parentIndex.get(entry.slug) ?? []
+
+  const mergedChildrenBySlug = new Map<string, SlugMapEntry>()
+  for (const child of childrenFromSlug) {
+    mergedChildrenBySlug.set(child.slug, slugMap[child.slug] ?? child)
+  }
+  for (const child of childrenFromParent) {
+    mergedChildrenBySlug.set(child.slug, child)
+  }
+
+  const children = Array.from(mergedChildrenBySlug.values())
+    .sort(compareEntries)
+    .map((child) => buildTreeNode(child, parentIndex))
+
+  const node: ArticleTreeNode & {
+    index: number
+    isAppendix: boolean
+    isPreface: boolean
+  } = {
+    id: entry.isFolder ? entry.slug : entry.filePath.replace(/\.md$/i, ""),
+    title: getNodeTitle(entry),
+    slug: entry.slug,
+    isFolder: entry.isFolder,
+    index: entry.index,
+    isAppendix: entry.isAppendix,
+    isPreface: entry.isPreface,
+    parentId: entry.parentSlug ?? null,
+    children,
+  }
+
+  return node
+}
+
+function compareEntries(a: SlugMapEntry, b: SlugMapEntry): number {
+  if (a.isFolder === b.isFolder) {
+    return getNodeTitle(a).localeCompare(getNodeTitle(b))
+  }
+  return a.isFolder ? -1 : 1
+}
+
+function getNodeTitle(entry: SlugMapEntry): string {
+  if (entry.isFolder) {
+    return (
+      entry.introTitle ||
+      entry.chapterTitle ||
+      entry.slug.split("/").pop() ||
+      entry.slug
+    )
+  }
+
+  return (
+    entry.chapterTitle ||
+    entry.filePath.split("/").pop()?.replace(/\.md$/i, "") ||
+    entry.slug.split("/").pop() ||
+    entry.slug
   )
 }
 
