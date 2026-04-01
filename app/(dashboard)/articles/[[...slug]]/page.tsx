@@ -55,7 +55,7 @@ export async function generateMetadata({
     }
 
     const { data } = matter(content)
-    const title = data.title || slugPath.split("/").pop() || "Article"
+    const title = resolveArticleTitle(data.title, filePath)
     const description = generateDescription(content)
 
     const siteUrl = getSiteUrl()
@@ -113,6 +113,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const { data, content: renderedContent } = matter(content)
+  const articleTitle = resolveArticleTitle(data.title, result.filePath)
 
   const editPath = normalizeDraftTargetPath(result.filePath)
 
@@ -164,6 +165,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         <div className="font-mono text-xs break-all text-slate-500">
           PATH: {result.filePath}
         </div>
+
+        <h1 className="font-mono text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          {articleTitle}
+        </h1>
 
         {/* Region 3: Reading Stats Row */}
         <div
@@ -240,4 +245,16 @@ function normalizeDraftTargetPath(filePath: string) {
   }
 
   return filePath.replace(/\.md$/, "")
+}
+
+function resolveArticleTitle(rawTitle: unknown, fallbackPath: string): string {
+  if (typeof rawTitle === "string" && rawTitle.trim()) {
+    return rawTitle.trim()
+  }
+
+  const fallback =
+    fallbackPath.split("/").filter(Boolean).pop()?.replace(/\.md$/i, "") ||
+    "Article"
+
+  return fallback
 }
