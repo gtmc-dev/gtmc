@@ -16,6 +16,17 @@ interface FlatArticle {
   parentPath: string
 }
 
+interface ArticleInfo {
+  slug: string
+  title: string
+  isCrossFolder: boolean
+}
+
+interface NavigationResult {
+  prev: ArticleInfo | null
+  next: ArticleInfo | null
+}
+
 export function flattenArticleTree(tree: TreeNode[]): FlatArticle[] {
   const result: FlatArticle[] = []
 
@@ -37,4 +48,39 @@ export function flattenArticleTree(tree: TreeNode[]): FlatArticle[] {
 
   dfs(tree)
   return result
+}
+
+export function getArticleNavigation(
+  currentSlug: string,
+  articles: FlatArticle[]
+): NavigationResult {
+  const currentIndex = articles.findIndex((a) => a.slug === currentSlug)
+
+  if (currentIndex === -1) {
+    return { prev: null, next: null }
+  }
+
+  const prev =
+    currentIndex > 0
+      ? {
+          slug: articles[currentIndex - 1].slug,
+          title: articles[currentIndex - 1].title,
+          isCrossFolder:
+            articles[currentIndex - 1].parentPath !==
+            articles[currentIndex].parentPath,
+        }
+      : null
+
+  const next =
+    currentIndex < articles.length - 1
+      ? {
+          slug: articles[currentIndex + 1].slug,
+          title: articles[currentIndex + 1].title,
+          isCrossFolder:
+            articles[currentIndex + 1].parentPath !==
+            articles[currentIndex].parentPath,
+        }
+      : null
+
+  return { prev, next }
 }
