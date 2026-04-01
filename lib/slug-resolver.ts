@@ -20,6 +20,25 @@ const filePathToSlugKey: Record<string, string> = (() => {
   return inverted
 })()
 
+export interface SlugMapEntry {
+  filePath: string
+  slug: string
+  chapterTitle: string
+  chapterTitleEn: string
+  introTitle: string
+  introTitleEn: string
+  index: number
+  isFolder: boolean
+  isAppendix: boolean
+  isPreface: boolean
+  children?: SlugMapEntry[]
+  parentSlug?: string
+  author?: string
+  coAuthors?: string[]
+  date?: string
+  lastmod?: string
+}
+
 export interface ResolveResult {
   filePath: string | null
   isDirectFilePath: boolean
