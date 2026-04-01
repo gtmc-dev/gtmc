@@ -19,6 +19,7 @@ import {
 } from "@/lib/slug-resolver"
 import { getSiteUrl } from "@/lib/site-url"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
+import { ArticleMetadata } from "@/components/articles/article-metadata"
 
 interface ArticlePageProps {
   params: Promise<{
@@ -111,7 +112,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound()
   }
 
-  const renderedContent = matter(content).content
+  const { data, content: renderedContent } = matter(content)
 
   const editPath = normalizeDraftTargetPath(result.filePath)
 
@@ -122,6 +123,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     shikiPlugin
   )
   const markdownComponents = getMarkdownComponents(result.filePath)
+
+  const siteUrl = getSiteUrl()
+  const canonicalSlug = getSlugForFilePath(result.filePath)
+  const canonicalUrl = canonicalSlug
+    ? `${siteUrl}/articles/${canonicalSlug.split("/").map(encodeURIComponent).join("/")}`
+    : `${siteUrl}/articles/${slugPath}`
+
+  const author = data.author as string | undefined
+  const coAuthors = (data["co-authors"] as string[] | undefined) || []
+  const createdAt = data.date as string | undefined
+  const lastModified = data.lastmod as string | undefined
 
   return (
     <div
@@ -193,6 +205,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <span className="relative z-10 font-bold">[EDIT_TARGET]</span>
           </button>
         </Link>
+
+        {/* Region 5: Article Metadata */}
+        {author && createdAt && lastModified && (
+          <ArticleMetadata
+            author={author}
+            coAuthors={coAuthors}
+            createdAt={createdAt}
+            lastModified={lastModified}
+            canonicalUrl={canonicalUrl}
+          />
+        )}
       </div>
 
       <div
