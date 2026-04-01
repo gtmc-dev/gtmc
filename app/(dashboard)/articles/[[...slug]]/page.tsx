@@ -20,6 +20,12 @@ import {
 import { getSiteUrl } from "@/lib/site-url"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
 import { ArticleMetadata } from "@/components/articles/article-metadata"
+import { ArticleNavigation } from "@/components/article-navigation"
+import {
+  flattenArticleTree,
+  getArticleNavigation,
+} from "@/lib/article-navigation"
+import { getSidebarTree } from "@/actions/sidebar"
 
 interface ArticlePageProps {
   params: Promise<{
@@ -114,6 +120,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const { data, content: renderedContent } = matter(content)
   const articleTitle = resolveArticleTitle(data.title, result.filePath)
+  const embeddedArticleContent = embedTitleInMarkdown(
+    renderedContent,
+    articleTitle
+  )
 
   const editPath = normalizeDraftTargetPath(result.filePath)
 
@@ -135,6 +145,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const coAuthors = (data["co-authors"] as string[] | undefined) || []
   const createdAt = data.date as string | undefined
   const lastModified = data.lastmod as string | undefined
+
+  // Get navigation data
+  const tree = await getSidebarTree()
+  const flattenedArticles = flattenArticleTree(tree)
+  const currentSlug = canonicalSlug || slugPath
+  const navigation = getArticleNavigation(currentSlug, flattenedArticles)
 
   return (
     <div
@@ -223,7 +239,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
         )}
       </div>
 
-      <div
+      <article
         className="
           w-full max-w-none overflow-hidden wrap-break-word text-slate-800
           selection:bg-tech-main/20 selection:text-slate-900
@@ -232,9 +248,13 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           remarkPlugins={remarkPlugins}
           rehypePlugins={rehypePlugins}
           components={markdownComponents}>
-          {renderedContent}
+          {embeddedArticleContent}
         </ReactMarkdown>
-      </div>
+      </article>
+
+      {(navigation.prev || navigation.next) && (
+        <ArticleNavigation prev={navigation.prev} next={navigation.next} />
+      )}
     </div>
   )
 }
@@ -257,4 +277,18 @@ function resolveArticleTitle(rawTitle: unknown, fallbackPath: string): string {
     "Article"
 
   return fallback
+}
+
+function embedTitleInMarkdown(content: string, title: string): string {
+  const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+  const normalizedContent = content.trimStart()
+  const sameTitleHeadingPattern = new RegExp(
+    `^#\\s+${escapedTitle}\\s*(?:\\r?\\n|$)`
+  )
+
+  if (sameTitleHeadingPattern.test(normalizedContent)) {
+    return content
+  }
+
+  return `# ${title}\n\n${content}`
 }
