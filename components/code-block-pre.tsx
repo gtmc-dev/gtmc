@@ -16,8 +16,13 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
   const rawCode = props["data-raw-code"] as string | undefined
   const lang = (props["data-lang"] as string) || ""
   const lineCount = (props["data-line-count"] as string) || "0"
-  const lineCountNum = parseInt(lineCount, 10) || 0
   const [isWrapped, setIsWrapped] = useState(false)
+
+  // Calculate line number width based on digit count
+  const lineCountNum = parseInt(lineCount, 10)
+  const digitCount = String(lineCountNum).length
+  const lineNumWidth =
+    digitCount === 1 ? "2.5rem" : digitCount === 2 ? "3rem" : "3.5rem"
 
   if (!rawCode) return <>{children}</>
 
@@ -73,30 +78,15 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
             pointer-events-none absolute inset-x-0 top-3/4 h-px bg-tech-main/3
           "
         />
-        <div className="code-block-pre relative flex">
-          {lineCountNum > 0 && (
-            <div
-              aria-hidden="true"
-              className="
-                line-numbers-col shrink-0 select-none border-r border-tech-main/20
-                bg-tech-bg py-3 pr-3 pl-4 text-right font-mono text-sm
-                text-tech-main/40
-              "
-              style={{
-                minWidth: `calc(${Math.max(2, String(lineCountNum).length)}ch + 2rem)`,
-              }}>
-              {Array.from({ length: lineCountNum }, (_, i) => {
-                const lineNum = i + 1
-                return <div key={`line-${lineNum}`}>{lineNum}</div>
-              })}
-            </div>
-          )}
-          <div className="custom-bottom-scrollbar overflow-x-auto flex-1 px-4 sm:px-6">
+        <div
+          className="code-block-pre relative"
+          style={{ "--line-num-width": lineNumWidth } as React.CSSProperties}>
+          <div className="custom-bottom-scrollbar overflow-x-auto px-4 sm:px-6">
             <div
               dir="ltr"
               className={
                 isWrapped
-                  ? "whitespace-pre-wrap [&_code]:!whitespace-pre-wrap"
+                  ? "whitespace-pre-wrap [&_code]:!whitespace-pre-wrap [&_.line]:!whitespace-pre-wrap"
                   : "whitespace-pre [&_code]:!whitespace-pre"
               }>
               {children}

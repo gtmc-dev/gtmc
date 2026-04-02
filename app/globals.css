@@ -410,9 +410,34 @@ code .line {
   display: block;
 }
 
-.code-block-pre code,
-.code-block-pre .line-numbers-col > div {
+.code-block-pre code {
   line-height: 1.625;
+  counter-reset: line-counter;
+}
+
+.code-block-pre .line {
+  counter-increment: line-counter;
+  display: block;
+  padding-left: 3.5rem;
+  position: relative;
+}
+
+.code-block-pre .line::before {
+  content: counter(line-counter);
+  position: absolute;
+  left: 0;
+  width: var(--line-num-width, 2.75rem);
+  text-align: right;
+  color: var(--color-tech-main);
+  opacity: 0.4;
+  user-select: none;
+  pointer-events: none;
+  border-right: 1px solid
+    color-mix(in srgb, var(--color-tech-main) 20%, transparent);
+  padding-right: 0.5rem;
+  font-family: var(--font-mono, monospace);
+  font-size: inherit;
+  line-height: inherit;
 }
 
 code[class^="language-"] {
@@ -430,5 +455,15 @@ code[class^="language-"] {
   .opacity-\[0\.25\],
   .opacity-40 {
     opacity: 0;
+  }
+}
+
+@layer components {
+  .code-block-pre {
+    @apply relative;
+  }
+
+  .code-block-pre code {
+    @apply block;
   }
 }
