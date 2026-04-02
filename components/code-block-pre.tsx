@@ -84,19 +84,8 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
           style={
             {
               "--line-num-width": lineNumWidth,
-              display: "grid",
-              gridTemplateColumns: `${lineNumWidth} 1fr`,
             } as React.CSSProperties
           }>
-          <div className="code-block-line-numbers" aria-hidden="true">
-            {Array.from({ length: lineCountNum }, (_, i) => i + 1).map(
-              (lineNum) => (
-                <span key={lineNum} className="code-block-line-number">
-                  {lineNum}
-                </span>
-              )
-            )}
-          </div>
           <div className="custom-bottom-scrollbar overflow-x-auto">
             <div
               dir="ltr"
