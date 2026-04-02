@@ -207,58 +207,65 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
 
   const showTreePlaceholder = isTreeLoading && treeData.length === 0
 
+  interface SidebarTreeWrapperProps {
+    sidebarRef: React.Ref<SidebarClientHandle>
+    showPlaceholder: boolean
+    tree: TreeNode[]
+    onNavigate: () => void
+  }
+
+  function SidebarTreeWrapper({
+    sidebarRef,
+    showPlaceholder,
+    tree,
+    onNavigate,
+  }: SidebarTreeWrapperProps) {
+    return (
+      <div
+        className={`
+          w-full pb-4 font-mono text-[15px] wrap-break-word
+          [&_li]:mt-1.5
+          [&_ul]:list-none
+          [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
+          [&_ul_ul]:pl-3
+          [&>ul]:pl-0
+          ${showPlaceholder ? "h-full min-h-full pb-0" : ""}
+        `}
+        aria-busy={showPlaceholder}>
+        {showPlaceholder ? (
+          <div className="h-full min-h-full pr-4">
+            <TreeLoadingPlaceholder />
+          </div>
+        ) : (
+          <SidebarClient
+            tree={tree}
+            onNavigate={onNavigate}
+            ref={sidebarRef}
+            internalScroll
+          />
+        )}
+      </div>
+    )
+  }
+
+  const onNavigate = () => setIsOpen(false)
+
   const fixedTreeContent = (
-    <div
-      className={`
-        w-full pb-4 font-mono text-[15px] wrap-break-word
-        [&_li]:mt-1.5
-        [&_ul]:list-none
-        [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
-        [&_ul_ul]:pl-3
-        [&>ul]:pl-0
-        ${showTreePlaceholder ? "h-full min-h-full pb-0" : ""}
-      `}
-      aria-busy={showTreePlaceholder}>
-      {showTreePlaceholder ? (
-        <div className="h-full min-h-full pr-4">
-          <TreeLoadingPlaceholder />
-        </div>
-      ) : (
-        <SidebarClient
-          tree={treeData}
-          onNavigate={() => setIsOpen(false)}
-          ref={desktopSidebarRef}
-          internalScroll
-        />
-      )}
-    </div>
+    <SidebarTreeWrapper
+      sidebarRef={desktopSidebarRef}
+      showPlaceholder={showTreePlaceholder}
+      tree={treeData}
+      onNavigate={onNavigate}
+    />
   )
 
   const floatingTreeContent = (
-    <div
-      className={`
-        w-full pb-4 font-mono text-[15px] wrap-break-word
-        [&_li]:mt-1.5
-        [&_ul]:list-none
-        [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
-        [&_ul_ul]:pl-3
-        [&>ul]:pl-0
-        ${showTreePlaceholder ? "h-full min-h-full pb-0" : ""}
-      `}
-      aria-busy={showTreePlaceholder}>
-      {showTreePlaceholder ? (
-        <div className="h-full min-h-full pr-4">
-          <TreeLoadingPlaceholder />
-        </div>
-      ) : (
-        <SidebarClient
-          tree={treeData}
-          onNavigate={() => setIsOpen(false)}
-          ref={floatingCardSidebarRef}
-          internalScroll
-        />
-      )}
-    </div>
+    <SidebarTreeWrapper
+      sidebarRef={floatingCardSidebarRef}
+      showPlaceholder={showTreePlaceholder}
+      tree={treeData}
+      onNavigate={onNavigate}
+    />
   )
 
   return (
