@@ -145,7 +145,10 @@ export function ArticleMetadata({
                     relative size-6 border guide-line
                     sm:size-10
                   ">
-                  <Link href={`https://github.com/${author}`} target="_blank">
+                  <Link
+                    href={`https://github.com/${author}`}
+                    target="_blank"
+                    className="relative">
                     <Image
                       src={getAvatarUrl(author)}
                       alt={author}
@@ -182,7 +185,8 @@ export function ArticleMetadata({
                         ">
                         <Link
                           href={`https://github.com/${contributor}`}
-                          target="_blank">
+                          target="_blank"
+                          className="relative">
                           <Image
                             src={getAvatarUrl(contributor)}
                             alt={contributor}
