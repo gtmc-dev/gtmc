@@ -417,24 +417,27 @@ code .line {
 }
 
 .code-block-pre .line {
-  display: flex;
+  display: block;
+  position: relative;
   counter-increment: line-counter;
+  padding-left: calc(var(--line-num-width, 2.75rem) + 1rem);
 }
 
 .code-block-pre .line::before {
   content: counter(line-counter);
-  flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
   width: var(--line-num-width, 2.75rem);
   text-align: right;
   padding-right: 0.5rem;
   border-right: 1px solid
     color-mix(in srgb, var(--color-tech-main) 20%, transparent);
-  margin-right: 1rem;
   color: var(--color-tech-main);
   opacity: 0.4;
   user-select: none;
   pointer-events: none;
-  align-self: flex-start;
   font-family: var(--font-mono, monospace);
   font-size: inherit;
   line-height: 1.625;
