@@ -87,7 +87,13 @@ export async function createRehypeShiki(langs?: string[]) {
           if (!highlightedCode) return
 
           const filtered = highlightedCode.children.filter(
-            (child) => !(child.type === "text" && child.value.trim() === "")
+            (child) =>
+              !(child.type === "text" && child.value.trim() === "") &&
+              !(
+                child.type === "element" &&
+                (child as Element).tagName === "span" &&
+                (child as Element).children.length === 0
+              )
           )
 
           highlightCache.set(cacheKey, {
