@@ -12,6 +12,7 @@ import {
 import { getCachedRehypeShiki } from "@/lib/markdown/plugins/rehype-shiki"
 import { getArticleContent, getArticleTree } from "@/lib/article-loader"
 import { getSlugMapEntry, resolveSlug } from "@/lib/slug-resolver"
+import { formatIndexPrefix } from "@/lib/index-formatter"
 import { getSiteUrl } from "@/lib/site-url"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
 import { ArticleMetadata } from "@/components/articles/article-metadata"
@@ -55,10 +56,18 @@ export async function generateMetadata({
     }
 
     const { data } = matter(content)
-    const title = resolveDisplayedArticleTitle(
+    const resolvedTitle = resolveDisplayedArticleTitle(
       data["chapter-title"],
       target.filePath,
-      target.canonicalSlug
+      target.canonicalSlug,
+      target.isReadmeIntro
+    )
+    const title = formatArticleTitle(
+      resolvedTitle,
+      target.index,
+      target.isAppendix,
+      target.isPreface,
+      target.isReadmeIntro
     )
     const description = generateDescription(content)
 
@@ -114,10 +123,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const { data, content: renderedContent } = matter(content)
-  const articleTitle = resolveDisplayedArticleTitle(
+  const resolvedTitle = resolveDisplayedArticleTitle(
     data["chapter-title"],
     target.filePath,
-    target.canonicalSlug
+    target.canonicalSlug,
+    target.isReadmeIntro
+  )
+  const articleTitle = formatArticleTitle(
+    resolvedTitle,
+    target.index,
+    target.isAppendix,
+    target.isPreface,
+    target.isReadmeIntro
   )
   const embeddedArticleContent = embedTitleInMarkdown(
     renderedContent,
@@ -216,6 +233,10 @@ type ArticleTreeNode = BaseArticleTreeNode & { index?: number }
 interface ResolvedArticleTarget {
   filePath: string
   canonicalSlug: string
+  index: number
+  isAppendix: boolean
+  isPreface: boolean
+  isReadmeIntro: boolean
   redirectToSlug?: string
 }
 
@@ -243,12 +264,22 @@ async function resolveArticleTarget(
     return null
   }
 
+  const slugEntry = getSlugMapEntry(canonicalSlug)
+
   const redirectToSlug =
     targetNode.isFolder && canonicalSlug !== normalizedSlug
       ? canonicalSlug
       : undefined
 
-  return { filePath, canonicalSlug, redirectToSlug }
+  return {
+    filePath,
+    canonicalSlug,
+    index: slugEntry?.index ?? -1,
+    isAppendix: slugEntry?.isAppendix ?? false,
+    isPreface: slugEntry?.isPreface ?? false,
+    isReadmeIntro: Boolean(slugEntry?.isFolder && slugEntry?.hasIntro),
+    redirectToSlug,
+  }
 }
 
 function resolveCanonicalSlugForFolder(
@@ -324,27 +355,52 @@ function resolveArticleTitle(rawTitle: unknown, fallbackPath: string): string {
 function resolveDisplayedArticleTitle(
   rawTitle: unknown,
   fallbackPath: string,
-  canonicalSlug: string
+  canonicalSlug: string,
+  isReadmeIntro: boolean
 ): string {
   const slugEntry = getSlugMapEntry(canonicalSlug)
   const introTitle = slugEntry?.introTitle?.trim()
 
-  if (slugEntry?.isFolder && slugEntry.hasIntro && introTitle) {
+  if (isReadmeIntro && introTitle) {
     return introTitle
   }
 
   return resolveArticleTitle(rawTitle, fallbackPath)
 }
 
+function formatArticleTitle(
+  title: string,
+  index: number,
+  isAppendix: boolean,
+  isPreface: boolean,
+  isReadmeIntro: boolean
+): string {
+  const prefix = isReadmeIntro
+    ? formatIndexPrefix(0, false, false)
+    : formatIndexPrefix(index, isAppendix, isPreface)
+
+  return `${prefix}${title}`
+}
+
 function embedTitleInMarkdown(content: string, title: string): string {
+  const leadingWhitespace = content.match(/^\s*/)?.[0] ?? ""
+  const trimmedStartContent = content.slice(leadingWhitespace.length)
   const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-  const normalizedContent = content.trimStart()
   const sameTitleHeadingPattern = new RegExp(
     `^#\\s+${escapedTitle}\\s*(?:\\r?\\n|$)`
   )
+  const topLevelHeadingPattern = /^#\s+.+\s*(?:\r?\n|$)/
 
-  if (sameTitleHeadingPattern.test(normalizedContent)) {
+  if (sameTitleHeadingPattern.test(trimmedStartContent)) {
     return content
+  }
+
+  if (topLevelHeadingPattern.test(trimmedStartContent)) {
+    const replacedContent = trimmedStartContent.replace(
+      topLevelHeadingPattern,
+      `# ${title}\n`
+    )
+    return `${leadingWhitespace}${replacedContent}`
   }
 
   return `# ${title}\n\n${content}`

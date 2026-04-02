@@ -15,6 +15,7 @@ export interface TreeNode {
   index?: number
   isAppendix?: boolean
   isPreface?: boolean
+  isReadmeIntro?: boolean
 }
 
 export function SidebarTree({
@@ -214,9 +215,11 @@ export function SidebarTree({
                             `
                         }
                       `}>
-                      {!item.isFolder && item.index !== undefined
-                        ? `${formatIndexPrefix(item.index, item.isAppendix ?? false, item.isPreface ?? false)}${item.title}`
-                        : item.title}
+                      {item.isReadmeIntro
+                        ? `00 ${item.title}`
+                        : !item.isFolder && item.index !== undefined
+                          ? `${formatIndexPrefix(item.index, item.isAppendix ?? false, item.isPreface ?? false)}${item.title}`
+                          : item.title}
                     </Link>
                   </div>
 
