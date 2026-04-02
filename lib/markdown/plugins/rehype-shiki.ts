@@ -52,7 +52,7 @@ export async function createRehypeShiki(langs?: string[]) {
 
         const lang = langClass.replace("language-", "")
         const rawCode = getTextContent(codeNode)
-        const cacheKey = `${lang}:${rawCode}`
+        const cacheKey = `v2:${lang}:${rawCode}`
 
         try {
           if (highlightCache.has(cacheKey)) {
