@@ -89,6 +89,20 @@ export async function generateMetadata({
         description,
         type: "article",
         url: canonicalUrl,
+        images: [
+          {
+            url: `${siteUrl}/og-image.png`,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+        images: [`${siteUrl}/og-image.png`],
       },
     }
   } catch {
@@ -154,11 +168,76 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const canonicalUrl = canonicalSlug
     ? `${siteUrl}/articles/${encodeSlug(canonicalSlug)}`
     : `${siteUrl}/articles/${slugPath}`
+  const description = generateDescription(content)
 
   const author = data.author as string | undefined
   const coAuthors = (data["co-authors"] as string[] | undefined) || []
   const createdAt = data.date as string | undefined
   const lastModified = data.lastmod as string | undefined
+
+  const blogPostingJsonLd: {
+    "@context": "https://schema.org"
+    "@type": "BlogPosting"
+    headline: string
+    url: string
+    datePublished?: string
+    dateModified?: string
+    author?: {
+      "@type": "Person"
+      name: string
+    }
+    description: string
+  } = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: articleTitle,
+    url: canonicalUrl,
+    ...(createdAt ? { datePublished: createdAt } : {}),
+    ...(lastModified ? { dateModified: lastModified } : {}),
+    ...(author
+      ? {
+          author: {
+            "@type": "Person",
+            name: author,
+          },
+        }
+      : {}),
+    description,
+  }
+
+  const breadcrumbJsonLd: {
+    "@context": "https://schema.org"
+    "@type": "BreadcrumbList"
+    itemListElement: Array<{
+      "@type": "ListItem"
+      position: number
+      name: string
+      item: string
+    }>
+  } = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Articles",
+        item: `${siteUrl}/articles`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: articleTitle,
+        item: canonicalUrl,
+      },
+    ],
+  }
 
   // Get navigation data
   const tree = await getSidebarTree()
@@ -214,6 +293,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       {(navigation.prev || navigation.next) && (
         <ArticleNavigation prev={navigation.prev} next={navigation.next} />
       )}
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
     </div>
   )
 }
