@@ -423,6 +423,13 @@ code .line {
   padding-left: calc(var(--line-num-width, 2.75rem) + 1rem);
 }
 
+.code-block-pre[data-wrapped="true"] .line {
+  padding-left: calc(
+    var(--line-num-width, 2.75rem) + 1rem + var(--line-indent, 0ch)
+  );
+  text-indent: calc(-1 * var(--line-indent, 0ch));
+}
+
 .code-block-pre .line::before {
   content: counter(line-counter);
   position: absolute;

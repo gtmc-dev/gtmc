@@ -96,6 +96,29 @@ export async function createRehypeShiki(langs?: string[]) {
               )
           )
 
+          for (const child of filtered) {
+            if (child.type !== "element") continue
+            const lineEl = child as Element
+            const firstToken = lineEl.children.find(
+              (c) => c.type === "element"
+            ) as Element | undefined
+            const firstText =
+              firstToken?.children[0]?.type === "text"
+                ? (firstToken.children[0] as Text).value
+                : ""
+            const leadingSpaces = firstText.match(/^(\s*)/)?.[1] ?? ""
+            const indent = [...leadingSpaces].reduce(
+              (n, ch) => n + (ch === "\t" ? 4 : 1),
+              0
+            )
+            if (indent > 0) {
+              lineEl.properties = lineEl.properties ?? {}
+              const existing = (lineEl.properties.style as string) ?? ""
+              lineEl.properties.style =
+                (existing ? existing + ";" : "") + `--line-indent:${indent}ch`
+            }
+          }
+
           highlightCache.set(cacheKey, {
             ...highlightedCode,
             children: filtered,
