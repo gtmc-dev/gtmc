@@ -30,6 +30,13 @@ const slugMap: Record<string, SlugMapEntry> = (() => {
           typeof entry.introTitle === "string" ? entry.introTitle : "",
         introTitleEn:
           typeof entry.introTitleEn === "string" ? entry.introTitleEn : "",
+        hasIntro:
+          typeof entry.hasIntro === "boolean"
+            ? entry.hasIntro
+            : (typeof entry.introTitle === "string" &&
+                entry.introTitle !== "") ||
+              (typeof entry.introTitleEn === "string" &&
+                entry.introTitleEn !== ""),
         index: typeof entry.index === "number" ? entry.index : 0,
         isFolder: entry.isFolder === true,
         isAppendix: entry.isAppendix === true,

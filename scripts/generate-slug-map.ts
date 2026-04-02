@@ -41,6 +41,7 @@ function getFrontMatterEntry(
     chapterTitleEn,
     introTitle,
     introTitleEn,
+    hasIntro: introTitle !== "" || introTitleEn !== "",
     index: fm.index,
     isFolder,
     isAppendix:
@@ -367,16 +368,6 @@ function main(): void {
       false,
       undefined
     )
-  }
-
-  for (const entry of Object.values(slugMap)) {
-    if (
-      entry.isFolder &&
-      entry.introTitle === "" &&
-      entry.introTitleEn === ""
-    ) {
-      delete slugMap[entry.slug]
-    }
   }
 
   for (const entry of Object.values(slugMap)) {

@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown"
 import "katex/dist/katex.min.css"
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import matter from "gray-matter"
 import {
   calculateReadingMetrics,
@@ -11,7 +11,7 @@ import {
 } from "@/lib/markdown"
 import { getCachedRehypeShiki } from "@/lib/markdown/plugins/rehype-shiki"
 import { getArticleContent, getArticleTree } from "@/lib/article-loader"
-import { resolveSlug } from "@/lib/slug-resolver"
+import { getSlugMapEntry, resolveSlug } from "@/lib/slug-resolver"
 import { getSiteUrl } from "@/lib/site-url"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
 import { ArticleMetadata } from "@/components/articles/article-metadata"
@@ -93,6 +93,14 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (target === null) {
     notFound()
+  }
+
+  if (target.redirectToSlug) {
+    const redirectPath = target.redirectToSlug
+      .split("/")
+      .map(encodeURIComponent)
+      .join("/")
+    redirect(`/articles/${redirectPath}`)
   }
 
   const content = await getArticleContent(target.filePath)
@@ -203,6 +211,7 @@ type ArticleTreeNode = BaseArticleTreeNode & { index?: number }
 interface ResolvedArticleTarget {
   filePath: string
   canonicalSlug: string
+  redirectToSlug?: string
 }
 
 async function resolveArticleTarget(
@@ -217,7 +226,7 @@ async function resolveArticleTarget(
   }
 
   const canonicalSlug = targetNode.isFolder
-    ? resolveFirstArticleSlug(targetNode.children ?? [])
+    ? resolveCanonicalSlugForFolder(targetNode)
     : targetNode.slug
 
   if (!canonicalSlug) {
@@ -229,7 +238,23 @@ async function resolveArticleTarget(
     return null
   }
 
-  return { filePath, canonicalSlug }
+  const redirectToSlug =
+    targetNode.isFolder && canonicalSlug !== normalizedSlug
+      ? canonicalSlug
+      : undefined
+
+  return { filePath, canonicalSlug, redirectToSlug }
+}
+
+function resolveCanonicalSlugForFolder(
+  targetNode: ArticleTreeNode
+): string | null {
+  const mapEntry = getSlugMapEntry(targetNode.slug)
+  if (mapEntry?.hasIntro) {
+    return targetNode.slug
+  }
+
+  return resolveFirstArticleSlug(targetNode.children ?? [])
 }
 
 function findNodeBySlug(

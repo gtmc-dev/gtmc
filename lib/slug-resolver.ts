@@ -11,6 +11,7 @@ export interface SlugMapEntry {
   chapterTitleEn: string
   introTitle: string
   introTitleEn: string
+  hasIntro: boolean
   index: number
   isFolder: boolean
   isAppendix: boolean
