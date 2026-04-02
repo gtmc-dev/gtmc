@@ -4,22 +4,6 @@ import path from "path"
 const SLUG_MAP_PATH = path.join(process.cwd(), "lib", "slug-map.json")
 const ARTICLES_DIR = path.join(process.cwd(), "articles")
 
-// Load at module initialization
-let slugMap: Record<string, string> = {}
-try {
-  slugMap = JSON.parse(fs.readFileSync(SLUG_MAP_PATH, "utf-8"))
-} catch {
-  // File doesn't exist yet — that's ok
-}
-
-const filePathToSlugKey: Record<string, string> = (() => {
-  const inverted: Record<string, string> = {}
-  for (const [slugKey, filePath] of Object.entries(slugMap)) {
-    inverted[filePath.replace(/\.md$/i, "")] = slugKey
-  }
-  return inverted
-})()
-
 export interface SlugMapEntry {
   filePath: string
   slug: string
@@ -38,6 +22,24 @@ export interface SlugMapEntry {
   date?: string
   lastmod?: string
 }
+
+// Load at module initialization
+let slugMap: Record<string, SlugMapEntry> = {}
+try {
+  slugMap = JSON.parse(fs.readFileSync(SLUG_MAP_PATH, "utf-8"))
+} catch {
+  // File doesn't exist yet — that's ok
+}
+
+const filePathToSlugKey: Record<string, string> = (() => {
+  const inverted: Record<string, string> = {}
+  for (const [slugKey, entry] of Object.entries(slugMap)) {
+    if (entry?.filePath) {
+      inverted[entry.filePath.replace(/\.md$/i, "")] = slugKey
+    }
+  }
+  return inverted
+})()
 
 export interface ResolveResult {
   filePath: string | null
@@ -60,12 +62,15 @@ export function resolveSlug(slugPath: string): string | null {
 export function resolveSlugWithIndicator(slugPath: string): ResolveResult {
   // 1. Direct slug lookup
   if (slugMap[slugPath] !== undefined) {
-    return { filePath: slugMap[slugPath], isDirectFilePath: false }
+    return { filePath: slugMap[slugPath].filePath, isDirectFilePath: false }
   }
 
   // 2. Try with .md extension in slug map
   if (slugMap[`${slugPath}.md`] !== undefined) {
-    return { filePath: slugMap[`${slugPath}.md`], isDirectFilePath: false }
+    return {
+      filePath: slugMap[`${slugPath}.md`].filePath,
+      isDirectFilePath: false,
+    }
   }
 
   // 3. Raw file path fallback - URL decode first
@@ -90,4 +95,11 @@ export function resolveSlugWithIndicator(slugPath: string): ResolveResult {
  */
 export function getSlugForFilePath(filePath: string): string | null {
   return filePathToSlugKey[filePath.replace(/\.md$/i, "")] ?? null
+}
+
+/**
+ * Gets the slug map entry for a given slug path.
+ */
+export function getSlugMapEntry(slugPath: string): SlugMapEntry | null {
+  return slugMap[slugPath] ?? null
 }
