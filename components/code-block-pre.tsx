@@ -30,8 +30,8 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
     <LazyCodeBlock lang={lang} lineCount={lineCount}>
       <div
         className="
-          flex items-center justify-between border-b guide-line
-          bg-tech-main/10 px-4 py-1.5
+          flex items-center justify-between border-b guide-line bg-tech-main/10
+          px-4 py-1.5
         ">
         <div className="flex items-center gap-2">
           <span className="size-1.5 animate-pulse bg-tech-main/40" />
@@ -51,11 +51,17 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
             aria-label="Toggle line wrap"
             title="Toggle line wrap"
             onClick={() => setIsWrapped((v) => !v)}
-            className={`font-mono text-[10px] tracking-widest transition-colors ${
-              isWrapped
-                ? "text-tech-main"
-                : "text-tech-main/40 hover:text-tech-main/70"
-            }`}>
+            className={`
+              font-mono text-[10px] tracking-widest transition-colors
+              ${
+                isWrapped
+                  ? "text-tech-main"
+                  : `
+                    text-tech-main/40
+                    hover:text-tech-main/70
+                  `
+              }
+            `}>
             ↩
           </button>
           <span className="text-tech-main/50">|</span>
@@ -91,8 +97,15 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
               dir="ltr"
               className={
                 isWrapped
-                  ? "px-4 py-4 whitespace-pre-wrap [&_code]:!whitespace-pre-wrap [&_.line]:!whitespace-pre-wrap"
-                  : "px-4 py-4 whitespace-pre [&_code]:!whitespace-pre"
+                  ? `
+                    p-4 whitespace-pre-wrap
+                    [&_.line]:whitespace-pre-wrap!
+                    [&_code]:whitespace-pre-wrap!
+                  `
+                  : `
+                    p-4 whitespace-pre
+                    [&_code]:whitespace-pre!
+                  `
               }>
               {children}
             </div>
