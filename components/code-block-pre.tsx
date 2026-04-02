@@ -73,13 +73,13 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
             pointer-events-none absolute inset-x-0 top-3/4 h-px bg-tech-main/3
           "
         />
-        <div className="relative flex">
+        <div className="code-block-pre relative flex">
           {lineCountNum > 0 && (
             <div
               aria-hidden="true"
               className="
-                shrink-0 select-none border-r border-tech-main/20 bg-tech-bg
-                py-3 pr-3 pl-4 text-right font-mono text-sm leading-relaxed
+                line-numbers-col shrink-0 select-none border-r border-tech-main/20
+                bg-tech-bg py-3 pr-3 pl-4 text-right font-mono text-sm
                 text-tech-main/40
               "
               style={{
@@ -94,23 +94,15 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
           <div className="custom-bottom-scrollbar overflow-x-auto flex-1 px-4 sm:px-6">
             <div
               dir="ltr"
-              className={isWrapped ? "whitespace-pre-wrap" : "whitespace-pre"}>
+              className={
+                isWrapped
+                  ? "whitespace-pre-wrap [&_code]:!whitespace-pre-wrap"
+                  : "whitespace-pre [&_code]:!whitespace-pre"
+              }>
               {children}
             </div>
           </div>
         </div>
-      </div>
-      <div
-        className="
-          flex items-center justify-end border-t border-tech-main/10 px-4 py-1
-        ">
-        <span
-          className="
-            font-mono text-[9px] tracking-widest text-tech-main/50 uppercase
-            select-none
-          ">
-          {"//"} SYNTAX_HIGHLIGHT
-        </span>
       </div>
     </LazyCodeBlock>
   )
