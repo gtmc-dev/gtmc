@@ -53,15 +53,34 @@ export function useActiveHeading(
           }
         })
 
+        // Find the topmost heading in DOM order that is intersecting
         if (intersectingHeadings.size > 0) {
-          const activeId =
-            headingIds.find((id) => intersectingHeadings.has(id)) || null
-          if (activeId) {
-            lastActiveId = activeId
-            setActiveHeadingId(activeId)
+          for (const id of headingIds) {
+            if (intersectingHeadings.has(id)) {
+              lastActiveId = id
+              setActiveHeadingId(id)
+              break
+            }
           }
-        } else if (lastActiveId) {
-          setActiveHeadingId(lastActiveId)
+        } else {
+          // No heading intersecting - find the topmost heading above viewport
+          let topmost: string | null = null
+          let topmostY = -Infinity
+
+          headingElements.forEach((el, idx) => {
+            const rect = el.getBoundingClientRect()
+            if (rect.top <= 0 && rect.top > topmostY) {
+              topmostY = rect.top
+              topmost = headingIds[idx]
+            }
+          })
+
+          if (topmost) {
+            lastActiveId = topmost
+            setActiveHeadingId(topmost)
+          } else if (lastActiveId) {
+            setActiveHeadingId(lastActiveId)
+          }
         }
       },
       {
