@@ -26,7 +26,6 @@ export function useActiveHeading(
     const headingIds = toc.map((item) => item.id)
     const headingElements = headingIds
       .map((id) => {
-        // Escape special characters in CSS selector
         const escapedId = CSS.escape(id)
         return document.querySelector(`main h2#${escapedId}`)
       })
@@ -37,63 +36,30 @@ export function useActiveHeading(
       return
     }
 
-    const intersectingHeadings = new Set<string>()
-    let lastActiveId: string | null = headingIds[0] || null
+    setActiveHeadingId(headingIds[0] || null)
 
-    setActiveHeadingId(lastActiveId)
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target.id
-          if (entry.isIntersecting) {
-            intersectingHeadings.add(id)
-          } else {
-            intersectingHeadings.delete(id)
-          }
-        })
-
-        // Find the topmost heading in DOM order that is intersecting
-        if (intersectingHeadings.size > 0) {
-          for (const id of headingIds) {
-            if (intersectingHeadings.has(id)) {
-              lastActiveId = id
-              setActiveHeadingId(id)
-              break
-            }
-          }
+    const getActiveId = (): string | null => {
+      const threshold = window.innerHeight * 0.25
+      let activeId: string | null = headingIds[0] || null
+      for (let i = 0; i < headingElements.length; i++) {
+        const rect = headingElements[i].getBoundingClientRect()
+        if (rect.top <= threshold) {
+          activeId = headingIds[i]
         } else {
-          // No heading intersecting - find the topmost heading above viewport
-          let topmost: string | null = null
-          let topmostY = -Infinity
-
-          headingElements.forEach((el, idx) => {
-            const rect = el.getBoundingClientRect()
-            if (rect.top <= 0 && rect.top > topmostY) {
-              topmostY = rect.top
-              topmost = headingIds[idx]
-            }
-          })
-
-          if (topmost) {
-            lastActiveId = topmost
-            setActiveHeadingId(topmost)
-          } else if (lastActiveId) {
-            setActiveHeadingId(lastActiveId)
-          }
+          break
         }
-      },
-      {
-        rootMargin: "-20% 0px -70% 0px",
       }
-    )
+      return activeId
+    }
 
-    headingElements.forEach((el) => {
-      observer.observe(el)
-    })
+    const onScroll = () => {
+      setActiveHeadingId(getActiveId())
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true })
 
     return () => {
-      observer.disconnect()
+      window.removeEventListener("scroll", onScroll)
     }
   }, [toc])
 
