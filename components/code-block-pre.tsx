@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react"
 import { CodeCopyButton } from "@/components/code-copy-button"
 import { LazyCodeBlock } from "@/components/lazy-code-block"
+import { StatusDot } from "@/components/ui/status-dot"
 
 type CodeBlockPreProps = {
   children?: ReactNode
@@ -34,7 +35,7 @@ export function CodeBlockPre({ children, ...props }: CodeBlockPreProps) {
           px-4 py-1.5
         ">
         <div className="flex items-center gap-2">
-          <span className="size-1.5 animate-pulse bg-tech-main/40" />
+          <StatusDot size="sm" />
           <span className="text-xs tracking-widest text-tech-main uppercase">
             {lang}
           </span>

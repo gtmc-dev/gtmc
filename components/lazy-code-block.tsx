@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, type ReactNode } from "react"
+import { StatusDot } from "@/components/ui/status-dot"
 
 interface LazyCodeBlockProps {
   lang: string
@@ -115,7 +116,7 @@ export function LazyCodeBlock({ lineCount, children }: LazyCodeBlockProps) {
               bg-tech-main/10 px-4 py-1.5
             ">
             <div className="flex items-center gap-2">
-              <span className="size-1.5 animate-pulse bg-tech-main/40" />
+              <StatusDot size="sm" />
               <span className="h-2.5 w-12 bg-tech-accent/20" />
             </div>
             <div className="flex items-center gap-3">

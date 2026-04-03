@@ -3,6 +3,7 @@
 import * as React from "react"
 import { createPortal } from "react-dom"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
+import { StatusDot } from "@/components/ui/status-dot"
 
 interface MobileTreeCardProps {
   isOpen: boolean
@@ -76,10 +77,10 @@ export function MobileTreeCard({
           data-testid="mobile-tree-card-header">
           <div
             className="
-              flex items-center gap-2 font-mono text-xs font-bold
-              tracking-tech-wide text-tech-main/60 uppercase
-            ">
-            <span className="size-1.5 animate-pulse bg-tech-main/60" />
+               flex items-center gap-2 font-mono text-xs font-bold
+               tracking-tech-wide text-tech-main/60 uppercase
+             ">
+            <StatusDot size="sm" />
             SYS.DIR_TREE
           </div>
           <button

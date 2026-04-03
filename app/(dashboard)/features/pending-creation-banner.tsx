@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createFeature } from "@/actions/feature"
+import { StatusDot } from "@/components/ui/status-dot"
 
 const PENDING_FEATURE_CREATE_KEY = "pendingFeatureCreate.v1"
 
@@ -149,10 +150,10 @@ export function PendingCreationBanner() {
   return (
     <div
       className="
-        flex items-center gap-3 border border-tech-main/40 bg-white/60 px-4 py-3
-        font-mono text-sm backdrop-blur-sm
-      ">
-      <span className="inline-block size-2 animate-pulse bg-tech-accent" />
+         flex items-center gap-3 border border-tech-main/40 bg-white/60 px-4 py-3
+         font-mono text-sm backdrop-blur-sm
+       ">
+      <StatusDot variant="accent" />
       <span className="tracking-widest text-tech-main uppercase">
         CREATING_FEATURE_...
       </span>

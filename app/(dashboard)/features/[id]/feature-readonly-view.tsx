@@ -1,5 +1,6 @@
 import ReactMarkdown from "react-markdown"
 import { BrutalCard } from "@/components/ui/brutal-card"
+import { TagList } from "@/components/ui/tag-list"
 import { getMarkdownComponents, getPluginsForContent } from "@/lib/markdown"
 import { getCachedRehypeShiki } from "@/lib/markdown/plugins/rehype-shiki"
 import "katex/dist/katex.min.css"
@@ -35,16 +36,7 @@ export async function FeatureReadonlyView({
 
       {tags.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="
-                border border-tech-main bg-tech-accent/10 px-2 py-1 font-mono
-                text-xs text-tech-main uppercase
-              ">
-              {tag}
-            </span>
-          ))}
+          <TagList tags={tags} />
         </div>
       )}
 
@@ -54,13 +46,7 @@ export async function FeatureReadonlyView({
             flex flex-col overflow-hidden border border-tech-main/40 bg-white/50
             backdrop-blur-sm
           ">
-          <div
-            className="
-              border-b border-tech-main/40 bg-tech-main/10 px-4 py-2 font-mono
-              text-xs text-tech-main/80
-            ">
-            RENDERED_PREVIEW
-          </div>
+          <div className="editor-panel">RENDERED_PREVIEW</div>
 
           <div className="min-h-[200px]">
             {content?.trim() ? (

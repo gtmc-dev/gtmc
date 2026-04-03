@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import { addFeatureComment } from "@/actions/feature"
 import { BrutalButton } from "@/components/ui/brutal-button"
 import { BrutalCard } from "@/components/ui/brutal-card"
+import { FormField } from "@/components/ui/form-field"
 import { LoadingIndicator, PENDING_LABELS } from "../loading-indicator"
 
 interface Comment {
@@ -64,7 +65,8 @@ export function FeatureComments({
                 mb-2 flex items-center gap-2 border-b border-dashed
                 border-tech-main/30 pb-2 font-mono text-sm
               ">
-              <span className="
+              <span
+                className="
                 font-bold tracking-wider text-tech-main uppercase
               ">
                 {comment.author.name ||
@@ -98,27 +100,22 @@ export function FeatureComments({
           <form onSubmit={handleSubmit} className="mt-8">
             <BrutalCard
               className="
-                border border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
-              ">
-              <label
-                className="
-                  mb-4 inline-block border-b border-tech-main/40 pb-1 font-mono
-                  text-sm tracking-tech-wide text-tech-main uppercase
-                ">
-                LEAVE_A_REPLY_
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="
-                  min-h-25 w-full resize-y border border-tech-main/40
-                  bg-white/80 p-4 font-mono text-sm text-black
-                  placeholder-zinc-500 backdrop-blur-sm
-                  focus:border-tech-main/60 focus:ring-0 focus:outline-none
-                "
-                placeholder="ENTER COMMENT..."
-                disabled={isPending}
-              />
+                 border border-tech-main/40 bg-white/80 p-6 backdrop-blur-sm
+               ">
+              <FormField label="LEAVE_A_REPLY_">
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="
+                     min-h-25 w-full resize-y border border-tech-main/40
+                     bg-white/80 p-4 font-mono text-sm text-black
+                     placeholder-zinc-500 backdrop-blur-sm
+                     focus:border-tech-main/60 focus:ring-0 focus:outline-none
+                   "
+                  placeholder="ENTER COMMENT..."
+                  disabled={isPending}
+                />
+              </FormField>
               <div className="mt-4 flex justify-end">
                 <BrutalButton
                   type="submit"
@@ -137,9 +134,9 @@ export function FeatureComments({
         ) : (
           <div
             className="
-              mt-8 border border-tech-main/40 bg-white/40 py-4 text-center
-              font-mono text-sm text-tech-main/70
-            ">
+               mt-8 border border-tech-main/40 bg-white/40 py-4 text-center
+               font-mono text-sm text-tech-main/70
+             ">
             PLEASE_LOG_IN_TO_LEAVE_A_REPLY_
           </div>
         ))}

@@ -1,6 +1,7 @@
 "use client"
 
 import { CornerBrackets } from "@/components/ui/corner-brackets"
+import { StatusDot } from "@/components/ui/status-dot"
 
 interface ArticleMetadataSimpleProps {
   title: string
@@ -28,7 +29,7 @@ export function ArticleMetadataSimple({
         ">
         <div className="flex items-center justify-between text-tech-main/50">
           <span className="flex items-center gap-2">
-            <span className="size-2 animate-pulse bg-tech-main/50" />
+            <StatusDot />
             SYS.READ_STREAM | UTF-8
           </span>
           <span
