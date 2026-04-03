@@ -148,6 +148,7 @@ function buildTreeNode(
     isAppendix: boolean
     isPreface: boolean
     introTitle?: string
+    isAdvanced?: boolean
   } = {
     id: entry.isFolder ? entry.slug : entry.filePath.replace(/\.md$/i, ""),
     title: getNodeTitle(entry),
@@ -157,6 +158,7 @@ function buildTreeNode(
     isAppendix: entry.isAppendix,
     isPreface: entry.isPreface,
     introTitle: entry.introTitle,
+    isAdvanced: entry.isAdvanced,
     parentId: entry.parentSlug ?? null,
     children,
   }

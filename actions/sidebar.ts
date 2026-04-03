@@ -107,6 +107,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
         index: nodeWithMeta.index ?? -1,
         isAppendix: nodeWithMeta.isAppendix ?? false,
         isPreface: nodeWithMeta.isPreface ?? false,
+        isAdvanced: nodeWithMeta.isAdvanced ?? false,
         introTitle: nodeWithMeta.introTitle ?? "",
         children: [],
       }

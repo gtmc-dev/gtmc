@@ -47,6 +47,7 @@ interface ArticleMetadataProps {
   wordCount: number
   readingTime: number
   editPath: string
+  isAdvanced?: boolean
 }
 
 export function ArticleMetadata({
@@ -60,6 +61,7 @@ export function ArticleMetadata({
   wordCount,
   readingTime,
   editPath,
+  isAdvanced,
 }: ArticleMetadataProps) {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
