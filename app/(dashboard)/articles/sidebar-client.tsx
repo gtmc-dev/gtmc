@@ -67,6 +67,7 @@ export const SidebarClient = React.forwardRef<
 
   React.useEffect(() => {
     setIsFileExpanded(true)
+     
   }, [pathname])
 
   const toggleFileExp = (e: React.MouseEvent) => {
@@ -87,7 +88,7 @@ export const SidebarClient = React.forwardRef<
   const collapseAll = React.useCallback(() => {
     setExpandedFolders(new Set())
     setIsFileExpanded(false)
-  }, [setExpandedFolders, setIsFileExpanded])
+  }, [setExpandedFolders])
 
   const {
     activeItemRef,
