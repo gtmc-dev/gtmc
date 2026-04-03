@@ -38,7 +38,9 @@ export function useActiveHeading(
     }
 
     const intersectingHeadings = new Set<string>()
-    let lastActiveId: string | null = null
+    let lastActiveId: string | null = headingIds[0] || null
+
+    setActiveHeadingId(lastActiveId)
 
     const observer = new IntersectionObserver(
       (entries) => {
