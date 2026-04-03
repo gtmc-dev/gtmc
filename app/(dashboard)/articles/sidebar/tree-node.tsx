@@ -14,6 +14,7 @@ export function SidebarTree({
   effectivePath,
   isFileExpanded,
   toc,
+  activeHeadingId,
   isFolderExpanded,
   toggleFolder,
   toggleFileExp,
@@ -27,6 +28,7 @@ export function SidebarTree({
   effectivePath: string
   isFileExpanded: boolean
   toc: TocItem[]
+  activeHeadingId: string | null
   isFolderExpanded: (id: string) => boolean
   toggleFolder: (id: string, e: React.MouseEvent) => void
   toggleFileExp: (e: React.MouseEvent) => void
@@ -237,12 +239,11 @@ export function SidebarTree({
                           {toc.map((h2) => (
                             <li
                               key={h2.id}
-                              className="
-                                relative text-[13px] text-tech-main/70
-                                transition-colors
+                              className={`
+                                relative text-[13px] transition-colors
                                 before:absolute before:top-1/2 before:-left-4
                                 before:h-px before:w-2 before:-translate-y-1/2
-                                before:bg-tech-main/30 before:content-['']
+                                before:content-['']
                                 hover:text-tech-main
                                 md:text-sm
                                 ${h2.id === activeHeadingId
@@ -255,8 +256,8 @@ export function SidebarTree({
                                     before:bg-tech-main/30
                                   `
                                 }
-                              `}">
-                              <Link
+                              `}>
+                              < Link
                                 href={`#${h2.id}`}
                                 onClick={() => onNavigate?.()}
                                 className="block wrap-break-word">
@@ -268,7 +269,7 @@ export function SidebarTree({
                                   </span>
                                 )}
                                 {h2.text}
-                              </Link>
+                              </>
                             </li>
                           ))}
                         </ul>
@@ -276,43 +277,47 @@ export function SidebarTree({
                     </div>
                   )}
                 </div>
-              )}
+              )
+              }
 
-              {item.children && item.children.length > 0 && (
-                <div
-                  ref={(el) => {
-                    if (el) folderGridRefs.current.set(item.id, el)
-                    else folderGridRefs.current.delete(item.id)
-                  }}
-                  className={`
+              {
+                item.children && item.children.length > 0 && (
+                  <div
+                    ref={(el) => {
+                      if (el) folderGridRefs.current.set(item.id, el)
+                      else folderGridRefs.current.delete(item.id)
+                    }}
+                    className={`
                     grid transition-all duration-300 ease-out
                     ${!item.isFolder || folderExpanded
-                      ? `grid-rows-[1fr] opacity-100`
-                      : `grid-rows-[0fr] opacity-0`
-                    }
+                        ? `grid-rows-[1fr] opacity-100`
+                        : `grid-rows-[0fr] opacity-0`
+                      }
                   `}>
-                  <div className="overflow-hidden">
-                    <SidebarTree
-                      items={item.children}
-                      effectivePath={effectivePath}
-                      isFileExpanded={isFileExpanded}
-                      toc={toc}
-                      isFolderExpanded={isFolderExpanded}
-                      toggleFolder={toggleFolder}
-                      toggleFileExp={toggleFileExp}
-                      onNavigate={onNavigate}
-                      setIsFileExpanded={setIsFileExpanded}
-                      highlightActive={highlightActive}
-                      activeItemRef={activeItemRef}
-                      folderGridRefs={folderGridRefs}
-                    />
+                    <div className="overflow-hidden">
+                      <SidebarTree
+                        items={item.children}
+                        effectivePath={effectivePath}
+                        isFileExpanded={isFileExpanded}
+                        toc={toc}
+                        activeHeadingId={activeHeadingId}
+                        isFolderExpanded={isFolderExpanded}
+                        toggleFolder={toggleFolder}
+                        toggleFileExp={toggleFileExp}
+                        onNavigate={onNavigate}
+                        setIsFileExpanded={setIsFileExpanded}
+                        highlightActive={highlightActive}
+                        activeItemRef={activeItemRef}
+                        folderGridRefs={folderGridRefs}
+                      />
+                    </div>
                   </div>
-                </div>
-              )}
+                )
+              }
             </li>
-          </React.Fragment>
+          </React.Fragment >
         )
       })}
-    </ul>
+    </ul >
   )
 }
