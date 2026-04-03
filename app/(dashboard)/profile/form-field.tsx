@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn"
 
 interface FormFieldProps {
-  label: string
+  label: React.ReactNode
   htmlFor?: string
   children: React.ReactNode
   className?: string
