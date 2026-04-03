@@ -95,8 +95,8 @@ export function getMarkdownComponents(rawPath: string) {
       aria-hidden="true"
       className="
         mx-1 inline-block shrink-0 border border-violet-400/30 bg-violet-600/5
-        px-1.5 py-0.5 align-middle font-mono text-[10px] text-violet-400
-        uppercase
+        px-1.5 py-0.5 align-middle font-mono text-[10px] tracking-tight
+        text-violet-400 uppercase
       ">
       ◈ ADV
     </span>
@@ -386,7 +386,7 @@ export function getMarkdownComponents(rawPath: string) {
       if (dataAdvancedSection === "true") {
         return (
           <div
-            className="my-6 rounded-sm overflow-hidden border border-violet-200"
+            className="my-6 overflow-hidden rounded-sm border border-violet-200"
             {...rest}>
             <div className="
               flex items-center gap-2 bg-violet-600/50 px-4 py-1.5

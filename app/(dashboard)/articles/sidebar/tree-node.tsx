@@ -216,10 +216,11 @@ export function SidebarTree({
                       {item.isAdvanced && (
                         <span
                           className="
-                          mx-1 inline-block shrink-0 border border-violet-400/30
-                          bg-violet-600/5 px-1 align-middle font-mono
-                          text-[10px] tracking-widest text-violet-400 uppercase
-                        ">
+                            mx-1 inline-block shrink-0 border
+                            border-violet-400/30 bg-violet-600/5 px-1
+                            align-middle font-mono text-[10px] tracking-tight
+                            text-violet-400 uppercase
+                          ">
                           ◈ ADV
                         </span>
                       )}

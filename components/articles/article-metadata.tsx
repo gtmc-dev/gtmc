@@ -243,7 +243,7 @@ export function ArticleMetadata({
             {isAdvanced && (
               <span className="
                 mx-1 shrink-0 border border-violet-400/30 bg-violet-600/5 px-1.5
-                py-0.5 font-mono text-[10px] tracking-widest text-violet-400
+                py-0.5 font-mono text-[10px] tracking-tight text-violet-400
                 uppercase
               ">
                 ◈ ADV
