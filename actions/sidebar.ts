@@ -135,6 +135,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
         index: -1,
         isAppendix: false,
         isPreface: false,
+        isAdvanced: false,
         isFolder: dbItem.isFolder, // Make sure it defaults to false if missing
         parentId: dbItem.parentId,
         children: [],
@@ -294,6 +295,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
         isFolder: false,
         isAppendix: false,
         isPreface: false,
+        isAdvanced: false,
         isReadmeIntro: true,
         parentId: node.id,
         children: [],
