@@ -7,7 +7,7 @@ import { SidebarActions } from "./sidebar/actions"
 import { CreateDocModal } from "./sidebar/create-doc-modal"
 import { SidebarTree, type TreeNode } from "./sidebar/tree-node"
 import { useBlur } from "./sidebar/use-blur"
-import { SidebarProvider, useSidebarContext } from "./sidebar/sidebar-context"
+import { useSidebarContext } from "./sidebar/sidebar-context"
 import { useScrollToActive } from "./sidebar/use-scroll-to-active"
 
 export interface SidebarClientHandle {
@@ -41,7 +41,7 @@ export const SidebarClient = React.forwardRef<
   SidebarClientProps
 >(function SidebarClient(
   {
-    tree,
+    tree: _tree,
     onNavigate,
     internalScroll = false,
     scrollClass = "",
@@ -49,16 +49,16 @@ export const SidebarClient = React.forwardRef<
   },
   ref
 ) {
+  void _tree
+
   return (
-    <SidebarProvider tree={tree}>
-      <SidebarClientInner
-        onNavigate={onNavigate}
-        internalScroll={internalScroll}
-        scrollClass={scrollClass}
-        hideActions={hideActions}
-        ref={ref}
-      />
-    </SidebarProvider>
+    <SidebarClientInner
+      onNavigate={onNavigate}
+      internalScroll={internalScroll}
+      scrollClass={scrollClass}
+      hideActions={hideActions}
+      ref={ref}
+    />
   )
 })
 
