@@ -27,6 +27,7 @@ import {
   ARTICLES_REPO_OWNER,
   getOctokit,
 } from "@/lib/github/articles-repo"
+import { reconcileDraftAssetsForPRCompletion } from "@/lib/draft-asset-reconciler"
 import { prisma } from "@/lib/prisma"
 import type { RebaseState } from "@/types/rebase"
 
@@ -48,6 +49,17 @@ export async function mergePRAction(prNumber: number) {
       repo,
       pull_number: prNumber,
     })
+    try {
+      await reconcileDraftAssetsForPRCompletion({
+        prNumber,
+        outcome: "PR-merged",
+      })
+    } catch (reconcileError) {
+      console.error("Failed to reconcile draft assets after PR merge", {
+        prNumber,
+        reconcileError,
+      })
+    }
     revalidatePath("/draft")
     revalidatePath("/review")
     return { success: true }
@@ -72,6 +84,17 @@ export async function closePRAction(prNumber: number) {
       pull_number: prNumber,
       state: "closed",
     })
+    try {
+      await reconcileDraftAssetsForPRCompletion({
+        prNumber,
+        outcome: "PR-closed",
+      })
+    } catch (reconcileError) {
+      console.error("Failed to reconcile draft assets after PR close", {
+        prNumber,
+        reconcileError,
+      })
+    }
     revalidatePath("/draft")
     revalidatePath("/review")
     return { success: true }
