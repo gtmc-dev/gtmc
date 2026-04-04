@@ -792,11 +792,11 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
               flex items-center justify-between gap-3 border-b border-tech-main/30
               px-4 py-3
             ">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="font-mono text-xs tracking-widest text-tech-main uppercase">
                 FILES_[{draftCollection.files.length}]
               </p>
-              <p className="font-mono text-[11px] text-tech-main/60 uppercase">
+              <p className="truncate font-mono text-[11px] text-tech-main/60 uppercase" title="SAVE_AND_REVIEW_APPLY_TO_ALL_FILES">
                 SAVE_AND_REVIEW_APPLY_TO_ALL_FILES
               </p>
             </div>
@@ -805,7 +805,7 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
                 type="button"
                 variant="secondary"
                 size="sm"
-                className="shrink-0 whitespace-nowrap"
+                className="shrink-0"
                 onClick={handleAddFile}>
                 + ADD
               </BrutalButton>
@@ -820,7 +820,7 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
               const isActive = file.id === draftCollection.activeFileId
 
               return (
-                <div key={file.id} className="relative">
+                <div key={file.id} className="relative flex items-stretch">
                   <button
                     type="button"
                     onClick={() =>
@@ -830,7 +830,7 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
                       }))
                     }
                     className={`
-                      flex min-h-11 w-full flex-col items-start gap-1 border
+                      flex min-h-11 flex-1 min-w-0 flex-col items-start gap-1 border
                       px-3 py-2 text-left transition-colors
                       ${
                         isActive
@@ -841,10 +841,10 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
                           `
                       }
                     `}>
-                    <span className="truncate font-mono text-xs tracking-widest text-tech-main uppercase">
+                    <span className="w-full truncate font-mono text-xs tracking-widest text-tech-main uppercase">
                       {fileLabel}
                     </span>
-                    <span className="truncate font-mono text-[11px] text-tech-main/60">
+                    <span className="w-full truncate font-mono text-[11px] text-tech-main/60">
                       {file.filePath || "PATH_NOT_SET"}
                     </span>
                   </button>
@@ -853,13 +853,20 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
                     <button
                       type="button"
                       onClick={() => handleRemoveFile(file.id)}
-                      className="
-                        absolute top-2 right-2 flex min-h-8 min-w-8 cursor-pointer
-                        items-center justify-center border border-red-500/20
-                        bg-white/80 font-mono text-[10px] text-red-500 uppercase
-                        hover:border-red-500/40 hover:bg-red-500/10
-                      ">
-                      X
+                      title="Remove file"
+                      className={`
+                        flex min-w-[32px] shrink-0 items-center justify-center border-y border-r
+                        transition-colors
+                        ${
+                          isActive
+                            ? 'border-tech-main bg-tech-main/5 text-tech-main/60 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30'
+                            : 'border-tech-main/20 bg-white/50 text-tech-main/40 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/30'
+                        }
+                      `}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square" strokeLinejoin="miter">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
                     </button>
                   ) : null}
                 </div>
