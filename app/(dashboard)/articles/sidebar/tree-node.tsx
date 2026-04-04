@@ -186,40 +186,32 @@ export function SidebarTree({
                       <div className="overflow-hidden">
                         <ul
                           className="
-                            mt-1 mb-2 ml-1 space-y-2 border-l guide-line pl-4
+                            mt-2 mb-3 ml-3 flex flex-col border-l guide-line
                           ">
                           {toc.map((h2) => (
                             <li
                               key={h2.id}
                               className={`
-                                relative text-[13px] transition-colors
-                                before:absolute before:top-1/2 before:-left-4
-                                before:h-px before:w-2 before:-translate-y-1/2
-                                before:content-['']
-                                hover:text-tech-main
-                                md:text-sm
+                                -ml-px border-l py-1.5 pl-4 text-[13px] transition-all duration-200
+                                md:text-[13px]
                                 ${
                                   h2.id === activeHeadingId
-                                    ? `
-                                      font-semibold text-tech-main
-                                      before:bg-tech-main
-                                    `
-                                    : `
-                                      text-tech-main/70
-                                      before:bg-tech-main/30
-                                    `
+                                    ? "border-tech-main font-medium text-tech-main"
+                                    : "border-transparent text-tech-main/60 hover:border-tech-main/30 hover:text-tech-main"
                                 }
                               `}>
                               <Link
                                 href={`#${h2.id}`}
                                 onClick={() => onNavigate?.()}
-                                className="block wrap-break-word">
+                                className="block wrap-break-word leading-snug">
                                 {item.isAdvanced && (
-                                  <span className="mr-1 text-[8px] text-[#4c5b96]">
-                                    ●
+                                  <span className="mr-1.5 text-[6px] text-[#4c5b96] align-middle">
+                                    ■
                                   </span>
                                 )}
-                                {h2.text}
+                                <span className={h2.id === activeHeadingId ? "font-semibold" : "opacity-90"}>
+                                  {h2.text}
+                                </span>
                               </Link>
                             </li>
                           ))}
