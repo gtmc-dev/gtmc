@@ -2,9 +2,11 @@
 
 import * as React from "react"
 import dynamic from "next/dynamic"
+import { upload } from "@vercel/blob/client"
 import { useRouter } from "next/navigation"
 
 import { saveDraftAction, submitForReviewAction } from "@/actions/article"
+import { DraftFileSourceDialog } from "@/components/editor/draft-file-source-dialog"
 import {
   createDraftFile,
   getActiveDraftFile,
@@ -14,6 +16,13 @@ import {
   serializeDraftFilesPayload,
   type DraftFileCollection,
 } from "@/lib/draft-files"
+import { compressImageForUpload } from "@/lib/image-compression"
+import {
+  classifyFile,
+  isImageMime,
+  sanitizeFilename,
+  VERCEL_BODY_LIMIT_BYTES,
+} from "@/lib/file-upload"
 import { EditorToolbar } from "@/components/editor/editor-toolbar"
 import {
   LoadingIndicator,
@@ -50,6 +59,20 @@ interface DraftEditorProps {
   }
 }
 
+type BadgeType = "info" | "error" | "progress"
+
+interface PendingImageInsert {
+  altText: string
+  caption: string
+  fileId: string
+  filePath: string
+  filename: string
+  mimeType: string
+  placeholder: string
+  url: string
+  width: string
+}
+
 export function DraftEditor({ initialData }: DraftEditorProps) {
   const router = useRouter()
   const initialStatus = initialData?.status || "DRAFT"
@@ -68,11 +91,24 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
   const [revisionId, setRevisionId] = React.useState<string | undefined>(
     initialData?.id
   )
+  const [isAddFileDialogOpen, setIsAddFileDialogOpen] = React.useState(false)
   const [isSaving, setIsSaving] = React.useState(false)
   const [isSubmittingReview, setIsSubmittingReview] = React.useState(false)
+  const [isUploading, setIsUploading] = React.useState(false)
+  const [isCompressing, setIsCompressing] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState<"write" | "preview">("write")
+  const [badge, setBadge] = React.useState<{
+    message: string
+    type: BadgeType
+  } | null>(null)
+  const [pendingImageInsert, setPendingImageInsert] =
+    React.useState<PendingImageInsert | null>(null)
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const badgeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null
+  )
 
   const articleId = initialData?.articleId
   const githubPrUrl = initialData?.githubPrUrl
@@ -93,6 +129,40 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
   const activeFileIndex =
     draftCollection.files.findIndex((file) => file.id === activeFile.id) + 1
 
+  const showBadge = (
+    message: string,
+    type: BadgeType,
+    autoClearMs?: number
+  ) => {
+    if (badgeTimeoutRef.current) {
+      clearTimeout(badgeTimeoutRef.current)
+    }
+
+    setBadge({ message, type })
+
+    if (autoClearMs) {
+      badgeTimeoutRef.current = setTimeout(() => {
+        setBadge(null)
+      }, autoClearMs)
+    }
+  }
+
+  const clearBadge = () => {
+    if (badgeTimeoutRef.current) {
+      clearTimeout(badgeTimeoutRef.current)
+    }
+
+    setBadge(null)
+  }
+
+  React.useEffect(() => {
+    return () => {
+      if (badgeTimeoutRef.current) {
+        clearTimeout(badgeTimeoutRef.current)
+      }
+    }
+  }, [])
+
   const updateDraftCollection = (
     updater: (current: DraftFileCollection) => DraftFileCollection
   ) => {
@@ -101,14 +171,18 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
     )
   }
 
-  const updateActiveFile = (updates: {
-    content?: string
-    filePath?: string
-  }) => {
+  const updateFileById = (
+    fileId: string,
+    updates: {
+      content?: string
+      filePath?: string
+      conflictContent?: string | null
+    }
+  ) => {
     updateDraftCollection((current) => ({
       ...current,
       files: current.files.map((file) =>
-        file.id === current.activeFileId
+        file.id === fileId
           ? {
               ...file,
               ...(updates.content !== undefined
@@ -117,10 +191,63 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
               ...(updates.filePath !== undefined
                 ? { filePath: normalizeDraftFilePath(updates.filePath) }
                 : {}),
+              ...(updates.conflictContent !== undefined
+                ? { conflictContent: updates.conflictContent }
+                : {}),
             }
           : file
       ),
     }))
+  }
+
+  const updateActiveFile = (updates: {
+    content?: string
+    filePath?: string
+  }) => {
+    updateFileById(draftCollection.activeFileId, updates)
+  }
+
+  const replaceTextInFile = (
+    fileId: string,
+    searchValue: string,
+    nextValue: string
+  ) => {
+    updateDraftCollection((current) => ({
+      ...current,
+      files: current.files.map((file) =>
+        file.id === fileId
+          ? {
+              ...file,
+              content: file.content.replace(searchValue, nextValue),
+            }
+          : file
+      ),
+    }))
+  }
+
+  const insertTextAtCursor = (text: string) => {
+    if (!textareaRef.current) {
+      return
+    }
+
+    const start = textareaRef.current.selectionStart
+    const end = textareaRef.current.selectionEnd
+
+    updateActiveFile({
+      content:
+        activeFileContent.substring(0, start) +
+        text +
+        activeFileContent.substring(end),
+    })
+
+    setTimeout(() => {
+      if (textareaRef.current) {
+        const cursor = start + text.length
+        textareaRef.current.focus()
+        textareaRef.current.selectionStart = cursor
+        textareaRef.current.selectionEnd = cursor
+      }
+    }, 0)
   }
 
   const insertSyntax = (prefix: string, suffix: string = "") => {
@@ -145,6 +272,215 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
           start + prefix.length + selectedText.length
       }
     }, 0)
+  }
+
+  const uploadAsset = async (file: File) => {
+    if (isUploading || isReadOnly) {
+      return
+    }
+
+    const classification = classifyFile(file.type)
+    if (!classification) {
+      showBadge("FILE TYPE NOT ALLOWED_", "error", 4000)
+      return
+    }
+
+    if (file.size > classification.maxBytes) {
+      const maxMB = Math.round(classification.maxBytes / (1024 * 1024))
+      showBadge(`FILE TOO LARGE_ (max ${maxMB}MB)`, "error", 4000)
+      return
+    }
+
+    setIsUploading(true)
+
+    const uploadId = crypto.randomUUID()
+    const placeholder = `<!-- DRAFT_ASSET_PENDING_${uploadId} -->`
+    const uploadFileId = activeFile.id
+    insertTextAtCursor(`${placeholder}\n`)
+
+    try {
+      let resultUrl = ""
+      let resultFilename = ""
+      let resultMimeType = file.type
+      let resultFileSize = file.size
+
+      if (file.size < VERCEL_BODY_LIMIT_BYTES) {
+        if (isImageMime(file.type)) {
+          setIsCompressing(true)
+          showBadge("COMPRESSING_IMAGE...", "progress")
+
+          const compressed = await compressImageForUpload(file)
+          setIsCompressing(false)
+
+          if (compressed.error) {
+            throw new Error(compressed.error)
+          }
+
+          showBadge("UPLOADING_IMAGE...", "progress")
+
+          const formData = new FormData()
+          formData.append("file", compressed.file)
+
+          const response = await fetch("/api/upload/article", {
+            method: "POST",
+            body: formData,
+          })
+          const data = (await response.json()) as UploadResponse
+          if (!response.ok) {
+            throw new Error(data.error || "Upload failed")
+          }
+
+          resultUrl = data.url || ""
+          resultFilename = data.filename || compressed.file.name
+          resultMimeType = data.mimeType || compressed.file.type
+          resultFileSize = data.fileSize || compressed.file.size
+        } else {
+          showBadge("UPLOADING_FILE...", "progress")
+
+          const formData = new FormData()
+          formData.append("file", file)
+
+          const response = await fetch("/api/upload/article", {
+            method: "POST",
+            body: formData,
+          })
+          const data = (await response.json()) as UploadResponse
+          if (!response.ok) {
+            throw new Error(data.error || "Upload failed")
+          }
+
+          resultUrl = data.url || ""
+          resultFilename = data.filename || file.name
+          resultMimeType = data.mimeType || file.type
+          resultFileSize = data.fileSize || file.size
+        }
+      } else {
+        showBadge("UPLOADING_ 0%", "progress")
+
+        const blobResult = await upload(sanitizeFilename(file.name, file.type), file, {
+          access: "public",
+          handleUploadUrl: "/api/upload/article/token",
+          clientPayload: JSON.stringify({
+            mimeType: file.type,
+          }),
+          onUploadProgress: ({ percentage }) => {
+            showBadge(`UPLOADING_ ${Math.round(percentage)}%`, "progress")
+          },
+        })
+
+        showBadge("COMMITTING_TO_ARTICLES...", "progress")
+
+        const commitResponse = await fetch("/api/upload/article/commit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            blobUrl: blobResult.url,
+            filename: file.name,
+            mimeType: file.type,
+          }),
+        })
+        const commitData = (await commitResponse.json()) as UploadResponse
+        if (!commitResponse.ok) {
+          throw new Error(commitData.error || "Upload failed")
+        }
+
+        resultUrl = commitData.url || ""
+        resultFilename = commitData.filename || file.name
+        resultMimeType = commitData.mimeType || file.type
+        resultFileSize = commitData.fileSize || file.size
+      }
+
+      if (isImageMime(resultMimeType)) {
+        setPendingImageInsert({
+          altText: stripUploadPrefix(resultFilename),
+          caption: "",
+          fileId: uploadFileId,
+          filePath:
+            draftCollection.files.find((draftFile) => draftFile.id === uploadFileId)
+              ?.filePath || activeFile.filePath,
+          filename: resultFilename,
+          mimeType: resultMimeType,
+          placeholder,
+          url: resultUrl,
+          width: "",
+        })
+        showBadge("IMAGE_READY_FOR_INSERT_", "info", 4000)
+      } else {
+        replaceTextInFile(
+          uploadFileId,
+          `${placeholder}\n`,
+          `${buildAssetLink(resultFilename, resultUrl, resultFileSize)}\n`
+        )
+        clearBadge()
+      }
+    } catch (error) {
+      replaceTextInFile(uploadFileId, `${placeholder}\n`, "")
+      const message = error instanceof Error ? error.message : "Upload failed"
+      showBadge(`UPLOAD FAILED_ ${message}`, "error", 5000)
+    } finally {
+      setIsUploading(false)
+      setIsCompressing(false)
+    }
+  }
+
+  const finalizePendingImageInsert = () => {
+    if (!pendingImageInsert) {
+      return
+    }
+
+    const snippet = buildImageSnippet(pendingImageInsert)
+    replaceTextInFile(
+      pendingImageInsert.fileId,
+      `${pendingImageInsert.placeholder}\n`,
+      `${snippet}\n`
+    )
+    setPendingImageInsert(null)
+    clearBadge()
+  }
+
+  const cancelPendingImageInsert = () => {
+    if (!pendingImageInsert) {
+      return
+    }
+
+    replaceTextInFile(
+      pendingImageInsert.fileId,
+      `${pendingImageInsert.placeholder}\n`,
+      ""
+    )
+    setPendingImageInsert(null)
+    clearBadge()
+  }
+
+  const handlePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    if (isReadOnly || isUploading) {
+      return
+    }
+
+    const items = event.clipboardData.items
+    for (const item of Array.from(items)) {
+      if (item.type.includes("image")) {
+        event.preventDefault()
+        const file = item.getAsFile()
+        if (file) {
+          uploadAsset(file)
+        }
+        break
+      }
+    }
+  }
+
+  const handleDrop = (event: React.DragEvent<HTMLTextAreaElement>) => {
+    if (isReadOnly || isUploading) {
+      return
+    }
+
+    event.preventDefault()
+
+    if (event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0]
+      uploadAsset(file)
+    }
   }
 
   const handleSaveDraft = async (e: React.FormEvent) => {
@@ -219,15 +555,7 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
       return
     }
 
-    const lastSlashIndex = activeFile.filePath.lastIndexOf("/")
-    const suggestedPath =
-      lastSlashIndex >= 0 ? activeFile.filePath.slice(0, lastSlashIndex + 1) : ""
-    const nextFile = createDraftFile({ filePath: suggestedPath })
-
-    updateDraftCollection((current) => ({
-      activeFileId: nextFile.id,
-      files: [...current.files, nextFile],
-    }))
+    setIsAddFileDialogOpen(true)
   }
 
   const handleRemoveFile = (fileId: string) => {
@@ -249,6 +577,41 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
         files: remainingFiles,
       }
     })
+
+    if (pendingImageInsert?.fileId === fileId) {
+      setPendingImageInsert(null)
+    }
+  }
+
+  const handleCreateDraftFile = ({
+    content,
+    filePath,
+  }: {
+    content: string
+    filePath: string
+  }) => {
+    const normalizedPath = normalizeDraftFilePath(filePath)
+    const hasDuplicate = draftCollection.files.some(
+      (file) => normalizeDraftFilePath(file.filePath) === normalizedPath
+    )
+
+    if (hasDuplicate) {
+      alert("该文件已在当前草稿中存在 / File already exists in this draft")
+      return false
+    }
+
+    const nextFile = createDraftFile({
+      content,
+      filePath: normalizedPath,
+    })
+
+    updateDraftCollection((current) => ({
+      activeFileId: nextFile.id,
+      files: [...current.files, nextFile],
+    }))
+    setActiveTab("write")
+    setIsAddFileDialogOpen(false)
+    return true
   }
 
   const saveDisabled = isSaving || !title.trim()
@@ -328,6 +691,93 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
         </div>
       ) : null}
 
+      {pendingImageInsert ? (
+        <div className="border border-tech-main/30 bg-tech-main/5 p-4 backdrop-blur-sm">
+          <div className="flex flex-col gap-4 lg:flex-row">
+            <div className="flex w-full max-w-xs items-start justify-center border border-tech-main/20 bg-white p-3">
+              <img
+                src={pendingImageInsert.url}
+                alt={pendingImageInsert.altText || stripUploadPrefix(pendingImageInsert.filename)}
+                className="max-h-56 max-w-full object-contain"
+              />
+            </div>
+            <div className="flex-1 space-y-4">
+              <div>
+                <p className="font-mono text-sm tracking-widest text-tech-main uppercase">
+                  IMAGE_INSERT_EDITOR_
+                </p>
+                <p className="mt-1 font-mono text-xs text-tech-main/60 uppercase">
+                  Target file: {pendingImageInsert.filePath || "CURRENT_FILE"}
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="section-label" htmlFor="draft-image-alt">
+                    ALT_TEXT_
+                  </label>
+                  <BrutalInput
+                    id="draft-image-alt"
+                    value={pendingImageInsert.altText}
+                    onChange={(event) =>
+                      setPendingImageInsert((current) =>
+                        current
+                          ? { ...current, altText: event.target.value }
+                          : current
+                      )
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="section-label" htmlFor="draft-image-width">
+                    WIDTH_
+                  </label>
+                  <BrutalInput
+                    id="draft-image-width"
+                    placeholder="e.g. 640 or 80%"
+                    value={pendingImageInsert.width}
+                    onChange={(event) =>
+                      setPendingImageInsert((current) =>
+                        current
+                          ? { ...current, width: event.target.value }
+                          : current
+                      )
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="section-label" htmlFor="draft-image-caption">
+                  CAPTION_
+                </label>
+                <BrutalInput
+                  id="draft-image-caption"
+                  placeholder="Optional caption"
+                  value={pendingImageInsert.caption}
+                  onChange={(event) =>
+                    setPendingImageInsert((current) =>
+                      current
+                        ? { ...current, caption: event.target.value }
+                        : current
+                    )
+                  }
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <BrutalButton type="button" variant="primary" onClick={finalizePendingImageInsert}>
+                  INSERT IMAGE
+                </BrutalButton>
+                <BrutalButton type="button" variant="secondary" onClick={cancelPendingImageInsert}>
+                  REMOVE PLACEHOLDER
+                </BrutalButton>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <div
         className="
           grid gap-4
@@ -355,6 +805,7 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
                 type="button"
                 variant="secondary"
                 size="sm"
+                className="shrink-0 whitespace-nowrap"
                 onClick={handleAddFile}>
                 + ADD
               </BrutalButton>
@@ -547,8 +998,78 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
             </div>
 
             {activeTab === "write" && (
-              <EditorToolbar onInsert={insertSyntax} disabled={isReadOnly} />
+              <>
+                <EditorToolbar
+                  onInsert={insertSyntax}
+                  disabled={isReadOnly || isUploading}
+                  fileUploadSlot={
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isReadOnly || isUploading}
+                      className={`
+                        h-11 min-w-[44px] flex-1 border border-transparent px-3
+                        whitespace-nowrap transition-colors select-none
+                        hover:border-white/20 hover:bg-tech-accent/20
+                        sm:h-auto sm:min-w-0 sm:flex-none sm:py-1.5
+                        ${isReadOnly || isUploading ? "" : `cursor-pointer`}
+                      `}
+                      aria-busy={isUploading}>
+                      {isCompressing ? "CMP" : isUploading ? "UPL" : "ASSET"}
+                    </button>
+                  }
+                />
+
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/zip,text/plain,text/csv"
+                  className="hidden"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0]
+                    if (file) {
+                      uploadAsset(file)
+                      event.target.value = ""
+                    }
+                  }}
+                />
+              </>
             )}
+
+            {badge ? (
+              <div
+                className={`
+                  absolute top-4 right-4 z-20 flex items-center gap-2 border
+                  px-3 py-1.5 font-mono text-xs shadow-sm backdrop-blur-sm
+                  ${
+                    badge.type === "error"
+                      ? "border-red-400 bg-red-900 text-red-200"
+                      : `
+                        border-tech-accent bg-tech-main text-tech-accent
+                        shadow-tech-accent/20
+                      `
+                  }
+                `}
+                role="status"
+                aria-live="polite">
+                {badge.type === "progress" ? (
+                  <span className="inline-block size-2 animate-pulse bg-tech-accent" />
+                ) : null}
+                {badge.type === "error" ? (
+                  <span className="inline-block size-2 bg-red-400" />
+                ) : null}
+                {badge.message}
+                {badge.type !== "progress" ? (
+                  <button
+                    type="button"
+                    onClick={clearBadge}
+                    className="ml-2 text-current/80 hover:text-current"
+                    aria-label="Dismiss">
+                    X
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
 
             <section
               id="draft-editor-write-panel"
@@ -570,6 +1091,18 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
                   placeholder="ENTER CONTENT... (Use Markdown)"
                   value={activeFileContent}
                   onChange={(e) => updateActiveFile({ content: e.target.value })}
+                  onPaste={handlePaste}
+                  onDrop={handleDrop}
+                  onDragOver={(event) => {
+                    if (!isReadOnly) {
+                      event.preventDefault()
+                    }
+                  }}
+                  onDragEnter={(event) => {
+                    if (!isReadOnly) {
+                      event.preventDefault()
+                    }
+                  }}
                   readOnly={isReadOnly}
                   aria-busy={isSaving}
                 />
@@ -632,6 +1165,81 @@ export function DraftEditor({ initialData }: DraftEditorProps) {
           </BrutalButton>
         </div>
       )}
+
+      <DraftFileSourceDialog
+        isOpen={isAddFileDialogOpen}
+        initialFolderPath={getParentFolderPath(activeFile.filePath)}
+        onClose={() => setIsAddFileDialogOpen(false)}
+        onCreate={handleCreateDraftFile}
+      />
     </form>
   )
+}
+
+interface UploadResponse {
+  error?: string
+  fileSize?: number
+  filename?: string
+  mimeType?: string
+  url?: string
+}
+
+function buildAssetLink(filename: string, url: string, fileSize: number) {
+  const label = stripUploadPrefix(filename)
+  const sizeSuffix = fileSize > 0 ? ` (${formatFileSize(fileSize)})` : ""
+  return `[${label}${sizeSuffix}](${url})`
+}
+
+function buildImageSnippet(asset: PendingImageInsert) {
+  const altText = asset.altText.trim() || stripUploadPrefix(asset.filename)
+  const caption = asset.caption.trim()
+  const width = asset.width.trim()
+
+  if (!caption && !width) {
+    return `![${escapeMarkdownText(altText)}](${asset.url})`
+  }
+
+  const widthMarkup = width
+    ? /^\d+$/.test(width)
+      ? ` width="${width}"`
+      : ` style="width: ${escapeHtmlAttribute(width)};"`
+    : ""
+
+  return [
+    "<figure>",
+    `  <img src="${asset.url}" alt="${escapeHtmlAttribute(altText)}"${widthMarkup} />`,
+    ...(caption ? [`  <figcaption>${escapeHtmlText(caption)}</figcaption>`] : []),
+    "</figure>",
+  ].join("\n")
+}
+
+function stripUploadPrefix(filename: string) {
+  return filename.replace(/^\d+-/, "")
+}
+
+function getParentFolderPath(filePath: string) {
+  const normalized = normalizeDraftFilePath(filePath)
+  const lastSlashIndex = normalized.lastIndexOf("/")
+  return lastSlashIndex >= 0 ? normalized.slice(0, lastSlashIndex) : ""
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function escapeMarkdownText(value: string) {
+  return value.replace(/[\[\]]/g, "\\$&")
+}
+
+function escapeHtmlText(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+}
+
+function escapeHtmlAttribute(value: string) {
+  return escapeHtmlText(value).replace(/"/g, "&quot;")
 }
