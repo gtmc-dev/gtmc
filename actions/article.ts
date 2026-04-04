@@ -456,3 +456,68 @@ export async function deleteDraftAction(revisionId: string) {
   revalidatePath("/draft")
   return { success: true }
 }
+
+export async function retryCleanupAction(revisionId: string) {
+  const session = await requireAuth()
+
+  if (!revisionId) {
+    throw new Error("Revision ID is required")
+  }
+
+  const existing = await prisma.revision.findUnique({
+    where: { id: revisionId },
+    select: { authorId: true },
+  })
+
+  if (!existing) {
+    throw new Error("Revision not found")
+  }
+
+  if (existing.authorId !== session.user.id) {
+    throw new Error("Unauthorized")
+  }
+
+  const failedAssets = (await (prisma as any).draftAsset.findMany({
+    where: {
+      revisionId,
+      status: "cleanup-failed",
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      storagePath: true,
+    },
+  })) as Array<{ id: string; storagePath: string }>
+
+  let cleaned = 0
+  let failed = 0
+
+  for (const asset of failedAssets) {
+    try {
+      await deleteDraftAsset(asset.storagePath)
+      await (prisma as any).draftAsset.update({
+        where: { id: asset.id },
+        data: {
+          status: "deleted",
+          deletedAt: new Date(),
+        },
+      })
+      cleaned += 1
+    } catch (error) {
+      await (prisma as any).draftAsset.update({
+        where: { id: asset.id },
+        data: {
+          status: "cleanup-failed",
+          cleanupAttempts: { increment: 1 },
+          cleanupFailedAt: new Date(),
+          cleanupFailureReason:
+            error instanceof Error ? error.message : "Unknown error",
+        },
+      })
+      failed += 1
+    }
+  }
+
+  revalidatePath("/draft")
+  return { success: true, cleaned, failed }
+}

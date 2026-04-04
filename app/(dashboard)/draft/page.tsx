@@ -33,6 +33,25 @@ export default async function DraftDashboardPage() {
     },
   })
 
+  const cleanupFailedByRevisionId = new Map<string, number>()
+  if (allDraftsRaw.length > 0) {
+    const cleanupFailedCounts = (await (prisma as any).draftAsset.groupBy({
+      by: ["revisionId"],
+      where: {
+        revisionId: { in: allDraftsRaw.map((draft) => draft.id) },
+        status: "cleanup-failed",
+        deletedAt: null,
+      },
+      _count: {
+        _all: true,
+      },
+    })) as Array<{ revisionId: string; _count: { _all: number } }>
+
+    for (const row of cleanupFailedCounts) {
+      cleanupFailedByRevisionId.set(row.revisionId, row._count._all)
+    }
+  }
+
   const allDrafts = await Promise.all(
     allDraftsRaw.map(async (d) => {
       let displayStatus = d.status
@@ -58,6 +77,7 @@ export default async function DraftDashboardPage() {
       }
       return {
         ...d,
+        cleanupFailedCount: cleanupFailedByRevisionId.get(d.id) ?? 0,
         displayStatus,
         fileCount: decodedDraft.files.length,
         isClosed,
@@ -94,7 +114,14 @@ export default async function DraftDashboardPage() {
 
       <div className="relative z-10">
         <div className="card-header-row">
-          <DraftStatusBadge status={draft.displayStatus} />
+          <div className="flex items-center gap-2">
+            <DraftStatusBadge status={draft.displayStatus} />
+            {draft.cleanupFailedCount > 0 ? (
+              <span className="font-mono text-xs text-red-500 uppercase">
+                CLEANUP_FAILED_
+              </span>
+            ) : null}
+          </div>
           <div className="flex flex-col items-end gap-1">
             <span className="mono-label">
               {draft.updatedAt.toLocaleDateString()}
