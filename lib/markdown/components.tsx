@@ -389,22 +389,23 @@ export function getMarkdownComponents(rawPath: string) {
       if (dataAdvancedSection === "true") {
         return (
           <div
-            className="my-8 relative"
+            className="my-8 relative group"
             {...rest}>
             <div
               className="
-                absolute top-0 right-0 h-full w-8 bg-[#4c5b96]
-                flex items-start justify-center pt-6
+                absolute top-0 h-full w-[16px] bg-[#4c5b96]
+                left-[calc(100%+1.5rem+1px)] sm:left-[calc(100%+2rem+1px)]
+                flex items-start justify-center pt-6 rounded-r-md z-10
               ">
               <span
                 className="
-                  font-mono text-[13px] tracking-[0.3em] font-bold text-white
+                  font-mono text-[10px] leading-none tracking-[0.3em] font-bold text-white
                   [writing-mode:vertical-rl] select-none
                 ">
                 ADVANCED
               </span>
             </div>
-            <div className="pr-12">
+            <div className="w-full relative z-0">
               {children}
             </div>
           </div>
@@ -454,3 +455,5 @@ export function getMarkdownComponents(rawPath: string) {
     },
   } as Record<string, MarkdownComponent>
 }
+
+
