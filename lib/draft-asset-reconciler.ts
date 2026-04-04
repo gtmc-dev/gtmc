@@ -1,5 +1,11 @@
 import { deleteDraftAsset } from "@/lib/draft-storage"
 import { prisma } from "@/lib/prisma"
+import {
+  findTempDraftAssetsForRevision,
+  markDraftAssetCleanupFailed,
+  markDraftAssetDeleted,
+  markDraftAssetOutcome,
+} from "@/lib/draft-asset-db"
 
 export async function reconcileDraftAssetsForPRCompletion({
   prNumber,
@@ -25,51 +31,17 @@ export async function reconcileDraftAssetsForPRCompletion({
   })
 
   const tempPrefix = process.env.DRAFT_STORAGE_TEMP_PREFIX ?? "draft-temp"
-  const assets = await (prisma as any).draftAsset.findMany({
-    where: {
-      revisionId: revision.id,
-      deletedAt: null,
-      status: { not: "deleted" },
-      storagePath: { startsWith: tempPrefix },
-    },
-    select: {
-      id: true,
-      storagePath: true,
-    },
-  })
+  const assets = await findTempDraftAssetsForRevision(revision.id, tempPrefix)
 
   for (const asset of assets) {
-    await (prisma as any).draftAsset.updateMany({
-      where: {
-        id: asset.id,
-        deletedAt: null,
-        status: { not: "deleted" },
-      },
-      data: {
-        status: outcome,
-      },
-    })
+    await markDraftAssetOutcome(asset.id, outcome)
 
     try {
       await deleteDraftAsset(asset.storagePath)
-      await (prisma as any).draftAsset.updateMany({
-        where: { id: asset.id },
-        data: {
-          status: "deleted",
-          deletedAt: new Date(),
-        },
-      })
+      await markDraftAssetDeleted(asset.id)
     } catch (error) {
       const reason = error instanceof Error ? error.message : String(error)
-      await (prisma as any).draftAsset.updateMany({
-        where: { id: asset.id },
-        data: {
-          status: "cleanup-failed",
-          cleanupAttempts: { increment: 1 },
-          cleanupFailedAt: new Date(),
-          cleanupFailureReason: `[${outcome}] ${reason}`,
-        },
-      })
+      await markDraftAssetCleanupFailed(asset.id, `[${outcome}] ${reason}`)
     }
   }
 }

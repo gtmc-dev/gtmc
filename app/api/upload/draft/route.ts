@@ -2,6 +2,7 @@ import { createHash } from "crypto"
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { createDraftAsset } from "@/lib/draft-asset-db"
 import {
   DraftStorageConfigError,
   computeDraftStoragePath,
@@ -77,17 +78,14 @@ export async function POST(req: NextRequest) {
     const { publicUrl } = await uploadDraftAsset(storagePath, buffer, file.type)
 
     try {
-      const asset = await (prisma as any).draftAsset.create({
-        data: {
-          revisionId,
-          storagePath,
-          mimeType: file.type,
-          fileSize: buffer.length,
-          filename,
-          status: "uploaded",
-          contentHash,
-        },
-        select: { id: true },
+      const asset = await createDraftAsset({
+        revisionId,
+        storagePath,
+        mimeType: file.type,
+        fileSize: buffer.length,
+        filename,
+        status: "uploaded",
+        contentHash,
       })
 
       return NextResponse.json({

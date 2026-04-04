@@ -13,6 +13,7 @@ import { DraftStatusBadge } from "@/components/ui/status-badge"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
 import { SectionTitle } from "@/components/ui/section-title"
 import { decodeStoredDraftFiles } from "@/lib/draft-files"
+import { countCleanupFailedByRevision } from "@/lib/draft-asset-db"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -35,20 +36,11 @@ export default async function DraftDashboardPage() {
 
   const cleanupFailedByRevisionId = new Map<string, number>()
   if (allDraftsRaw.length > 0) {
-    const cleanupFailedCounts = (await (prisma as any).draftAsset.groupBy({
-      by: ["revisionId"],
-      where: {
-        revisionId: { in: allDraftsRaw.map((draft) => draft.id) },
-        status: "cleanup-failed",
-        deletedAt: null,
-      },
-      _count: {
-        _all: true,
-      },
-    })) as Array<{ revisionId: string; _count: { _all: number } }>
-
-    for (const row of cleanupFailedCounts) {
-      cleanupFailedByRevisionId.set(row.revisionId, row._count._all)
+    const counts = await countCleanupFailedByRevision(
+      allDraftsRaw.map((draft) => draft.id)
+    )
+    for (const [revisionId, count] of counts) {
+      cleanupFailedByRevisionId.set(revisionId, count)
     }
   }
 

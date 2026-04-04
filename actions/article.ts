@@ -1,6 +1,5 @@
 "use server"
 
-import type { Prisma } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
 import { revalidatePaths } from "@/lib/revalidation"
@@ -28,14 +27,23 @@ import { deleteDraftAsset, downloadDraftAsset } from "@/lib/draft-storage"
 import { requireAuth } from "@/lib/auth-helpers"
 import { getGitHubWriteToken } from "@/lib/github/articles-repo"
 import { prisma } from "@/lib/prisma"
+import {
+  findDraftAssetsByRevision,
+  findDraftAssetsByRevisionForSubmit,
+  findFailedDraftAssets,
+  markDraftAssetCleanupFailed,
+  markDraftAssetDeleted,
+  markDraftAssetMigrated,
+  markDraftAssetOrphaned,
+  markDraftAssetReferenced,
+} from "@/lib/draft-asset-db"
 
 const EDITABLE_STATUSES = new Set(["DRAFT"])
 const UPLOAD_PLACEHOLDER_RE = /<!--\s*UPLOAD_PENDING_[a-f0-9-]+\s*-->/i
 
 async function reconcileDraftAssetReferences(
   revisionId: string,
-  files: DraftFileRecord[],
-  db: typeof prisma | Prisma.TransactionClient
+  files: DraftFileRecord[]
 ) {
   const tempPrefix = process.env.DRAFT_STORAGE_TEMP_PREFIX ?? "draft-temp"
   const referencedStoragePaths = new Set<string>()
@@ -47,33 +55,8 @@ async function reconcileDraftAssetReferences(
     }
   }
 
-  if (referencedStoragePaths.size > 0) {
-    await (db as any).draftAsset.updateMany({
-      where: {
-        revisionId,
-        deletedAt: null,
-        storagePath: { in: [...referencedStoragePaths] },
-        status: { in: ["uploaded", "orphaned", "referenced"] },
-      },
-      data: {
-        status: "referenced",
-      },
-    })
-  }
-
-  await (db as any).draftAsset.updateMany({
-    where: {
-      revisionId,
-      deletedAt: null,
-      ...(referencedStoragePaths.size > 0
-        ? { storagePath: { notIn: [...referencedStoragePaths] } }
-        : {}),
-      status: { in: ["uploaded", "referenced", "orphaned"] },
-    },
-    data: {
-      status: "orphaned",
-    },
-  })
+  await markDraftAssetReferenced(revisionId, [...referencedStoragePaths])
+  await markDraftAssetOrphaned(revisionId, [...referencedStoragePaths])
 }
 
 export async function saveDraftAction(formData: FormData) {
@@ -140,14 +123,10 @@ export async function saveDraftAction(formData: FormData) {
       },
     })
 
-    await reconcileDraftAssetReferences(
-      savedRevision.id,
-      draftFiles.files,
-      prisma
-    )
+    await reconcileDraftAssetReferences(savedRevision.id, draftFiles.files)
   } else {
     const baseMainSha = await getMainBranchHeadSha(token)
-    const createData: Prisma.RevisionCreateInput = {
+    const createData: Parameters<typeof prisma.revision.create>[0]["data"] = {
       baseMainSha,
       content: nextDraftStorage.content,
       ...(nextDraftStorage.conflictContent
@@ -168,11 +147,7 @@ export async function saveDraftAction(formData: FormData) {
       data: createData,
     })
 
-    await reconcileDraftAssetReferences(
-      savedRevision.id,
-      draftFiles.files,
-      prisma
-    )
+    await reconcileDraftAssetReferences(savedRevision.id, draftFiles.files)
   }
 
   revalidatePath("/draft")
@@ -276,11 +251,7 @@ export async function submitForReviewAction(revisionId: string) {
       )
     }
 
-    await reconcileDraftAssetReferences(
-      revisionId,
-      storedDraftFiles.files,
-      prisma
-    )
+    await reconcileDraftAssetReferences(revisionId, storedDraftFiles.files)
 
     const token = getGitHubWriteToken(existing.author.githubPat)
     const authorName = session.user.name || "GTMC Author"
@@ -324,22 +295,7 @@ export async function submitForReviewAction(revisionId: string) {
     }
 
     if (referencedStoragePaths.size > 0) {
-      const draftAssets = (await (prisma as any).draftAsset.findMany({
-        where: { revisionId },
-        select: {
-          id: true,
-          storagePath: true,
-          filename: true,
-          contentHash: true,
-          mimeType: true,
-        },
-      })) as Array<{
-        id: string
-        storagePath: string
-        filename: string
-        contentHash: string | null
-        mimeType: string
-      }>
+      const draftAssets = await findDraftAssetsByRevisionForSubmit(revisionId)
       const draftAssetByStoragePath = new Map(
         draftAssets.map((asset) => [asset.storagePath, asset])
       )
@@ -498,40 +454,34 @@ export async function submitForReviewAction(revisionId: string) {
       files: result.files,
     })
 
-    await prisma.$transaction(async (tx) => {
-      if (migratedAssetsById.size > 0) {
-        const migratedAt = new Date()
-
-        await Promise.all(
-          [...migratedAssetsById.values()].map((target) =>
-            (tx as any).draftAsset.update({
-              where: { id: target.assetId },
-              data: {
-                status: "migrated-to-repo",
-                migratedRepoPath: target.repoPath,
-                githubPrNum: result.prNumber,
-                migratedAt,
-              },
-            })
+    if (migratedAssetsById.size > 0) {
+      const migratedAt = new Date()
+      await Promise.all(
+        [...migratedAssetsById.values()].map((target) =>
+          markDraftAssetMigrated(
+            target.assetId,
+            target.repoPath,
+            result.prNumber,
+            migratedAt
           )
         )
-      }
+      )
+    }
 
-      await tx.revision.update({
-        where: { id: revisionId },
-        data: {
-          baseMainSha,
-          conflictContent: syncedDraftStorage.conflictContent,
-          content: syncedDraftStorage.content,
-          filePath: syncedDraftStorage.filePath,
-          githubPrNum: result.prNumber,
-          githubPrUrl: result.prUrl,
-          prBranchName: result.branchName,
-          status: result.status,
-          submittedAt: new Date(),
-          syncedMainSha: result.syncedMainSha,
-        },
-      })
+    await prisma.revision.update({
+      where: { id: revisionId },
+      data: {
+        baseMainSha,
+        conflictContent: syncedDraftStorage.conflictContent,
+        content: syncedDraftStorage.content,
+        filePath: syncedDraftStorage.filePath,
+        githubPrNum: result.prNumber,
+        githubPrUrl: result.prUrl,
+        prBranchName: result.branchName,
+        status: result.status,
+        submittedAt: new Date(),
+        syncedMainSha: result.syncedMainSha,
+      },
     })
 
     revalidatePaths(["/draft", "/review"])
@@ -576,28 +526,17 @@ export async function deleteDraftAction(revisionId: string) {
     throw new Error("Cannot delete a draft after a PR has been opened")
   }
 
-  const draftAssets = await (prisma as any).draftAsset.findMany({
-    where: { revisionId },
-  })
+  const draftAssets = await findDraftAssetsByRevision(revisionId)
 
   for (const asset of draftAssets) {
     try {
       await deleteDraftAsset(asset.storagePath)
-      await (prisma as any).draftAsset.update({
-        where: { id: asset.id },
-        data: { status: "deleted", deletedAt: new Date() },
-      })
+      await markDraftAssetDeleted(asset.id)
     } catch (error) {
-      await (prisma as any).draftAsset.update({
-        where: { id: asset.id },
-        data: {
-          status: "cleanup-failed",
-          cleanupAttempts: { increment: 1 },
-          cleanupFailedAt: new Date(),
-          cleanupFailureReason:
-            error instanceof Error ? error.message : "Unknown error",
-        },
-      })
+      await markDraftAssetCleanupFailed(
+        asset.id,
+        error instanceof Error ? error.message : "Unknown error"
+      )
     }
   }
 
@@ -629,17 +568,7 @@ export async function retryCleanupAction(revisionId: string) {
     throw new Error("Unauthorized")
   }
 
-  const failedAssets = (await (prisma as any).draftAsset.findMany({
-    where: {
-      revisionId,
-      status: "cleanup-failed",
-      deletedAt: null,
-    },
-    select: {
-      id: true,
-      storagePath: true,
-    },
-  })) as Array<{ id: string; storagePath: string }>
+  const failedAssets = await findFailedDraftAssets(revisionId)
 
   let cleaned = 0
   let failed = 0
@@ -647,25 +576,13 @@ export async function retryCleanupAction(revisionId: string) {
   for (const asset of failedAssets) {
     try {
       await deleteDraftAsset(asset.storagePath)
-      await (prisma as any).draftAsset.update({
-        where: { id: asset.id },
-        data: {
-          status: "deleted",
-          deletedAt: new Date(),
-        },
-      })
+      await markDraftAssetDeleted(asset.id)
       cleaned += 1
     } catch (error) {
-      await (prisma as any).draftAsset.update({
-        where: { id: asset.id },
-        data: {
-          status: "cleanup-failed",
-          cleanupAttempts: { increment: 1 },
-          cleanupFailedAt: new Date(),
-          cleanupFailureReason:
-            error instanceof Error ? error.message : "Unknown error",
-        },
-      })
+      await markDraftAssetCleanupFailed(
+        asset.id,
+        error instanceof Error ? error.message : "Unknown error"
+      )
       failed += 1
     }
   }
