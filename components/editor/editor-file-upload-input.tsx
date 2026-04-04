@@ -3,7 +3,7 @@
 import * as React from "react"
 
 interface EditorFileUploadInputProps {
-  fileInputRef: React.RefObject<HTMLInputElement>
+  fileInputRef: React.RefObject<HTMLInputElement | null>
   onFileSelect: (file: File) => void
   isUploading: boolean
   isCompressing: boolean
