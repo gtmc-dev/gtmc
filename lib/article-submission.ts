@@ -23,6 +23,12 @@ interface FileSnapshot {
   sha?: string
 }
 
+export type BranchFileEntry = {
+  path: string
+  content: string | Buffer
+  encoding?: "utf-8" | "base64"
+}
+
 interface DraftSubmissionInput {
   activeFileId?: string
   draftId: string
@@ -125,7 +131,9 @@ export async function openDraftPullRequest({
     activeFileId,
     files: resolvedDraftFiles,
   })
-  const duplicateResolvedPaths = getDuplicateDraftFilePaths(normalizedFiles.files)
+  const duplicateResolvedPaths = getDuplicateDraftFilePaths(
+    normalizedFiles.files
+  )
   if (duplicateResolvedPaths.length > 0) {
     throw new Error(
       `Duplicate resolved file paths are not allowed: ${duplicateResolvedPaths.join(", ")}`
@@ -192,7 +200,11 @@ export async function openDraftPullRequest({
   const mergedFiles: DraftFileRecord[] = []
 
   for (const file of normalizedFiles.files) {
-    const baseSnapshot = await getFileSnapshot(file.filePath, baseMainSha, token)
+    const baseSnapshot = await getFileSnapshot(
+      file.filePath,
+      baseMainSha,
+      token
+    )
     const latestSnapshot = await getFileSnapshot(
       file.filePath,
       latestMainSha,
@@ -322,7 +334,9 @@ export async function resolveDraftSyncConflict({
       activeFileId: normalizedFiles.activeFileId,
       files: nextFiles,
     })
-    const duplicateResolvedPaths = getDuplicateDraftFilePaths(resolvedFiles.files)
+    const duplicateResolvedPaths = getDuplicateDraftFilePaths(
+      resolvedFiles.files
+    )
     if (duplicateResolvedPaths.length > 0) {
       throw new Error(
         `Duplicate resolved file paths are not allowed: ${duplicateResolvedPaths.join(", ")}`
@@ -471,5 +485,77 @@ export async function upsertFileOnBranch({
     branch: branchName,
     sha: snapshot?.sha,
     author: { name: authorName, email: authorEmail },
+  })
+}
+
+export async function upsertFilesOnBranch(
+  token: string,
+  entries: BranchFileEntry[],
+  branchName: string
+): Promise<void> {
+  if (entries.length === 0) {
+    return
+  }
+
+  const octokit = getOctokit(token)
+  const { data: refData } = await octokit.git.getRef({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    ref: `heads/${branchName}`,
+  })
+  const latestCommitSha = refData.object.sha
+
+  const { data: commitData } = await octokit.git.getCommit({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    commit_sha: latestCommitSha,
+  })
+  const currentTreeSha = commitData.tree.sha
+
+  const blobEntries = await Promise.all(
+    entries.map(async (entry) => {
+      const usesBase64 =
+        Buffer.isBuffer(entry.content) || entry.encoding === "base64"
+      const blobEncoding: "utf-8" | "base64" = usesBase64 ? "base64" : "utf-8"
+      const blobContent = Buffer.isBuffer(entry.content)
+        ? entry.content.toString("base64")
+        : entry.content
+
+      const { data: blobData } = await octokit.git.createBlob({
+        owner: ARTICLES_REPO_OWNER,
+        repo: ARTICLES_REPO_NAME,
+        content: blobContent,
+        encoding: blobEncoding,
+      })
+
+      return {
+        path: entry.path,
+        mode: "100644" as const,
+        type: "blob" as const,
+        sha: blobData.sha,
+      }
+    })
+  )
+
+  const { data: treeData } = await octokit.git.createTree({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    base_tree: currentTreeSha,
+    tree: blobEntries,
+  })
+
+  const { data: createdCommit } = await octokit.git.createCommit({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    message: `docs: update ${entries.length} draft file${entries.length === 1 ? "" : "s"}`,
+    tree: treeData.sha,
+    parents: [latestCommitSha],
+  })
+
+  await octokit.git.updateRef({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    ref: `heads/${branchName}`,
+    sha: createdCommit.sha,
   })
 }
