@@ -53,7 +53,7 @@ const getCachedTranslations = unstable_cache(
  * 获取树状结构的目录树 (Sidebar)
  * Tree is built from the GitHub repository, merged with DB articles.
  */
-export async function getSidebarTree(): Promise<TreeNode[]> {
+export {}
   // 1. Get DB article entries (always fresh)
   // const allItems = await prisma.article.findMany({
     select: {
