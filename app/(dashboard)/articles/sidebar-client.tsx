@@ -147,7 +147,7 @@ const SidebarClientInner = React.forwardRef<
   return (
     <>
       {internalScroll ? (
-        <div className="relative flex min-h-0 flex-1 flex-col">
+        <div className="relative flex h-full min-h-0 flex-1 flex-col">
           {!hideActions && (
             <SidebarActions
               internalScroll={internalScroll}

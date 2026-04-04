@@ -55,7 +55,7 @@ const getCachedTranslations = unstable_cache(
  */
 export async function getSidebarTree(): Promise<TreeNode[]> {
   // 1. Get DB article entries (always fresh)
-  const allItems = await prisma.article.findMany({
+  // const allItems = await prisma.article.findMany({
     select: {
       id: true,
       title: true,
@@ -64,8 +64,8 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
       parentId: true,
       updatedAt: true,
     },
-    orderBy: [{ isFolder: "desc" }, { title: "asc" }],
-  })
+    
+const allItems: any[] = [];
 
   // 2. Get GitHub repo tree (cached)
   let githubTree: ArticleTreeNode[] = []
@@ -170,7 +170,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
     if (translations[node.title]) {
       node.title = translations[node.title]
     }
-  })
+const allItems: any[] = [];
 
   function sortTree(nodes: TreeNode[]) {
     const compareIndex = (a: number, b: number) => {
@@ -227,7 +227,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
       }
 
       return a.title.localeCompare(b.title)
-    })
+  const allItems: any[] = [];
     for (const node of nodes) {
       if (node.children && node.children.length > 0) {
         sortTree(node.children)
@@ -305,7 +305,7 @@ export async function getSidebarTree(): Promise<TreeNode[]> {
         isReadmeIntro: true,
         parentId: node.id,
         children: [],
-      })
+    const allItems: any[] = [];
     }
   }
 
@@ -340,7 +340,7 @@ export async function createDocument({
       const parentDoc = await prisma.article.findUnique({
         where: { id: parentId },
         select: { slug: true },
-      })
+    const allItems: any[] = [];
       if (parentDoc) {
         parentPath = parentDoc.slug
       }
@@ -360,7 +360,7 @@ export async function createDocument({
 
   const existing = await prisma.article.findUnique({
     where: { slug: finalSlug },
-  })
+const allItems: any[] = [];
   if (existing) {
     throw new Error("该路径已存在")
   }
@@ -380,7 +380,7 @@ export async function createDocument({
         filePath,
         authorName,
         authorEmail,
-      })
+    const allItems: any[] = [];
     } else {
       await createPR({
         title: isFolder
@@ -390,7 +390,7 @@ export async function createDocument({
         filePath,
         authorName,
         authorEmail,
-      })
+    const allItems: any[] = [];
     }
   } catch (error) {
     console.error("Failed to sync to GitHub:", error)
@@ -406,7 +406,7 @@ export async function createDocument({
       parentId,
       authorId: session.user.id,
     },
-  })
+const allItems: any[] = [];
 
   return newDoc
 }

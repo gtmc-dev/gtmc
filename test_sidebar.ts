@@ -1,0 +1,1 @@
+﻿import { getArticleTree } from './lib/article-loader'; import { isAppendixDirectoryName } from './actions/sidebar'; async function run() { const t = await getArticleTree(); console.log(JSON.stringify(t.find(n => n.title==='加载票')?.children, null, 2)); console.log(JSON.stringify(t.find(n => n.title==='附录')?.children, null, 2)); } run();

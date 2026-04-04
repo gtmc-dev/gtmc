@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { SidebarClient } from "./sidebar-client"
+import { SidebarProvider } from "./sidebar/sidebar-context"
 import {
   ScanConfirmOverlay,
   SectionRail,
@@ -99,14 +101,61 @@ function TreeLoadingPlaceholder() {
   )
 }
 
-export function ArticlesLayoutClient({ children }: ArticlesLayoutProps) {
-  <main
-    className="
-      relative my-6 w-full flex-1
-      md:max-w-2xl
-      xl:max-w-3xl
-      [1920px]:w-5xl
-    ">
-    {children}
-  </main>
+export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
+
+  return (
+    <SidebarProvider tree={tree}>
+      <div className="
+        mx-auto flex w-full max-w-7xl items-start justify-center gap-6 px-4
+        sm:px-6
+        lg:px-8
+      ">
+        <aside
+          className={`
+            sticky top-[80px] hidden h-[calc(100vh-100px)] shrink-0
+            transition-all duration-300 ease-in-out
+            md:block
+            ${isSidebarOpen ? "w-[280px] opacity-100" : `
+              w-0 overflow-hidden opacity-0
+            `}
+          `}>
+          <div className="flex h-full w-[280px] flex-col">
+            <SidebarClient tree={tree} internalScroll scrollClass="h-full" />
+          </div>
+        </aside>
+
+        <main
+          className={`
+            relative my-6 w-full flex-1 transition-all duration-300 ease-in-out
+            ${isSidebarOpen ? `
+              max-w-3xl
+              lg:max-w-4xl
+            ` : `
+              max-w-4xl
+              lg:max-w-5xl
+              xl:max-w-6xl
+            `}
+          `}>
+          <div className="mb-4 flex items-center justify-between">
+            <button
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
+              className="
+                group flex items-center gap-2 border border-tech-main/40
+                bg-tech-main/5 px-3 py-1.5 font-mono text-[10px] text-tech-main
+                transition-colors
+                hover:bg-tech-main hover:text-white
+              "
+              title={isSidebarOpen ? "Hide Sidebar" : "Show Sidebar"}>
+              <span className="inline-block w-4 text-center">
+                {isSidebarOpen ? "◀" : "▶"}
+              </span>
+              SYS.TOGGLE_SIDEBAR
+            </button>
+          </div>
+          {children}
+        </main>
+      </div>
+    </SidebarProvider>
+  )
 }
