@@ -8,6 +8,14 @@ import {
   getMainBranchHeadSha,
   openDraftPullRequest,
 } from "@/lib/article-submission"
+import {
+  createDraftFile,
+  decodeStoredDraftFiles,
+  deserializeDraftFilesPayload,
+  getDuplicateDraftFilePaths,
+  normalizeDraftFileCollection,
+  serializeDraftFilesForStorage,
+} from "@/lib/draft-files"
 import { requireAuth } from "@/lib/auth-helpers"
 import { formatErrorMessage } from "@/lib/error-handling"
 import { getGitHubWriteToken } from "@/lib/github/articles-repo"
@@ -25,13 +33,29 @@ export async function saveDraftAction(formData: FormData) {
   const revisionId = formData.get("revisionId") as string | null
   const articleId = formData.get("articleId") as string | null
   const filePath = formData.get("filePath") as string | null
+  const activeFileId = formData.get("activeFileId") as string | null
+  const draftFilesPayload = formData.get("draftFiles") as string | null
   const token =
     (session.user as { githubPat?: string }).githubPat ||
     process.env.GITHUB_TOKEN
 
-  if (!title || !content) {
-    throw new Error("Title and content are required")
+  const draftFiles =
+    deserializeDraftFilesPayload(draftFilesPayload) ||
+    normalizeDraftFileCollection({
+      activeFileId: activeFileId || undefined,
+      files: [
+        createDraftFile({
+          content: content || "",
+          filePath: filePath || "",
+        }),
+      ],
+    })
+
+  if (!title) {
+    throw new Error("Title is required")
   }
+
+  const nextDraftStorage = serializeDraftFilesForStorage(draftFiles)
 
   let savedRevision
 
@@ -56,13 +80,9 @@ export async function saveDraftAction(formData: FormData) {
       where: { id: revisionId },
       data: {
         articleId: articleId || existing.articleId,
-        conflictContent:
-          existing.status === "SYNC_CONFLICT"
-            ? content
-            : existing.conflictContent,
-        content:
-          existing.status === "SYNC_CONFLICT" ? existing.content : content,
-        filePath: filePath || null,
+        conflictContent: nextDraftStorage.conflictContent,
+        content: nextDraftStorage.content,
+        filePath: nextDraftStorage.filePath,
         title,
       },
     })
@@ -70,8 +90,11 @@ export async function saveDraftAction(formData: FormData) {
     const baseMainSha = await getMainBranchHeadSha(token)
     const createData: Prisma.RevisionCreateInput = {
       baseMainSha,
-      content,
-      filePath: filePath || undefined,
+      content: nextDraftStorage.content,
+      ...(nextDraftStorage.conflictContent
+        ? { conflictContent: nextDraftStorage.conflictContent }
+        : {}),
+      filePath: nextDraftStorage.filePath || undefined,
       status: "DRAFT",
       syncedMainSha: baseMainSha,
       title,
@@ -115,9 +138,22 @@ export async function submitForReviewAction(revisionId: string) {
     throw new Error("Only a draft can open a PR")
   }
 
-  if (!existing.filePath) {
+  const storedDraftFiles = decodeStoredDraftFiles({
+    content: existing.content,
+    conflictContent: existing.conflictContent,
+    filePath: existing.filePath,
+  })
+  const missingFilePath = storedDraftFiles.files.find((file) => !file.filePath)
+  if (missingFilePath) {
     throw new Error(
-      "File path is required. Please specify the target file path in editor."
+      "Every file in a draft requires a file path before opening a PR."
+    )
+  }
+
+  const duplicateFilePaths = getDuplicateDraftFilePaths(storedDraftFiles.files)
+  if (duplicateFilePaths.length > 0) {
+    throw new Error(
+      `Duplicate file paths are not allowed in one draft: ${duplicateFilePaths.join(", ")}`
     )
   }
 
@@ -135,23 +171,28 @@ export async function submitForReviewAction(revisionId: string) {
 
   try {
     const result = await openDraftPullRequest({
+      activeFileId: storedDraftFiles.activeFileId,
       authorEmail,
+      files: storedDraftFiles.files,
       title: existing.title,
-      content: existing.content,
-      filePath: existing.filePath,
       baseMainSha,
       authorName,
       draftId: existing.id,
       token,
     })
 
+    const syncedDraftStorage = serializeDraftFilesForStorage({
+      activeFileId: result.activeFileId,
+      files: result.files,
+    })
+
     await prisma.revision.update({
       where: { id: revisionId },
       data: {
         baseMainSha,
-        conflictContent: result.conflictContent,
-        content: result.content,
-        filePath: result.filePath,
+        conflictContent: syncedDraftStorage.conflictContent,
+        content: syncedDraftStorage.content,
+        filePath: syncedDraftStorage.filePath,
         githubPrNum: result.prNumber,
         githubPrUrl: result.prUrl,
         prBranchName: result.branchName,

@@ -17,6 +17,10 @@ import {
   closePRAction,
   submitWithRebaseAction,
 } from "@/actions/review"
+import {
+  createDraftFile,
+  decodeStoredDraftFiles,
+} from "@/lib/draft-files"
 import { prisma } from "@/lib/prisma"
 import type { RebaseState } from "@/types/rebase"
 import type { RebaseAnalysis } from "@/lib/article-rebase"
@@ -63,6 +67,13 @@ export default async function ReviewDetailPage({
   const linkedDraft = await prisma.revision.findFirst({
     where: { githubPrNum: prNumber },
   })
+  const linkedDraftFiles = linkedDraft
+    ? decodeStoredDraftFiles({
+        content: linkedDraft.content,
+        conflictContent: linkedDraft.conflictContent,
+        filePath: linkedDraft.filePath,
+      })
+    : null
 
   let rawContent = ""
   if (mainFile) {
@@ -96,18 +107,30 @@ export default async function ReviewDetailPage({
     linkedDraft?.status === "IN_REVIEW" && !hasConflict && !rebaseState
   if (
     isInReview &&
+    linkedDraftFiles?.files.length === 1 &&
     linkedDraft?.baseMainSha &&
     linkedDraft?.syncedMainSha &&
     linkedDraft.baseMainSha !== linkedDraft.syncedMainSha
   ) {
     const { analyzeRebaseNeed } = await import("@/lib/article-rebase")
     rebaseAnalysis = await analyzeRebaseNeed({
-      filePath: linkedDraft.filePath || mainFile?.filename || "",
+      filePath: linkedDraftFiles.files[0].filePath,
       baseMainSha: linkedDraft.baseMainSha,
       latestMainSha: linkedDraft.syncedMainSha,
       token,
     })
   }
+
+  const fallbackConflictFile = createDraftFile({
+    content: linkedDraft?.conflictContent || rawContent,
+    filePath: mainFile?.filename || linkedDraft?.filePath || "",
+  })
+  const conflictDraftFiles =
+    linkedDraftFiles || {
+      activeFileId: fallbackConflictFile.id,
+      files: [fallbackConflictFile],
+    }
+  const draftFileCount = linkedDraftFiles?.files.length || 1
 
   return (
     <div
@@ -153,7 +176,11 @@ export default async function ReviewDetailPage({
             </span>
             <span className="px-2 text-tech-main/50">{"//"}</span>
             <span className="text-tech-main">TARGET_FILE:</span>
-            <span>{mainFile?.filename || "UNKNOWN"}</span>
+            <span>
+              {draftFileCount > 1
+                ? `${draftFileCount} FILES`
+                : mainFile?.filename || "UNKNOWN"}
+            </span>
             <span className="px-2 text-tech-main/50">{"//"}</span>
             <span className="text-tech-main">STATUS:</span>
             <span
@@ -168,6 +195,22 @@ export default async function ReviewDetailPage({
             </span>
           </div>
         </div>
+
+        {linkedDraftFiles?.files.length && linkedDraftFiles.files.length > 1 ? (
+          <div
+            className="
+              mt-4 flex flex-wrap gap-2 border border-tech-main/20 bg-white/60
+              p-3 font-mono text-[11px] text-tech-main/70 uppercase
+            ">
+            {linkedDraftFiles.files.map((file) => (
+              <span
+                key={file.id}
+                className="border border-tech-main/20 px-2 py-1">
+                {file.filePath || "PATH_NOT_SET"}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         {pr.state === "open" && (
           <div
@@ -246,9 +289,9 @@ export default async function ReviewDetailPage({
 
       {hasConflict || linkedDraft?.status === "SYNC_CONFLICT" ? (
         <ConflictResolver
+          activeFileId={conflictDraftFiles.activeFileId}
+          files={conflictDraftFiles.files}
           prNumber={prNumber}
-          filePath={mainFile?.filename || linkedDraft?.filePath || ""}
-          initialContent={linkedDraft?.conflictContent || rawContent}
           rebaseState={linkedDraft?.rebaseState as RebaseState | null}
           revisionId={linkedDraft?.id}
           conflictType={
@@ -269,6 +312,11 @@ export default async function ReviewDetailPage({
               CONTENT_PREVIEW
             </h2>
           </div>
+            {draftFileCount > 1 ? (
+              <p className="mt-2 font-mono text-xs text-tech-main/60 uppercase">
+                Previewing the primary markdown file from a multi-file draft.
+              </p>
+            ) : null}
 
           <div
             className="
