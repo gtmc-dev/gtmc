@@ -487,12 +487,14 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
         </div>
 
         <main
-          className="
-            relative my-6 w-full flex-1
-            md:max-w-2xl
-            xl:max-w-3xl
-            [1920px]:w-5xl
-          ">
+          className={`
+            relative my-6 w-full flex-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
+            ${
+              sidebarHidden
+                ? "md:max-w-4xl xl:max-w-5xl [1920px]:max-w-7xl"
+                : "md:max-w-2xl xl:max-w-3xl [1920px]:max-w-5xl"
+            }
+          `}>
           {children}
         </main>
       </div>

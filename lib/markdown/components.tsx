@@ -393,9 +393,9 @@ export function getMarkdownComponents(rawPath: string) {
             {...rest}>
             <div
               className="
-                absolute top-0 h-full w-[16px] bg-[#4c5b96]
-                left-[calc(100%+1.5rem+1px)] sm:left-[calc(100%+2rem+1px)]
-                flex items-start justify-center pt-6 rounded-r-md z-10
+                absolute top-0 h-full w-[14px] bg-[#6978af]
+                left-[calc(100%+1.5rem)] sm:left-[calc(100%+2rem)] -translate-x-1/2
+                flex items-start justify-center pt-6 rounded-sm z-10
               ">
               <span
                 className="
