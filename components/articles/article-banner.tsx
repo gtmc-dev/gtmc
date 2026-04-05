@@ -14,7 +14,7 @@ export function ArticleBanner({ src, alt }: ArticleBannerProps) {
         <div
           className="
             flex items-center justify-between border-b border-tech-main/30
-            bg-tech-main/5 px-3 py-1.5 font-mono text-[8px]
+            bg-tech-main/5 px-3 py-1.5 font-mono text-[0.5rem]
             tracking-widest text-tech-main/50
           ">
           <span className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export function ArticleBanner({ src, alt }: ArticleBannerProps) {
         <div
           className="
             flex items-center gap-2 border-t border-tech-main/30
-            bg-tech-main/5 px-3 py-1.5 font-mono text-[12px]
+            bg-tech-main/5 px-3 py-1.5 font-mono text-[0.75rem]
             tracking-wide text-tech-main/80
           ">
           <span className="shrink-0 text-tech-main/30">{"// "}</span>

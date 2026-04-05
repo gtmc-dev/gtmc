@@ -43,7 +43,7 @@ function TreeLoadingPlaceholder() {
       <ScanConfirmOverlay className="opacity-40" />
       <SectionRail
         label="TREE_BOOTSTRAP"
-        className="mb-3 text-[10px] opacity-75"
+        className="mb-3 text-[0.625rem] opacity-75"
       />
 
       <div className="space-y-6 pr-3">
@@ -124,14 +124,14 @@ function SidebarTreeWrapper({
   return (
     <div
       className={`
-        w-full pb-4 font-mono text-[15px] wrap-break-word
-        [&_li]:mt-1.5
-        [&_ul]:list-none
-        [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
-        [&_ul_ul]:pl-3
-        [&>ul]:pl-0
-        ${showPlaceholder ? "h-full min-h-full pb-0" : ""}
-      `}
+         w-full pb-4 font-mono text-[0.9375rem] wrap-break-word
+         [&_li]:mt-1.5
+         [&_ul]:list-none
+         [&_ul_ul]:mt-1.5 [&_ul_ul]:mb-3 [&_ul_ul]:border-l [&_ul_ul]:guide-line
+         [&_ul_ul]:pl-3
+         [&>ul]:pl-0
+         ${showPlaceholder ? "h-full min-h-full pb-0" : ""}
+       `}
       aria-busy={showPlaceholder}>
       {showPlaceholder ? (
         <div className="h-full min-h-full pr-4">
@@ -168,7 +168,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
       if (localStorage.getItem(SIDEBAR_HIDDEN_KEY) === "true") {
         setSidebarHidden(true)
       }
-    } catch { }
+    } catch {}
   }, [])
 
   const toggleSidebarHidden = () => {
@@ -176,7 +176,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
       const next = !prev
       try {
         localStorage.setItem(SIDEBAR_HIDDEN_KEY, String(next))
-      } catch { }
+      } catch {}
       return next
     })
   }
@@ -359,9 +359,10 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           <div
             className={`
               grid transition-all duration-300 ease-out
-              ${isOpen && !isStuck
-                ? "grid-rows-[1fr] opacity-100"
-                : "grid-rows-[0fr] opacity-0"
+              ${
+                isOpen && !isStuck
+                  ? "grid-rows-[1fr] opacity-100"
+                  : "grid-rows-[0fr] opacity-0"
               }
             `}>
             <div className="overflow-hidden">
@@ -478,7 +479,7 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
                   ">
                   <span
                     className="
-                    text-[8px] leading-none font-bold select-none
+                    text-[0.5rem] leading-none font-bold select-none
                   ">
                     {sidebarHidden ? "▶" : "◀"}
                   </span>
@@ -492,13 +493,14 @@ export function ArticlesLayoutClient({ children, tree }: ArticlesLayoutProps) {
           className={`
             relative my-6 w-full flex-1 transition-all duration-300
             ease-[cubic-bezier(0.16,1,0.3,1)]
-            ${sidebarHidden
-              ? `
+            ${
+              sidebarHidden
+                ? `
                   md:max-w-3xl
                   xl:max-w-3xl
                   [1920px]:max-w-4xl
                 `
-              : `
+                : `
                   md:max-w-2xl
                   xl:max-w-3xl
                   [1920px]:max-w-4xl
