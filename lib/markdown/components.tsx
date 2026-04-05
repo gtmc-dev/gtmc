@@ -393,7 +393,7 @@ export function getMarkdownComponents(rawPath: string) {
             {...rest}>
             <div
               className="
-                absolute top-0 h-full w-[14px] bg-[#6978af]
+                absolute top-0 h-full w-[14px] bg-[#8b9ac8]
                 left-[calc(100%+1.5rem)] sm:left-[calc(100%+2rem)] -translate-x-1/2
                 flex items-start justify-center pt-6 rounded-sm z-10
               ">
