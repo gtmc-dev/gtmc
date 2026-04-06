@@ -101,32 +101,37 @@ import LitematicaViewer from "@/components/articles/litematica-viewer"
 
 const CALLOUT_STYLES: Record<
   string,
-  { border: string; bg: string; title: string }
+  { border: string; bg: string; title: string; text: string }
 > = {
   warning: {
     border: "border-amber-500",
     bg: "bg-amber-50",
     title: "text-amber-700",
+    text: "text-amber-900",
   },
   tip: {
     border: "border-emerald-500",
     bg: "bg-emerald-50",
     title: "text-emerald-700",
+    text: "text-emerald-900",
   },
   important: {
     border: "border-blue-500",
     bg: "bg-blue-50",
     title: "text-blue-700",
+    text: "text-blue-900",
   },
   crash: {
     border: "border-red-500",
     bg: "bg-red-50",
     title: "text-red-700",
+    text: "text-red-900",
   },
   corruption: {
     border: "border-orange-500",
     bg: "bg-orange-50",
     title: "text-orange-700",
+    text: "text-orange-900",
   },
 }
 
@@ -154,13 +159,13 @@ function CalloutAside({
 
   return (
     <aside
-      className={`mb-6 border-l-2 p-4 ${styles.border} ${styles.bg}`}
+      className={`mb-4 border-l-2 px-3 py-2 ${styles.border} ${styles.bg}`}
       {...rest}>
       <div
-        className={`mb-2 font-mono text-xs font-bold uppercase tracking-widest ${styles.title}`}>
+        className={`mb-1 font-mono text-xs font-bold uppercase tracking-widest ${styles.title}`}>
         {t(labelKey)}
       </div>
-      <div className="font-sans text-sm text-slate-700">
+      <div className={`font-sans text-sm ${styles.text}`}>
         {isEmpty && hasDefault
           ? t(`${type}_default` as Parameters<typeof t>[0])
           : children}
