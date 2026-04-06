@@ -25,7 +25,34 @@ export function remarkCallouts() {
 
       const calloutType = match[1].toLowerCase()
 
-      node.children.shift()
+      textNode.value = textNode.value.replace(CALLOUT_MARKER_REGEX, "")
+      if (textNode.value.length === 0) {
+        paragraph.children.shift()
+      }
+
+      if (
+        paragraph.children.length > 0 &&
+        paragraph.children[0].type === "break"
+      ) {
+        paragraph.children.shift()
+      }
+
+      if (paragraph.children.length === 0) {
+        node.children.shift()
+      }
+
+      // Strip trailing break node inserted by remarkBreaks after the marker
+      if (
+        paragraph.children.length > 0 &&
+        paragraph.children[0].type === "break"
+      ) {
+        paragraph.children.shift()
+      }
+
+      // Remove paragraph entirely if now empty
+      if (paragraph.children.length === 0) {
+        node.children.shift()
+      }
 
       let isBodyEmpty = true
       for (const child of node.children) {
