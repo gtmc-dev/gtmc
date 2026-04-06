@@ -13,6 +13,7 @@ import {
   normalizeDraftFileCollection,
   type DraftFileRecord,
 } from "@/lib/draft-files"
+import { getMergeLibrary } from "@/lib/merge-strategy"
 
 const MAIN_BRANCH = "main"
 
@@ -66,6 +67,35 @@ export interface DraftSyncResult {
   rebaseAnalysis?: RebaseAnalysis
 }
 
+export interface SimpleResolutionInput {
+  files: Array<{
+    filePath: string
+    baseContent: string
+    draftContent: string
+    latestMainContent: string
+  }>
+  prBranchName: string
+  latestMainSha: string
+  token?: string
+}
+
+export interface SimpleResolutionResult {
+  fileResults: Array<{
+    filePath: string
+    status: "clean" | "conflict"
+    content: string
+  }>
+  hasConflicts: boolean
+}
+
+export interface ForcePushInput {
+  resolvedFiles: Array<{ filePath: string; content: string }>
+  prBranchName: string
+  latestMainSha: string
+  commitMessage?: string
+  token?: string
+}
+
 export async function getMainBranchHeadSha(token?: string) {
   const octokit = getOctokit(token)
   const { data } = await octokit.git.getRef({
@@ -75,6 +105,88 @@ export async function getMainBranchHeadSha(token?: string) {
   })
 
   return data.object.sha
+}
+
+export async function resolveSimpleConflicts(
+  input: SimpleResolutionInput
+): Promise<SimpleResolutionResult> {
+  const mergeLibrary = getMergeLibrary()
+  const fileResults = input.files.map((file) => {
+    const result = mergeLibrary.merge({
+      baseContent: file.baseContent,
+      draftContent: file.draftContent,
+      latestMainContent: file.latestMainContent,
+    })
+
+    return {
+      filePath: file.filePath,
+      status: result.conflict ? ("conflict" as const) : ("clean" as const),
+      content: result.content,
+    }
+  })
+
+  return {
+    fileResults,
+    hasConflicts: fileResults.some((result) => result.status === "conflict"),
+  }
+}
+
+export async function forcePushResolvedToPRBranch({
+  resolvedFiles,
+  prBranchName,
+  latestMainSha,
+  commitMessage,
+  token,
+}: ForcePushInput): Promise<{ newSha: string }> {
+  const octokit = getOctokit(token)
+  const { data: latestMainCommit } = await octokit.git.getCommit({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    commit_sha: latestMainSha,
+  })
+
+  const tree = await Promise.all(
+    resolvedFiles.map(async (file) => {
+      const { data: blob } = await octokit.git.createBlob({
+        owner: ARTICLES_REPO_OWNER,
+        repo: ARTICLES_REPO_NAME,
+        content: file.content,
+        encoding: "utf-8",
+      })
+
+      return {
+        path: file.filePath,
+        mode: "100644" as const,
+        type: "blob" as const,
+        sha: blob.sha,
+      }
+    })
+  )
+
+  const { data: createdTree } = await octokit.git.createTree({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    base_tree: latestMainCommit.tree.sha,
+    tree,
+  })
+
+  const { data: newCommit } = await octokit.git.createCommit({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    message: commitMessage || "docs: apply resolved review files",
+    tree: createdTree.sha,
+    parents: [latestMainSha],
+  })
+
+  await octokit.git.updateRef({
+    owner: ARTICLES_REPO_OWNER,
+    repo: ARTICLES_REPO_NAME,
+    ref: `heads/${prBranchName}`,
+    sha: newCommit.sha,
+    force: true,
+  })
+
+  return { newSha: newCommit.sha }
 }
 
 export async function resolveArticleFilePath(
