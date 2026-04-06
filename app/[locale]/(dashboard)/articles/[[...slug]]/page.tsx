@@ -11,9 +11,13 @@ import {
   MarkdownRenderer,
 } from "@/lib/markdown"
 import { getCachedRehypeShiki } from "@/lib/markdown/plugins/rehype-shiki"
-import { getArticleContent, getArticleTree } from "@/lib/article-loader"
 import {
-  getSlugMapEntry,
+  getArticleContent,
+  getArticleTree,
+  getLocalizedSlugMapEntry,
+  type ArticleLocale,
+} from "@/lib/article-loader"
+import {
   resolveSlug,
   getSlugForFilePath,
 } from "@/lib/slug-resolver"
@@ -62,6 +66,7 @@ export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
 
 interface ArticlePageProps {
   params: Promise<{
+    locale: string
     slug?: string[]
   }>
 }
@@ -69,9 +74,10 @@ interface ArticlePageProps {
 export async function generateMetadata({
   params,
 }: ArticlePageProps): Promise<Metadata> {
-  const { slug } = await params
+  const { locale: rawLocale, slug } = await params
+  const locale = resolveLocale(rawLocale)
   const slugPath = decodeSlugPath(slug ?? []) || "preface"
-  const target = await resolveArticleTarget(slugPath)
+  const target = await resolveArticleTarget(slugPath, locale)
   const t = await getTranslations("Article")
 
   if (target === null) {
@@ -100,7 +106,8 @@ export async function generateMetadata({
       data["chapter-title"],
       target.filePath,
       target.canonicalSlug,
-      target.isReadmeIntro
+      target.isReadmeIntro,
+      locale
     )
     const articleTitle = formatArticleTitle(
       resolvedTitle,
@@ -111,7 +118,7 @@ export async function generateMetadata({
     )
 
     // Build page title with chapter prefix if available
-    const slugMapEntry = getSlugMapEntry(effectiveSlug)
+    const slugMapEntry = getLocalizedSlugMapEntry(effectiveSlug, locale)
     const chapterTitle = slugMapEntry?.chapterTitle
     const pageTitle = chapterTitle
       ? `${chapterTitle} › ${articleTitle} — Graduate Texts in Minecraft`
@@ -163,10 +170,11 @@ export async function generateMetadata({
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const { slug } = await params
+  const { locale: rawLocale, slug } = await params
+  const locale = resolveLocale(rawLocale)
 
   const slugPath = decodeSlugPath(slug ?? []) || "preface"
-  const target = await resolveArticleTarget(slugPath)
+  const target = await resolveArticleTarget(slugPath, locale)
 
   if (target === null) {
     notFound()
@@ -174,7 +182,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (target.redirectToSlug) {
     const redirectPath = encodeSlug(target.redirectToSlug)
-    redirect(`/articles/${redirectPath}`)
+    redirect(`/${locale}/articles/${redirectPath}`)
   }
 
   const content = await getArticleContent(target.filePath)
@@ -188,7 +196,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     data["chapter-title"],
     target.filePath,
     target.canonicalSlug,
-    target.isReadmeIntro
+    target.isReadmeIntro,
+    locale
   )
   const articleTitle = formatArticleTitle(
     resolvedTitle,
@@ -231,7 +240,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     url: `https://github.com/${name}`,
   }))
 
-  const slugMapEntry = getSlugMapEntry(effectiveSlug)
+  const slugMapEntry = getLocalizedSlugMapEntry(effectiveSlug, locale)
   const chapterTitle = slugMapEntry?.chapterTitle
 
   const bannerSrc = (data.banner as { src?: string } | undefined)?.src
@@ -309,7 +318,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   // Get navigation data
-  const tree = await getSidebarTree()
+  const tree = await getSidebarTree(locale)
   const flattenedArticles = flattenArticleTree(tree)
   const currentSlug = target.canonicalSlug || slugPath
   const navigation = getArticleNavigation(currentSlug, flattenedArticles)
@@ -406,10 +415,11 @@ interface ResolvedArticleTarget {
 }
 
 async function resolveArticleTarget(
-  requestedSlugPath: string
+  requestedSlugPath: string,
+  locale: ArticleLocale
 ): Promise<ResolvedArticleTarget | null> {
   const normalizedSlug = requestedSlugPath.replace(/\.md$/i, "")
-  const tree: ArticleTreeNode[] = await getArticleTree()
+  const tree: ArticleTreeNode[] = await getArticleTree(locale)
   const targetNode = findNodeBySlug(tree, normalizedSlug)
 
   if (!targetNode) {
@@ -441,7 +451,7 @@ async function resolveArticleTarget(
     return null
   }
 
-  const slugEntry = getSlugMapEntry(canonicalSlug)
+  const slugEntry = getLocalizedSlugMapEntry(canonicalSlug, locale)
 
   const redirectToSlug =
     targetNode.isFolder && canonicalSlug !== normalizedSlug
@@ -462,7 +472,7 @@ async function resolveArticleTarget(
 function resolveCanonicalSlugForFolder(
   targetNode: ArticleTreeNode
 ): string | null {
-  const mapEntry = getSlugMapEntry(targetNode.slug)
+  const mapEntry = getLocalizedSlugMapEntry(targetNode.slug)
   if (mapEntry?.hasIntro) {
     return targetNode.slug
   }
@@ -533,9 +543,10 @@ function resolveDisplayedArticleTitle(
   rawTitle: unknown,
   fallbackPath: string,
   canonicalSlug: string,
-  isReadmeIntro: boolean
+  isReadmeIntro: boolean,
+  locale: ArticleLocale
 ): string {
-  const slugEntry = getSlugMapEntry(canonicalSlug)
+  const slugEntry = getLocalizedSlugMapEntry(canonicalSlug, locale)
   const introTitle = slugEntry?.introTitle?.trim()
 
   if (isReadmeIntro && introTitle) {
@@ -543,6 +554,10 @@ function resolveDisplayedArticleTitle(
   }
 
   return resolveArticleTitle(rawTitle, fallbackPath)
+}
+
+function resolveLocale(locale: string): ArticleLocale {
+  return locale === "zh" ? "zh" : "en"
 }
 
 function formatArticleTitle(

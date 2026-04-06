@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useTranslations } from "next-intl"
+import { getTranslations } from "next-intl/server"
 
 import { ProfileButton } from "@/components/ui/profile-button"
 import { Logo } from "@/components/ui/logo"
@@ -26,7 +26,7 @@ export default async function DashboardLayout({
     }
   }
 
-  const t = useTranslations("Nav")
+  const t = await getTranslations("Nav")
 
   const navLinks = [
     { href: "/articles", label: t("articles") },
