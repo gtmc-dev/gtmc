@@ -3,6 +3,166 @@
 import { useEffect, useRef, useState, type MouseEvent } from "react"
 import { CornerBrackets } from "@/components/ui/corner-brackets"
 
+type StyleWritable = {
+  style: {
+    setProperty: (property: string, value: string, priority?: string) => void
+  }
+}
+
+type FlyControls = {
+  overlayElement?: StyleWritable | null
+  setOverlayVisible?: () => void
+  setKeybinds?: (keybinds: { down: string }) => void
+  lock?: () => void
+}
+
+type CameraManager = {
+  flyControls?: FlyControls | null
+  disableFlyControls?: () => void
+  enableFlyControls?: () => void
+  isFlyControlsEnabled?: () => boolean
+  focusOnSchematics?: () => void
+}
+
+type SchematicRecord = {
+  id?: string
+}
+
+type SchematicDimensions = {
+  x: number
+  y: number
+  z: number
+}
+
+type SchematicManager = {
+  loadSchematic: (fileName: string, data: ArrayBuffer) => Promise<void>
+  getFirstSchematic?: () => SchematicRecord | null
+  getMaxSchematicDimensions?: () => SchematicDimensions | null
+}
+
+type RenderManager = {
+  render?: () => void
+}
+
+type RendererInstance = {
+  uiManager?: {
+    showFPVOverlay?: () => void
+    fpvOverlay?: StyleWritable | null
+  } | null
+  cameraManager?: CameraManager | null
+  schematicManager: SchematicManager
+  renderManager?: RenderManager | null
+  resetRenderingBounds: (schematicId: string, includeAll: boolean) => void
+  setRenderingBounds: (
+    schematicId: string,
+    min: [number, number, number],
+    max: [number, number, number],
+    refresh: boolean
+  ) => void
+  dispose?: () => void
+}
+
+type RendererModule = {
+  SchematicRenderer?: RendererConstructor
+  default?: RendererConstructor | { SchematicRenderer?: RendererConstructor }
+}
+
+type RendererConstructor = new (
+  canvas: HTMLCanvasElement,
+  rendererOptions: Record<string, never>,
+  packs: {
+    default: () => Promise<Blob>
+  },
+  options: {
+    showGrid: boolean
+    backgroundColor: number
+    meshBuildingMode: string
+    ffmpeg: { terminate: () => void }
+    cameraOptions: { position: [number, number, number] }
+    callbacks: {
+      onRendererInitialized: (renderer: RendererInstance) => Promise<void>
+      onSchematicFileLoadFailure: (error: unknown) => void
+    }
+  }
+) => RendererInstance
+
+function resolveRendererConstructor(moduleValue: unknown): RendererConstructor | null {
+  if (typeof moduleValue !== "object" || moduleValue === null) {
+    return null
+  }
+
+  const mod = moduleValue as RendererModule
+
+  if (typeof mod.SchematicRenderer === "function") {
+    return mod.SchematicRenderer
+  }
+
+  if (typeof mod.default === "function") {
+    return mod.default
+  }
+
+  if (
+    typeof mod.default === "object" &&
+    mod.default !== null &&
+    typeof mod.default.SchematicRenderer === "function"
+  ) {
+    return mod.default.SchematicRenderer
+  }
+
+  return null
+}
+
+function normalizeUrlInput(input: string) {
+  let value = input.replace(/\r?\n/g, "").trim().replace(/^['"]|['"]$/g, "")
+
+  for (let i = 0; i < 2; i++) {
+    try {
+      const decoded = decodeURIComponent(value)
+      if (decoded === value) break
+      value = decoded
+    } catch {
+      break
+    }
+  }
+
+  return value
+}
+
+function suppressNativeFpOverlays(instance: RendererInstance | null) {
+  const ui = instance?.uiManager
+  const cm = instance?.cameraManager
+
+  try {
+    if (ui) {
+      ui.showFPVOverlay = () => {}
+      if (ui.fpvOverlay) {
+        ui.fpvOverlay.style.setProperty("display", "none", "important")
+        ui.fpvOverlay.style.setProperty("pointer-events", "none", "important")
+        ui.fpvOverlay.style.setProperty("opacity", "0", "important")
+      }
+    }
+
+    if (cm?.flyControls) {
+      cm.flyControls.setOverlayVisible = () => {}
+      if (cm.flyControls.overlayElement) {
+        cm.flyControls.overlayElement.style.setProperty(
+          "display",
+          "none",
+          "important"
+        )
+        cm.flyControls.overlayElement.style.setProperty(
+          "pointer-events",
+          "none",
+          "important"
+        )
+        cm.flyControls.overlayElement.style.setProperty("opacity", "0", "important")
+      }
+    }
+  } catch {
+    // Keep rendering resilient even if internals change.
+  }
+}
+
 export interface LitematicaViewerProps {
   url: string
   height?: string | number
@@ -13,7 +173,7 @@ export default function LitematicaViewer({
   height = 400,
 }: LitematicaViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const rendererRef = useRef<any>(null)
+  const rendererRef = useRef<RendererInstance | null>(null)
   const schematicIdRef = useRef<string | null>(null)
 
   const [maxLayer, setMaxLayer] = useState(0)
@@ -23,61 +183,6 @@ export default function LitematicaViewer({
   const [schematicReady, setSchematicReady] = useState(false)
   const [isFlyMode, setIsFlyMode] = useState(false)
 
-  const normalizeUrlInput = (input: string) => {
-    let value = input
-      .replace(/\r?\n/g, "")
-      .trim()
-      .replace(/^['"]|['"]$/g, "")
-
-    // Some markdown pipelines may hand us pre-encoded strings.
-    for (let i = 0; i < 2; i++) {
-      try {
-        const decoded = decodeURIComponent(value)
-        if (decoded === value) break
-        value = decoded
-      } catch {
-        break
-      }
-    }
-
-    return value
-  }
-
-  const suppressNativeFpOverlays = (instance: any) => {
-    const ui = instance?.uiManager
-    const cm = instance?.cameraManager
-
-    try {
-      if (ui) {
-        ui.showFPVOverlay = () => {}
-        if (ui.fpvOverlay) {
-          ui.fpvOverlay.style.setProperty("display", "none", "important")
-          ui.fpvOverlay.style.setProperty("pointer-events", "none", "important")
-          ui.fpvOverlay.style.setProperty("opacity", "0", "important")
-        }
-      }
-
-      if (cm?.flyControls) {
-        cm.flyControls.setOverlayVisible = () => {}
-        if (cm.flyControls.overlayElement) {
-          cm.flyControls.overlayElement.style.setProperty(
-            "display",
-            "none",
-            "important"
-          )
-          cm.flyControls.overlayElement.style.setProperty(
-            "pointer-events",
-            "none",
-            "important"
-          )
-          cm.flyControls.overlayElement.style.setProperty("opacity", "0", "important")
-        }
-      }
-    } catch {
-      // Keep rendering resilient even if internals change.
-    }
-  }
-
   useEffect(() => {
     if (!canvasRef.current) return
 
@@ -86,7 +191,7 @@ export default function LitematicaViewer({
     setIsFlyMode(false)
 
     const cleanUrl = normalizeUrlInput(url)
-    let renderer: any = null
+    let renderer: RendererInstance | null = null
 
     const proxyUrl = `/api/litematica-download?${new URLSearchParams({
       url: cleanUrl,
@@ -96,12 +201,7 @@ export default function LitematicaViewer({
     const initRenderer = async () => {
       try {
         const mod = await import("schematic-renderer")
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const modAny = mod as any
-        const SR =
-          modAny.SchematicRenderer ||
-          modAny.default?.SchematicRenderer ||
-          (typeof modAny.default === "function" ? modAny.default : null)
+        const SR = resolveRendererConstructor(mod)
 
         if (typeof SR !== "function") {
           throw new Error("SchematicRenderer constructor not found in module exports")
@@ -120,12 +220,12 @@ export default function LitematicaViewer({
             showGrid: true,
             backgroundColor: 0xf8f9fc,
             meshBuildingMode: "incremental",
-            ffmpeg: { terminate: () => {} },
-            cameraOptions: { position: [10, 10, 10] },
-            callbacks: {
-              onRendererInitialized: async (r: any) => {
-                try {
-                  suppressNativeFpOverlays(r)
+             ffmpeg: { terminate: () => {} },
+             cameraOptions: { position: [10, 10, 10] },
+             callbacks: {
+               onRendererInitialized: async (r: RendererInstance) => {
+                 try {
+                   suppressNativeFpOverlays(r)
 
                   const res = await fetch(proxyUrl, { cache: "no-store" })
                   if (!res.ok) {
@@ -146,17 +246,17 @@ export default function LitematicaViewer({
                     setSliderLayer(topLayer)
                   }
 
-                  r.cameraManager.focusOnSchematics?.()
+                  r.cameraManager?.focusOnSchematics?.()
                   suppressNativeFpOverlays(r)
                   setSchematicReady(true)
-                } catch (err) {
-                  console.error("Error loading schematic:", err)
-                }
-              },
-              onSchematicFileLoadFailure: (err: any) => {
-                console.error("Failed to load schematic file:", err)
-              },
-            },
+                 } catch (err) {
+                   console.error("Error loading schematic:", err)
+                 }
+               },
+               onSchematicFileLoadFailure: (err: unknown) => {
+                 console.error("Failed to load schematic file:", err)
+               },
+             },
           }
         )
 
@@ -301,7 +401,7 @@ export default function LitematicaViewer({
         onPointerDown={(e) => e.stopPropagation()}
         onPointerUp={(e) => e.stopPropagation()}
         onClick={toggleFlyMode}
-        className={`absolute right-4 top-4 z-20 border px-3 py-1 text-[11px] font-bold tracking-widest uppercase transition-colors ${
+        className={`absolute top-4 right-4 z-20 border px-3 py-1 text-[11px] font-bold tracking-widest uppercase transition-colors ${
           isFlyMode
             ? "border-tech-main bg-tech-main text-white"
             : "border-tech-main/60 bg-white/90 text-tech-main hover:bg-tech-main hover:text-white"
@@ -336,10 +436,10 @@ export default function LitematicaViewer({
       {maxLayer > 0 && (
         <div
           className={`absolute right-4 bottom-16 z-10 w-[250px] border border-tech-main/60 bg-white/90 p-3 text-tech-main shadow-sm backdrop-blur-md transition-all ${
-            isFlyMode ? "pointer-events-none opacity-0 translate-x-2" : "opacity-100"
+            isFlyMode ? "pointer-events-none translate-x-2 opacity-0" : "opacity-100"
           }`}
         >
-          <div className="mb-2 flex items-center justify-between border-b border-tech-main/20 pb-1">
+          <div className="mb-2 flex items-center justify-between border-b guide-line pb-1">
             <span className="text-[10px] font-bold tracking-widest uppercase">
               SYS.LAYER_FILTER
             </span>
@@ -399,7 +499,8 @@ export default function LitematicaViewer({
             onMouseUp={commitLayerSelection}
             onTouchEnd={commitLayerSelection}
             onKeyUp={commitLayerSelection}
-            className="style-litematica-layer-slider w-full cursor-ew-resize"
+            className="w-full cursor-ew-resize"
+            data-litematica-layer-slider="true"
           />
 
           <div className="mt-2 flex justify-end">
@@ -411,36 +512,6 @@ export default function LitematicaViewer({
               APPLY
             </button>
           </div>
-
-          <style
-            dangerouslySetInnerHTML={{
-              __html: `
-              .style-litematica-layer-slider {
-                -webkit-appearance: none;
-                appearance: none;
-                height: 2px;
-                background: rgba(71, 85, 105, 0.28);
-                outline: none;
-              }
-              .style-litematica-layer-slider::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                width: 8px;
-                height: 16px;
-                background: var(--color-tech-main);
-                cursor: ew-resize;
-                border-radius: 0;
-              }
-              .style-litematica-layer-slider::-moz-range-thumb {
-                width: 8px;
-                height: 16px;
-                background: var(--color-tech-main);
-                cursor: ew-resize;
-                border-radius: 0;
-                border: none;
-              }
-            `,
-            }}
-          />
         </div>
       )}
 
