@@ -997,7 +997,7 @@ export async function selectModeAction(revisionId: string, mode: ConflictMode) {
           mergedFile.status === "clean" ? mergedFile.content : file.content,
         ...(mergedFile.status === "conflict"
           ? { conflictContent: mergedFile.content }
-          : {}),
+          : { conflictContent: undefined }),
       }
     }),
   })

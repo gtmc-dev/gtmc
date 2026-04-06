@@ -92,7 +92,8 @@ export default async function ReviewHubPage() {
     try {
       const ctx = await getCurrentUserAuthContext(session.user.id)
       isAdmin = ctx.role === "ADMIN"
-    } catch {
+    } catch (error) {
+      console.error("[review/hub] admin context failed:", error)
       isAdmin = false
     }
   }

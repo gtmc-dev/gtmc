@@ -56,7 +56,12 @@ async function getPRFileContents({
           filePath,
           Buffer.from(data.content, "base64").toString("utf8"),
         ] as const
-      } catch {
+      } catch (error) {
+        console.error(
+          "[review/page] getPRFileContents failed for",
+          filePath,
+          error
+        )
         return [filePath, null] as const
       }
     })
@@ -78,7 +83,8 @@ export default async function ReviewDetailPage({
   let authContext: Awaited<ReturnType<typeof getCurrentUserAuthContext>>
   try {
     authContext = await getCurrentUserAuthContext(session.user.id)
-  } catch {
+  } catch (error) {
+    console.error("[review/page] auth context failed:", error)
     redirect("/")
   }
 
@@ -98,7 +104,8 @@ export default async function ReviewDetailPage({
   let pr: Awaited<ReturnType<typeof octokit.pulls.get>>["data"]
   try {
     pr = (await octokit.pulls.get({ owner, repo, pull_number: prNumber })).data
-  } catch {
+  } catch (error) {
+    console.error("[review/page] PR fetch failed:", prNumber, error)
     notFound()
   }
 
