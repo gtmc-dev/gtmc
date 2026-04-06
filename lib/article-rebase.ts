@@ -4,6 +4,12 @@ import {
   getOctokit,
 } from "@/lib/github/articles-repo"
 import { serializeDraftFilesForStorage } from "@/lib/draft-files"
+import {
+  applyAutoAppliedResolutions,
+  autoApplyRerere,
+  parseConflictBlocks,
+  type ConflictBlock,
+} from "@/lib/rerere"
 import { Prisma } from "@prisma/client"
 import { getMergeLibrary, type MergeConflictBlock } from "./merge-strategy"
 import type {
@@ -82,6 +88,7 @@ export type RebaseOutcome =
       remainingCommitShas: string[]
       files?: RebasedFileContent[]
       conflictFilePath?: string
+      rerereApplied?: ConflictBlock[]
     }
   | {
       status: "FILE_DELETED_CONFLICT"
@@ -125,6 +132,7 @@ export type ResumeRebaseOutcome =
       remainingCommitShas: string[]
       files?: RebasedFileContent[]
       conflictFilePath?: string
+      rerereApplied?: ConflictBlock[]
     }
   | {
       status: "FILE_DELETED_CONFLICT"
@@ -193,6 +201,43 @@ function fileStatesToFiles(
     filePath: fileState.filePath,
     content: fileState.currentContent,
   }))
+}
+
+async function autoResolveConflictContent(input: {
+  content: string
+  filePath: string
+  baseContent: string
+}): Promise<{
+  content: string
+  applied: ConflictBlock[]
+  remaining: ConflictBlock[]
+}> {
+  const blocks = parseConflictBlocks(
+    input.content,
+    input.filePath,
+    input.baseContent
+  )
+
+  if (blocks.length === 0) {
+    return { content: input.content, applied: [], remaining: [] }
+  }
+
+  const { applied, remaining } = await autoApplyRerere(blocks)
+
+  return {
+    content: applyAutoAppliedResolutions(input.content, applied),
+    applied,
+    remaining,
+  }
+}
+
+function conflictBlockFromRerere(block: ConflictBlock): MergeConflictBlock {
+  return {
+    type: "conflict",
+    ours: block.ours.replace(/\n$/, "").split("\n"),
+    base: block.base.replace(/\n$/, "").split("\n"),
+    theirs: block.theirs.replace(/\n$/, "").split("\n"),
+  }
 }
 
 async function getCompareCommitFileInfos(input: {
@@ -399,6 +444,21 @@ async function applyRebaseCommits(input: {
       const conflictBlock = mergeResult.blocks.find(
         (b) => b.type === "conflict"
       ) as MergeConflictBlock
+      const rerereResult = await autoResolveConflictContent({
+        content: mergeResult.content,
+        filePath,
+        baseContent: baseSnapshot.content,
+      })
+
+      if (
+        rerereResult.remaining.length === 0 &&
+        rerereResult.applied.length > 0
+      ) {
+        currentContent = rerereResult.content
+        appliedCommits.push(commit)
+        previousSha = commit.sha
+        continue
+      }
 
       const remainingCommitShas = rebaseState.commitInfos
         .slice(i + 1)
@@ -410,6 +470,7 @@ async function applyRebaseCommits(input: {
         currentCommitIndex: i,
         conflictedCommitSha: commit.sha,
         resolvedContent: undefined,
+        rerereApplied: rerereResult.applied,
       }
 
       await prisma.revision.update({
@@ -421,11 +482,15 @@ async function applyRebaseCommits(input: {
 
       return {
         status: "CONFLICT",
-        conflictContent: mergeResult.content,
-        conflictBlock,
+        conflictContent: rerereResult.content,
+        conflictBlock:
+          rerereResult.remaining[0] !== undefined
+            ? conflictBlockFromRerere(rerereResult.remaining[0])
+            : conflictBlock,
         conflictCommit: commit,
         appliedCommits,
         remainingCommitShas,
+        rerereApplied: rerereResult.applied,
       }
     }
 
@@ -555,6 +620,24 @@ async function applyRebaseCommitsMultiFile(input: {
         const conflictBlock = mergeResult.blocks.find(
           (block) => block.type === "conflict"
         ) as MergeConflictBlock
+        const rerereResult = await autoResolveConflictContent({
+          content: mergeResult.content,
+          filePath,
+          baseContent: baseSnapshot?.content ?? "",
+        })
+
+        if (
+          rerereResult.remaining.length === 0 &&
+          rerereResult.applied.length > 0
+        ) {
+          fileStates[filePath] = {
+            ...currentFileState,
+            status: "completed",
+            currentContent: rerereResult.content,
+          }
+          continue
+        }
+
         const remainingCommitShas = rebaseState.commitInfos
           .slice(i + 1)
           .map((nextCommit) => nextCommit.sha)
@@ -572,6 +655,7 @@ async function applyRebaseCommitsMultiFile(input: {
           conflictedCommitSha: commit.sha,
           resolvedContent: undefined,
           fileStates: nextFileStates,
+          rerereApplied: rerereResult.applied,
         }
 
         await prisma.revision.update({
@@ -583,13 +667,17 @@ async function applyRebaseCommitsMultiFile(input: {
 
         return {
           status: "CONFLICT",
-          conflictContent: mergeResult.content,
-          conflictBlock,
+          conflictContent: rerereResult.content,
+          conflictBlock:
+            rerereResult.remaining[0] !== undefined
+              ? conflictBlockFromRerere(rerereResult.remaining[0])
+              : conflictBlock,
           conflictCommit: commit,
           appliedCommits,
           remainingCommitShas,
           files: fileStatesToFiles(nextFileStates),
           conflictFilePath: filePath,
+          rerereApplied: rerereResult.applied,
         }
       }
 

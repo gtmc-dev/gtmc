@@ -1,3 +1,5 @@
+import type { ConflictBlock } from "@/lib/rerere"
+
 export type RebaseStatus =
   | "IDLE"
   | "IN_PROGRESS"
@@ -28,4 +30,5 @@ export interface RebaseState {
   resolvedContent?: string
   commitInfos: RebaseCommitInfo[]
   fileStates?: Record<string, FileRebaseState>
+  rerereApplied?: ConflictBlock[]
 }

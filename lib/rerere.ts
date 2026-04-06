@@ -11,6 +11,61 @@ export interface ConflictBlock {
   autoApplied?: { resolution: string; source: "rerere" }
 }
 
+export const SIMPLE_CONFLICT_BLOCK_RE =
+  /<<<<<<< draft\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> main\n?/g
+
+export function formatConflictMarker(ours: string, theirs: string): string {
+  return `<<<<<<< draft\n${ours}=======\n${theirs}>>>>>>> main\n`
+}
+
+export function parseConflictBlocks(
+  content: string,
+  filePath: string,
+  baseContent: string
+): ConflictBlock[] {
+  const blocks: ConflictBlock[] = []
+  const regex = new RegExp(SIMPLE_CONFLICT_BLOCK_RE.source, "g")
+  let match: RegExpExecArray | null
+  let i = 0
+
+  match = regex.exec(content)
+  while (match !== null) {
+    blocks.push({
+      id: `conflict-${i++}`,
+      filePath,
+      base: baseContent,
+      ours: match[1],
+      theirs: match[2],
+    })
+    match = regex.exec(content)
+  }
+
+  return blocks
+}
+
+export function applyAutoAppliedResolutions(
+  content: string,
+  appliedBlocks: ConflictBlock[]
+): string {
+  if (appliedBlocks.length === 0) {
+    return content
+  }
+
+  const appliedById = new Map(appliedBlocks.map((block) => [block.id, block]))
+  const regex = new RegExp(SIMPLE_CONFLICT_BLOCK_RE.source, "g")
+  let index = 0
+
+  return content.replace(regex, (fullMatch) => {
+    const block = appliedById.get(`conflict-${index++}`)
+
+    if (!block?.autoApplied) {
+      return fullMatch
+    }
+
+    return block.autoApplied.resolution
+  })
+}
+
 function normalizeInput(input: string): string {
   return input.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trimEnd()
 }

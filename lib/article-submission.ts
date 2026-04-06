@@ -16,6 +16,12 @@ import {
   normalizeDraftFileCollection,
   type DraftFileRecord,
 } from "@/lib/draft-files"
+import {
+  applyAutoAppliedResolutions,
+  autoApplyRerere,
+  parseConflictBlocks,
+  type ConflictBlock,
+} from "@/lib/rerere"
 import { getMergeLibrary } from "@/lib/merge-strategy"
 
 const MAIN_BRANCH = "main"
@@ -87,6 +93,7 @@ export interface SimpleResolutionResult {
     filePath: string
     status: "clean" | "conflict"
     content: string
+    rerereApplied?: ConflictBlock[]
   }>
   hasConflicts: boolean
 }
@@ -110,23 +117,54 @@ export async function getMainBranchHeadSha(token?: string) {
   return data.object.sha
 }
 
+export async function getArticleFileContent(
+  filePath: string,
+  ref: string,
+  token?: string
+) {
+  return (await getFileSnapshot(filePath, ref, token))?.content ?? ""
+}
+
 export async function resolveSimpleConflicts(
   input: SimpleResolutionInput
 ): Promise<SimpleResolutionResult> {
   const mergeLibrary = getMergeLibrary()
-  const fileResults = input.files.map((file) => {
-    const result = mergeLibrary.merge({
-      baseContent: file.baseContent,
-      draftContent: file.draftContent,
-      latestMainContent: file.latestMainContent,
-    })
+  const fileResults = await Promise.all(
+    input.files.map(async (file) => {
+      const result = mergeLibrary.merge({
+        baseContent: file.baseContent,
+        draftContent: file.draftContent,
+        latestMainContent: file.latestMainContent,
+      })
 
-    return {
-      filePath: file.filePath,
-      status: result.conflict ? ("conflict" as const) : ("clean" as const),
-      content: result.content,
-    }
-  })
+      if (!result.conflict) {
+        return {
+          filePath: file.filePath,
+          status: "clean" as const,
+          content: result.content,
+        }
+      }
+
+      const blocks = parseConflictBlocks(
+        result.content,
+        file.filePath,
+        file.baseContent
+      )
+      const { applied, remaining } = await autoApplyRerere(blocks)
+      const resolvedContent = applyAutoAppliedResolutions(
+        result.content,
+        applied
+      )
+
+      return {
+        filePath: file.filePath,
+        status:
+          remaining.length === 0 ? ("clean" as const) : ("conflict" as const),
+        content: resolvedContent,
+        ...(applied.length > 0 ? { rerereApplied: applied } : {}),
+      }
+    })
+  )
 
   return {
     fileResults,
