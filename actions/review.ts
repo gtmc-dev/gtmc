@@ -13,7 +13,8 @@ import {
   rebaseArticleContent,
   resumeRebase,
 } from "@/lib/article-rebase"
-import { getTokenFromSession, requireAuth } from "@/lib/auth-helpers"
+import { requireAuth } from "@/lib/auth-helpers"
+import { getGithubPatForUser, requireAdmin } from "@/lib/auth-context"
 import {
   decodeStoredDraftFiles,
   deserializeDraftFilesPayload,
@@ -36,11 +37,9 @@ const repo = ARTICLES_REPO_NAME
 
 export async function mergePRAction(prNumber: number) {
   const session = await requireAuth()
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized")
-  }
+  await requireAdmin(session.user.id)
 
-  const token = getTokenFromSession(session)
+  const token = await getGithubPatForUser(session.user.id)
   const octokit = getOctokit(token)
 
   try {
@@ -70,11 +69,9 @@ export async function mergePRAction(prNumber: number) {
 
 export async function closePRAction(prNumber: number) {
   const session = await requireAuth()
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized")
-  }
+  await requireAdmin(session.user.id)
 
-  const token = getTokenFromSession(session)
+  const token = await getGithubPatForUser(session.user.id)
   const octokit = getOctokit(token)
 
   try {
@@ -108,9 +105,7 @@ export async function resolveConflictAction(
   formData: FormData
 ) {
   const session = await requireAuth()
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized")
-  }
+  await requireAdmin(session.user.id)
 
   const content = formData.get("content") as string | null
   const draftFilesPayload = formData.get("draftFiles") as string | null
@@ -152,7 +147,7 @@ export async function resolveConflictAction(
     throw new Error("Resolved content is required")
   }
 
-  const token = getTokenFromSession(session)
+  const token = await getGithubPatForUser(session.user.id)
   const authorName = session.user.name || "GTMC Admin"
   const authorEmail = session.user.email || "admin@gtmc.dev"
 
@@ -277,11 +272,9 @@ export async function resolveConflictAction(
 
 export async function submitWithRebaseAction(revisionId: string) {
   const session = await requireAuth()
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized")
-  }
+  await requireAdmin(session.user.id)
 
-  const token = getTokenFromSession(session)
+  const token = await getGithubPatForUser(session.user.id)
   const authorName = session.user.name || "GTMC Admin"
   const authorEmail = session.user.email || "admin@gtmc.dev"
 
@@ -394,11 +387,9 @@ export async function submitWithRebaseAction(revisionId: string) {
 
 export async function abortRebaseAction(revisionId: string) {
   const session = await requireAuth()
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized")
-  }
+  await requireAdmin(session.user.id)
 
-  const token = getTokenFromSession(session)
+  const token = await getGithubPatForUser(session.user.id)
 
   try {
     const revision = await prisma.revision.findUnique({
@@ -431,11 +422,9 @@ export async function abortRebaseAction(revisionId: string) {
 
 export async function keepFileAction(revisionId: string) {
   const session = await requireAuth()
-  if (session.user.role !== "ADMIN") {
-    throw new Error("Unauthorized")
-  }
+  await requireAdmin(session.user.id)
 
-  const token = getTokenFromSession(session)
+  const token = await getGithubPatForUser(session.user.id)
   const authorName = session.user.name || "GTMC Admin"
   const authorEmail = session.user.email || "admin@gtmc.dev"
 

@@ -11,7 +11,9 @@ declare module "next-auth" {
     } & DefaultSession["user"]
   }
 
-  interface User extends DefaultUser {}
+  interface User extends DefaultUser {
+    id: string
+  }
 }
 
 declare module "next-auth/jwt" {
