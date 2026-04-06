@@ -1,4 +1,5 @@
 import * as React from "react"
+import { useTranslations } from "next-intl"
 
 import { ProfileButton } from "@/components/ui/profile-button"
 import { Logo } from "@/components/ui/logo"
@@ -25,11 +26,13 @@ export default async function DashboardLayout({
     }
   }
 
+  const t = useTranslations("Nav")
+
   const navLinks = [
-    { href: "/articles", label: "ARTICLES" },
-    { href: "/draft", label: "MY DRAFTS" },
-    ...(isAdmin ? [{ href: "/review", label: "REVIEW HUB" }] : []),
-    { href: "/features", label: "FEATURES" },
+    { href: "/articles", label: t("articles") },
+    { href: "/draft", label: t("drafts") },
+    ...(isAdmin ? [{ href: "/review", label: t("reviewHub") }] : []),
+    { href: "/features", label: t("features") },
   ]
 
   return (

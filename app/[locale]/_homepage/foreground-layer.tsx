@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Link } from "@/i18n/navigation"
 import { TechButton } from "@/components/ui/tech-button"
 import { HeroCard } from "./hero-card"
@@ -24,6 +25,8 @@ export function ForegroundLayer({
   isAccessingDatabase: boolean
   setIsAccessingDatabase: (v: boolean) => void
 }) {
+  const t = useTranslations("Homepage")
+
   return (
     <main
       className="
@@ -75,10 +78,10 @@ export function ForegroundLayer({
             {isAccessingDatabase ? (
               <>
                 <span className="inline-block size-2 animate-pulse bg-white" />
-                INITIALIZING...
+                {t("initializing")}
               </>
             ) : (
-              "START READING →"
+              t("startReading")
             )}
           </TechButton>
         </Link>
@@ -97,7 +100,7 @@ export function ForegroundLayer({
               hover:scale-102 hover:border-tech-main hover:bg-tech-main/10
               sm:w-auto sm:text-sm
             ">
-            {"//"} LOGIN (GITHUB)
+            {"//"} {t("loginGithub")}
           </TechButton>
         </Link>
       </div>

@@ -3,6 +3,7 @@ import { Suspense } from "react"
 import "katex/dist/katex.min.css"
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
+import { getTranslations } from "next-intl/server"
 import matter from "gray-matter"
 import {
   calculateReadingMetrics,
@@ -71,10 +72,11 @@ export async function generateMetadata({
   const { slug } = await params
   const slugPath = decodeSlugPath(slug ?? []) || "preface"
   const target = await resolveArticleTarget(slugPath)
+  const t = await getTranslations("Article")
 
   if (target === null) {
     return {
-      title: "Article Not Found",
+      title: t("notFound"),
       description: "The requested article could not be found.",
     }
   }
@@ -83,7 +85,7 @@ export async function generateMetadata({
     const content = await getArticleContent(target.filePath)
     if (content === null) {
       return {
-        title: "Article Not Found",
+        title: t("notFound"),
         description: "The requested article could not be found.",
       }
     }
@@ -154,7 +156,7 @@ export async function generateMetadata({
     }
   } catch {
     return {
-      title: "Article Not Found",
+      title: t("notFound"),
       description: "The requested article could not be found.",
     }
   }
