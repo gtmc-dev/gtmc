@@ -295,9 +295,10 @@ export function RebaseProgress({
           <TechButton
             variant="primary"
             size="sm"
+            disabled={isFinalizing}
             className="!bg-green-700 !border-green-700 hover:!bg-green-800"
             onClick={() => setShowCommitEditor(true)}>
-            FINALIZE & MERGE
+            {isFinalizing ? "FINALIZING..." : "FINALIZE & MERGE"}
           </TechButton>
         )}
       </div>

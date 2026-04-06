@@ -9,6 +9,7 @@ interface ModeSelectorProps {
   modeAnalysis: ModeAnalysis
   onSelectMode: (mode: ConflictMode) => void
   hasConflicts: boolean
+  isSelecting?: boolean
 }
 
 interface ModeCardConfig {
@@ -38,6 +39,7 @@ export function ModeSelector({
   modeAnalysis,
   onSelectMode,
   hasConflicts,
+  isSelecting,
 }: ModeSelectorProps) {
   const [selectedMode, setSelectedMode] = useState<ConflictMode>(
     modeAnalysis.recommendation
@@ -157,8 +159,9 @@ export function ModeSelector({
         <TechButton
           variant="primary"
           size="md"
+          disabled={isSelecting}
           onClick={() => onSelectMode(selectedMode)}>
-          START RESOLUTION
+          {isSelecting ? "INITIALIZING..." : "START RESOLUTION"}
         </TechButton>
       </div>
     </div>

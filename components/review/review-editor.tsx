@@ -188,12 +188,8 @@ export function ReviewEditor({
               modeAnalysis={reviewSession.modeAnalysis}
               onSelectMode={handleSelectMode}
               hasConflicts={hasConflicts}
+              isSelecting={isSelectingMode}
             />
-            {isSelectingMode && (
-              <p className="mt-3 font-mono text-[0.6875rem] tracking-widest uppercase text-tech-main/50 text-center">
-                INITIALIZING_RESOLUTION_MODE_
-              </p>
-            )}
           </div>
         ) : (
           <>

@@ -270,15 +270,18 @@ export default async function ReviewDetailPage({
                 "use server"
                 await closePRAction(prNumber)
               }}>
-              <TechButton
-                type="submit"
-                variant="secondary"
-                className="
-                  w-full border-red-600 text-red-600
-                  hover:bg-red-600 hover:text-white
-                ">
-                CLOSE
-              </TechButton>
+              {(isPending) => (
+                <TechButton
+                  type="submit"
+                  variant="secondary"
+                  disabled={isPending}
+                  className="
+                    w-full border-red-600 text-red-600
+                    hover:bg-red-600 hover:text-white
+                  ">
+                  {isPending ? "CLOSING..." : "CLOSE"}
+                </TechButton>
+              )}
             </ActionForm>
             {isMergeable && linkedDraft?.status !== "SYNC_CONFLICT" && (
               <ActionForm
@@ -286,9 +289,15 @@ export default async function ReviewDetailPage({
                   "use server"
                   await mergePRAction(prNumber)
                 }}>
-                <TechButton type="submit" variant="primary" className="w-full">
-                  APPROVE_&_MERGE
-                </TechButton>
+                {(isPending) => (
+                  <TechButton
+                    type="submit"
+                    variant="primary"
+                    disabled={isPending}
+                    className="w-full">
+                    {isPending ? "MERGING..." : "APPROVE_&_MERGE"}
+                  </TechButton>
+                )}
               </ActionForm>
             )}
           </div>
