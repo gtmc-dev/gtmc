@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import { useState } from "react"
 import { InlineDiff } from "@/app/[locale]/(dashboard)/review/[id]/components/InlineDiff"
 import { TechButton } from "@/components/ui/tech-button"
 

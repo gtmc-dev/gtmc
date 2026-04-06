@@ -173,7 +173,13 @@ async function getFileSnapshot(
       content: Buffer.from(data.content, "base64").toString("utf-8"),
       sha: data.sha,
     }
-  } catch {
+  } catch (error) {
+    console.error(
+      "[article-rebase] getFileSnapshot failed:",
+      filePath,
+      ref,
+      error
+    )
     return null
   }
 }

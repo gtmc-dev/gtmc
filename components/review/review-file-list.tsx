@@ -1,7 +1,5 @@
 "use client"
 
-import * as React from "react"
-
 interface ReviewFileListProps {
   files: Array<{
     id: string

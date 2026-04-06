@@ -617,7 +617,8 @@ async function getFileSnapshot(filePath: string, ref: string, token?: string) {
       content: Buffer.from(data.content, "base64").toString("utf-8"),
       sha: data.sha,
     } satisfies FileSnapshot
-  } catch {
+  } catch (error) {
+    console.error("[article-submission] file snapshot failed:", error)
     return null
   }
 }

@@ -77,7 +77,9 @@ async function analyzePRConflictStatus(prNumber: number, token?: string) {
           }
         }
       }
-    } catch {}
+    } catch (error) {
+      console.error("[review/page] PR conflict analysis failed:", error)
+    }
   }
   return isConflict
 }
