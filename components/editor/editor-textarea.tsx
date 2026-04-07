@@ -70,6 +70,7 @@ export const EditorTextarea = React.forwardRef<
   ref
 ) {
   const t = useTranslations("Editor")
+  const [lineWrap, setLineWrap] = React.useState(false)
 
   return (
     <div
@@ -82,7 +83,21 @@ export const EditorTextarea = React.forwardRef<
       onDragOver={onDragOver}
       onDragEnter={onDragEnter}
       aria-busy={isSaving}
+      role="application"
       {...rest}>
+      <div className="flex items-center justify-end px-6 pt-4">
+        <button
+          type="button"
+          onClick={() => setLineWrap(!lineWrap)}
+          className={`font-mono text-[0.625rem] tracking-widest uppercase px-2 py-1 border transition-colors ${
+            lineWrap
+              ? "border-tech-main bg-tech-main/10 text-tech-main"
+              : "border-tech-main/30 text-tech-main/40"
+          }`}
+          aria-pressed={lineWrap}>
+          WRAP
+        </button>
+      </div>
       <CodeMirror
         ref={ref}
         value={value}
@@ -92,12 +107,13 @@ export const EditorTextarea = React.forwardRef<
         extensions={[
           markdown({ base: markdownLanguage, codeLanguages: languages }),
           techTheme,
+          ...(lineWrap ? [EditorView.lineWrapping] : []),
         ]}
         onChange={onChange}
         readOnly={isReadOnly}
         editable={!isReadOnly}
         basicSetup={{
-          lineNumbers: false,
+          lineNumbers: true,
           foldGutter: false,
           highlightActiveLine: false,
         }}
