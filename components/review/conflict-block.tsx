@@ -118,7 +118,7 @@ export function ConflictBlock({
 
   return (
     <div
-      className={`my-4 flex flex-col border-l-4 border border-red-500/50 transition-colors duration-200 ${
+      className={`my-4 flex flex-col border border-l-4 border-red-500/50 transition-colors duration-200 ${
         justResolved
           ? "border-l-green-500 bg-green-500/5"
           : showAutoResolved
@@ -173,11 +173,11 @@ export function ConflictBlock({
               <div className="flex-1" ref={mergeViewContainer} />
 
               <div className="flex border-t border-red-500/20">
-                <div className="flex-1 bg-amber-500/5 p-2 border-r border-red-500/20">
+                <div className="flex-1 border-r border-red-500/20 bg-amber-500/5 p-2">
                   <TechButton
                     variant="secondary"
                     size="sm"
-                    className="w-full min-h-11 border-amber-500/50 text-amber-700 hover:bg-amber-500/20 hover:border-amber-500"
+                    className="min-h-11 w-full border-amber-500/50 text-amber-700 hover:border-amber-500 hover:bg-amber-500/20"
                     onClick={handleAcceptOurs}>
                     ACCEPT DRAFT
                   </TechButton>
@@ -186,7 +186,7 @@ export function ConflictBlock({
                   <TechButton
                     variant="secondary"
                     size="sm"
-                    className="w-full min-h-11 border-blue-500/50 text-blue-700 hover:bg-blue-500/20 hover:border-blue-500"
+                    className="min-h-11 w-full border-blue-500/50 text-blue-700 hover:border-blue-500 hover:bg-blue-500/20"
                     onClick={handleAcceptTheirs}>
                     ACCEPT MAIN
                   </TechButton>

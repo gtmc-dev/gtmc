@@ -74,7 +74,7 @@ export const EditorTextarea = React.forwardRef<
   return (
     <div
       className={`
-        w-full grow flex flex-col
+        flex w-full grow flex-col
         ${isReadOnly ? `cursor-not-allowed bg-gray-50` : `bg-transparent`}
       `}
       onPaste={onPaste}
