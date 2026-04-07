@@ -281,7 +281,9 @@ export default async function ReviewDetailPage({
               await closePRAction(prNumber)
             }}
             mergePRAction={
-              isMergeable && linkedDraft?.status !== "SYNC_CONFLICT"
+              isMergeable &&
+              linkedDraft?.status !== "SYNC_CONFLICT" &&
+              !effectiveConflictMode
                 ? async () => {
                     "use server"
                     await mergePRAction(prNumber)
