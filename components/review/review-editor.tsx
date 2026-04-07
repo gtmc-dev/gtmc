@@ -460,7 +460,7 @@ export function ReviewEditor({
                       {parsedSegments.map((segment) =>
                         segment.type === "conflict" ? (
                           <ConflictBlock
-                            key={segment.id}
+                            key={`${activeFile?.id ?? ""}:${segment.id}`}
                             id={segment.id}
                             ours={segment.ours}
                             theirs={segment.theirs}
@@ -476,7 +476,7 @@ export function ReviewEditor({
                           />
                         ) : (
                           <textarea
-                            key={segment.id}
+                            key={`${activeFile?.id ?? ""}:${segment.id}`}
                             value={segment.content}
                             onChange={(e) =>
                               updateTextSegment(segment.id, e.target.value)
