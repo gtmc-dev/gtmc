@@ -1192,7 +1192,7 @@ export async function abortResolutionAction(revisionId: string) {
   await prisma.revision.update({
     where: { id: revisionId },
     data: {
-      ...(conflictMode === "SIMPLE" ? { conflictContent: Prisma.DbNull } : {}),
+      ...(conflictMode === "SIMPLE" ? { conflictContent: null } : {}),
       status: "IN_REVIEW",
       conflictMode: null,
     } as Prisma.RevisionUpdateInput,

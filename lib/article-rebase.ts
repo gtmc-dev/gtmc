@@ -876,7 +876,7 @@ export async function abortRebase(
     where: { id: input.draftId },
     data: {
       content: originalContent,
-      conflictContent: Prisma.DbNull,
+      conflictContent: null,
       status: "IN_REVIEW",
       rebaseState: {
         ...rebaseState,
