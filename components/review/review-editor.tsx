@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import { EditorTabStrip } from "@/components/editor/editor-tab-strip"
@@ -15,7 +16,12 @@ import {
   selectModeAction,
   abortResolutionAction,
   finalizeReviewAction,
+  resolveConflictAction,
 } from "@/actions/review"
+import {
+  normalizeDraftFileCollection,
+  serializeDraftFilesPayload,
+} from "@/lib/draft-files"
 import type {
   ConflictMode,
   ModeAnalysis,
@@ -150,6 +156,7 @@ export function ReviewEditor({
   squashCommitDefaults,
 }: ReviewEditorProps) {
   const t = useTranslations("Review")
+  const router = useRouter()
   const [reviewSession, setReviewSession] = React.useState<ReviewSessionState>(
     () => ({
       mode: inferMode(revision),
@@ -170,6 +177,7 @@ export function ReviewEditor({
   const [isSelectingMode, setIsSelectingMode] = React.useState(false)
   const [isAborting, setIsAborting] = React.useState(false)
   const [isFinalizing, setIsFinalizing] = React.useState(false)
+  const [isSavingResolution, setIsSavingResolution] = React.useState(false)
   const abortedRef = React.useRef(false)
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
@@ -344,12 +352,39 @@ export function ReviewEditor({
     }
   }
 
+  const persistSimpleResolution = React.useCallback(async () => {
+    const collection = normalizeDraftFileCollection({
+      activeFileId: reviewSession.activeFileId,
+      files: sessionFiles.map((file) => ({
+        id: file.id,
+        filePath: file.filePath,
+        content: file.content,
+      })),
+    })
+
+    const formData = new FormData()
+    formData.set("draftFiles", serializeDraftFilesPayload(collection))
+
+    setIsSavingResolution(true)
+
+    try {
+      await resolveConflictAction(pr.number, formData)
+      router.refresh()
+    } finally {
+      setIsSavingResolution(false)
+    }
+  }, [pr.number, reviewSession.activeFileId, router, sessionFiles])
+
   const handleFinalize = async (options?: {
     commitTitle?: string
     commitBody?: string
   }) => {
     setIsFinalizing(true)
     try {
+      if (effectiveMode === "SIMPLE") {
+        await persistSimpleResolution()
+      }
+
       await finalizeReviewAction(pr.number, options)
     } finally {
       setIsFinalizing(false)
@@ -360,6 +395,7 @@ export function ReviewEditor({
     filePath: f.filePath,
     status: f.status,
   }))
+  const simpleSaveLabel = hasConflicts ? "SAVE RESOLUTION" : "APPLY"
 
   return (
     <div className="grid gap-4 lg:grid-cols-[18rem_minmax(0,1fr)]">
@@ -406,6 +442,18 @@ export function ReviewEditor({
               defaultCommitBody={squashCommitDefaults?.body}
               coauthorLines={squashCommitDefaults?.coauthorLines}
             />
+
+            {effectiveMode === "SIMPLE" ? (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => void persistSimpleResolution()}
+                  disabled={isSavingResolution || isFinalizing}
+                  className="inline-flex min-h-11 items-center justify-center border border-tech-main/40 bg-tech-main/10 px-4 py-2 font-mono text-xs tracking-widest uppercase text-tech-main transition hover:bg-tech-main/15 disabled:cursor-not-allowed disabled:opacity-50">
+                  {isSavingResolution ? "SAVING..." : simpleSaveLabel}
+                </button>
+              </div>
+            ) : null}
 
             <div
               className="
