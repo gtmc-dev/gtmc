@@ -6,6 +6,7 @@ interface ArticleInfo {
   slug: string
   title: string
   isCrossFolder: boolean
+  chapterTitle?: string
 }
 
 interface ArticleNavigationProps {
