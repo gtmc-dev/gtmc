@@ -24,6 +24,44 @@ interface RebaseProgressProps {
   coauthorLines?: string[]
 }
 
+function CommitStepDots({
+  total,
+  current,
+  isCompleted,
+  commitShas,
+}: {
+  total: number
+  current: number
+  isCompleted: boolean
+  commitShas?: string[]
+}) {
+  if (total === 0) return null
+  const dots = commitShas?.length === total ? commitShas : null
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {(dots ?? Array.from({ length: total }, (_, i) => String(i))).map(
+        (sha, i) => {
+          const done = isCompleted ? true : i < current - 1
+          const active = !isCompleted && i === current - 1
+          return (
+            <span
+              key={sha}
+              title={`Commit ${i + 1}`}
+              className={`inline-block size-2 transition-all duration-300 ${
+                done
+                  ? "bg-green-500"
+                  : active
+                    ? "bg-tech-main animate-pulse"
+                    : "bg-tech-main/20"
+              }`}
+            />
+          )
+        }
+      )}
+    </div>
+  )
+}
+
 function StatusDot({ status }: { status: string }) {
   const color =
     status === "conflict"
@@ -121,13 +159,19 @@ export function RebaseProgress({
     return (
       <div className="space-y-4 border border-tech-main/40 bg-tech-main/5 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-1">
+          <div className="space-y-2">
             <p className="font-mono text-[0.6875rem] tracking-widest text-tech-main/50 uppercase">
               PROGRESS
             </p>
             <p className="font-mono text-sm font-bold tracking-widest text-tech-main uppercase">
               RESOLVING_COMMIT_{current}_OF_{total}_
             </p>
+            <CommitStepDots
+              total={total}
+              current={current}
+              isCompleted={isCompleted}
+              commitShas={rebaseState?.commitShas}
+            />
           </div>
 
           <div className="flex min-w-32 items-center gap-2">
@@ -183,7 +227,7 @@ export function RebaseProgress({
           {isCompleted && (
             <TechButton
               variant="primary"
-              size="sm"
+              size="md"
               disabled={isFinalizing}
               className="border-green-700! bg-green-700! hover:bg-green-800!"
               onClick={() => onFinalize()}>

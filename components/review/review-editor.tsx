@@ -441,18 +441,39 @@ export function ReviewEditor({
       />
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-3 border border-tech-main/40 bg-tech-main/5 px-4 py-3 font-mono text-xs text-tech-main">
-          <span className="truncate tracking-widest uppercase">
-            PR_{pr.number}_ {pr.title}
-          </span>
-          <a
-            href={pr.htmlUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0 tracking-widest uppercase underline underline-offset-4 hover:text-tech-main-dark">
-            OPEN_PR_
-          </a>
+        <div className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 border border-tech-main/40 bg-tech-bg/95 px-4 py-3 font-mono text-xs text-tech-main backdrop-blur-sm">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <span className="shrink-0 border border-tech-main/40 bg-tech-main/10 px-2 py-0.5 tracking-widest uppercase">
+              PR_{pr.number}_
+            </span>
+            <span className="truncate tracking-widest uppercase">
+              {pr.title}
+            </span>
+            {effectiveMode && (
+              <span className="shrink-0 border border-tech-main/30 bg-tech-main/5 px-2 py-0.5 tracking-widest text-tech-main/70 uppercase">
+                {effectiveMode}
+              </span>
+            )}
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="font-mono text-[0.6875rem] tracking-widest text-tech-main/60 uppercase">
+              {
+                sessionFiles.filter(
+                  (f) => f.status === "resolved" || f.status === "clean"
+                ).length
+              }
+              /{sessionFiles.length}_FILES_
+            </span>
+            <a
+              href={pr.htmlUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 tracking-widest uppercase underline underline-offset-4 hover:text-tech-main-dark">
+              OPEN_PR_
+            </a>
+          </div>
         </div>
+        <div className="h-px bg-tech-main/20" />
 
         {effectiveMode === null && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -533,42 +554,54 @@ export function ReviewEditor({
                 <div className="editor-surface">
                   {hasInlineConflicts ? (
                     <div className="flex flex-col gap-4 p-4 sm:p-6">
-                      {parsedSegments.map((segment) =>
-                        segment.type === "conflict" ? (
-                          <ConflictBlock
-                            key={`${activeFile?.id ?? ""}:${segment.id}`}
-                            id={segment.id}
-                            ours={segment.ours}
-                            theirs={segment.theirs}
-                            onAcceptOurs={() =>
-                              resolveConflictSegment(segment.id, segment.ours)
-                            }
-                            onAcceptTheirs={() =>
-                              resolveConflictSegment(segment.id, segment.theirs)
-                            }
-                            onManualEdit={(content) =>
-                              resolveConflictSegment(segment.id, content)
-                            }
-                            autoApplied={(() => {
-                              const key = `${segment.ours}|||${segment.theirs}`
-                              const resolution = rerereResolutionMap.get(key)
-                              return resolution
-                                ? { resolution, source: "rerere" as const }
-                                : undefined
-                            })()}
-                          />
-                        ) : (
-                          <textarea
-                            key={`${activeFile?.id ?? ""}:${segment.id}`}
-                            value={segment.content}
-                            onChange={(e) =>
-                              updateTextSegment(segment.id, e.target.value)
-                            }
-                            className="min-h-30 w-full resize-y border guide-line bg-white px-4 py-3 font-mono text-sm/relaxed text-black outline-none focus:border-tech-main"
-                            placeholder={t("unchangedContentPlaceholder")}
-                          />
+                      {(() => {
+                        const conflictSegments = parsedSegments.filter(
+                          (s) => s.type === "conflict"
                         )
-                      )}
+                        const conflictTotal = conflictSegments.length
+                        let conflictIdx = 0
+                        return parsedSegments.map((segment) =>
+                          segment.type === "conflict" ? (
+                            <ConflictBlock
+                              key={`${activeFile?.id ?? ""}:${segment.id}`}
+                              id={segment.id}
+                              index={++conflictIdx}
+                              total={conflictTotal}
+                              ours={segment.ours}
+                              theirs={segment.theirs}
+                              onAcceptOurs={() =>
+                                resolveConflictSegment(segment.id, segment.ours)
+                              }
+                              onAcceptTheirs={() =>
+                                resolveConflictSegment(
+                                  segment.id,
+                                  segment.theirs
+                                )
+                              }
+                              onManualEdit={(content) =>
+                                resolveConflictSegment(segment.id, content)
+                              }
+                              autoApplied={(() => {
+                                const key = `${segment.ours}|||${segment.theirs}`
+                                const resolution = rerereResolutionMap.get(key)
+                                return resolution
+                                  ? { resolution, source: "rerere" as const }
+                                  : undefined
+                              })()}
+                            />
+                          ) : (
+                            <textarea
+                              key={`${activeFile?.id ?? ""}:${segment.id}`}
+                              value={segment.content}
+                              onChange={(e) =>
+                                updateTextSegment(segment.id, e.target.value)
+                              }
+                              className="min-h-30 w-full resize-y border guide-line bg-white px-4 py-3 font-mono text-sm/relaxed text-black outline-none focus:border-tech-main"
+                              placeholder={t("unchangedContentPlaceholder")}
+                            />
+                          )
+                        )
+                      })()}
                     </div>
                   ) : (
                     <EditorTextarea

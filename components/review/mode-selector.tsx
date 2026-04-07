@@ -78,16 +78,16 @@ export function ModeSelector({
       </div>
 
       <div className="border border-tech-main/30 bg-tech-main/5 px-4 py-3">
-        <p className="mb-1 mono-label tracking-widest uppercase">ANALYSIS</p>
+        <p className="mb-2 mono-label tracking-widest uppercase">ANALYSIS</p>
         <p className="font-mono text-xs/relaxed text-tech-main/80">
           {modeAnalysis.adminMessage}
         </p>
-        <div className="mt-2 flex gap-4">
-          <span className="font-mono text-[0.6875rem] tracking-widest text-tech-main/50 uppercase">
-            COMMITS_{modeAnalysis.commitCount}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <span className="border border-tech-main/30 bg-tech-main/10 px-2 py-0.5 font-mono text-[0.6875rem] tracking-widest text-tech-main uppercase">
+            COMMITS_{modeAnalysis.commitCount}_
           </span>
-          <span className="font-mono text-[0.6875rem] tracking-widest text-tech-main/50 uppercase">
-            FILES_{modeAnalysis.filesAffected}
+          <span className="border border-tech-main/30 bg-tech-main/10 px-2 py-0.5 font-mono text-[0.6875rem] tracking-widest text-tech-main uppercase">
+            FILES_{modeAnalysis.filesAffected}_
           </span>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function ModeSelector({
               />
 
               {isRecommended && (
-                <span className="mb-2 inline-block bg-tech-main px-2 py-0.5 font-mono text-[0.6875rem] tracking-widest text-white uppercase">
+                <span className="mb-3 inline-block border border-tech-main bg-tech-main px-3 py-1 font-mono text-[0.6875rem] font-bold tracking-widest text-white uppercase">
                   RECOMMENDED
                 </span>
               )}
@@ -153,8 +153,11 @@ export function ModeSelector({
           variant="primary"
           size="md"
           disabled={isSelecting}
+          className="w-full"
           onClick={() => onSelectMode(selectedMode)}>
-          {isSelecting ? "INITIALIZING..." : t("resolveButton")}
+          {isSelecting
+            ? "INITIALIZING..."
+            : `${t("resolveButton")} [${selectedMode}]`}
         </TechButton>
       </div>
     </div>
