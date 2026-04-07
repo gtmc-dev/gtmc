@@ -166,6 +166,7 @@ export function ReviewEditor({
   const [isSelectingMode, setIsSelectingMode] = React.useState(false)
   const [isAborting, setIsAborting] = React.useState(false)
   const [isFinalizing, setIsFinalizing] = React.useState(false)
+  const abortedRef = React.useRef(false)
 
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
@@ -206,7 +207,7 @@ export function ReviewEditor({
   const rebaseState = revision.rebaseState as RebaseState | null
 
   React.useEffect(() => {
-    if (reviewSession.mode !== null || hasConflicts) {
+    if (reviewSession.mode !== null || hasConflicts || abortedRef.current) {
       return
     }
 
@@ -332,6 +333,7 @@ export function ReviewEditor({
     setIsAborting(true)
     try {
       await abortResolutionAction(revision.id)
+      abortedRef.current = true
       setReviewSession((prev) => ({ ...prev, mode: null }))
     } finally {
       setIsAborting(false)
