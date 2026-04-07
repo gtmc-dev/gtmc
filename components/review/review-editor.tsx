@@ -365,14 +365,14 @@ export function ReviewEditor({
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3 border border-tech-main/40 bg-tech-main/5 px-4 py-3 font-mono text-xs text-tech-main">
-          <span className="truncate uppercase tracking-widest">
+          <span className="truncate tracking-widest uppercase">
             PR_{pr.number}_ {pr.title}
           </span>
           <a
             href={pr.htmlUrl}
             target="_blank"
             rel="noreferrer"
-            className="shrink-0 underline underline-offset-4 uppercase tracking-widest hover:text-tech-main-dark">
+            className="shrink-0 tracking-widest uppercase underline underline-offset-4 hover:text-tech-main-dark">
             OPEN_PR_
           </a>
         </div>
@@ -403,7 +403,7 @@ export function ReviewEditor({
 
             <div
               className="
-                relative flex min-h-[31.25rem] grow flex-col border
+                relative editor-grow border
                 border-tech-main/40 bg-white/80 backdrop-blur-sm
               ">
               <EditorTabStrip
@@ -450,7 +450,7 @@ export function ReviewEditor({
                             onChange={(e) =>
                               updateTextSegment(segment.id, e.target.value)
                             }
-                            className="min-h-[7.5rem] w-full resize-y border border-tech-main/20 bg-white px-4 py-3 font-mono text-sm/relaxed text-black outline-none focus:border-tech-main"
+                            className="min-h-30 w-full resize-y border guide-line bg-white px-4 py-3 font-mono text-sm/relaxed text-black outline-none focus:border-tech-main"
                             placeholder="UNCHANGED CONTENT"
                           />
                         )

@@ -194,11 +194,11 @@ export default async function ReviewHubPage() {
           {pr.conflictMode && (
             <span
               className={`
-                border font-mono text-[0.6875rem] tracking-widest uppercase px-2 py-0.5
+                border px-2 py-0.5 font-mono text-[0.6875rem] tracking-widest uppercase
                 ${
                   pr.conflictMode === "FINE_GRAINED"
-                    ? `bg-blue-500/10 border-blue-500/30 text-blue-700`
-                    : `bg-tech-main/10 border-tech-main/30 text-tech-main`
+                    ? `border-blue-500/30 bg-blue-500/10 text-blue-700`
+                    : `border-tech-main/30 bg-tech-main/10 text-tech-main`
                 }
               `}>
               {pr.conflictMode === "FINE_GRAINED"

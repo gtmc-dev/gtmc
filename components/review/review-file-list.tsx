@@ -20,7 +20,7 @@ function StatusIndicator({
       <span
         role="img"
         title="Conflict"
-        className="w-2 h-2 rounded-full bg-red-500 shrink-0"
+        className="size-2 shrink-0 rounded-full bg-red-500"
       />
     )
   }
@@ -29,7 +29,7 @@ function StatusIndicator({
       <span
         role="img"
         title="Resolved"
-        className="w-2 h-2 rounded-full bg-green-500 shrink-0"
+        className="size-2 shrink-0 rounded-full bg-green-500"
       />
     )
   }
@@ -37,7 +37,7 @@ function StatusIndicator({
     <span
       role="img"
       title="Clean"
-      className="w-2 h-2 rounded-full bg-tech-main/20 shrink-0"
+      className="size-2 shrink-0 rounded-full bg-tech-main/20"
     />
   )
 }
