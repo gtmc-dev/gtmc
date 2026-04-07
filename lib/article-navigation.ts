@@ -101,7 +101,12 @@ export function getArticleNavigation(
 
   const getChapterTitle = (slug: string): string | undefined => {
     const entry = getLocalizedSlugMapEntry(slug, locale)
-    return entry?.chapterTitle || undefined
+    const chapterTitle = entry?.chapterTitle
+    if (chapterTitle) {
+      return chapterTitle
+    }
+    const parts = slug.split("/")
+    return parts.length > 1 ? parts[parts.length - 2] : undefined
   }
 
   const prev =
