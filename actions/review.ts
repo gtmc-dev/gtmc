@@ -1799,6 +1799,52 @@ export async function abortResolutionAction(revisionId: string) {
       nextConflictMode: null,
     })
 
+    // Decode original draft files and force-push back to PR branch
+    reviewLog("abortResolutionAction", {
+      revisionId,
+      prNumber: revision.githubPrNum,
+      status: "force-push-start",
+    })
+
+    const storedDraftFiles = decodeStoredDraftFiles({
+      content: revision.content,
+      conflictContent: null,
+      filePath: revision.filePath,
+    })
+
+    const revisionWithAuthor = await prisma.revision.findFirst({
+      where: { id: revisionId },
+      include: { author: { select: { name: true, email: true } } },
+    })
+    const submitterName = revisionWithAuthor?.author?.name ?? "gtmc-bot"
+    const submitterEmail =
+      revisionWithAuthor?.author?.email ?? "gtmc-bot@gtmc.dev"
+
+    const latestMainSha = await getMainBranchHeadSha(token)
+
+    if (revision.prBranchName) {
+      await forcePushResolvedToPRBranch({
+        resolvedFiles: storedDraftFiles.files.map((f) => ({
+          filePath: f.filePath,
+          content: f.content,
+        })),
+        prBranchName: revision.prBranchName,
+        latestMainSha,
+        commitMessage:
+          "chore(review): restore draft branch after resolution abort",
+        authorName: submitterName,
+        authorEmail: submitterEmail,
+        token,
+      })
+
+      reviewLog("abortResolutionAction", {
+        revisionId,
+        prNumber: revision.githubPrNum,
+        status: "force-push-complete",
+        prBranchName: revision.prBranchName,
+      })
+    }
+
     revalidatePaths(getReviewRevalidatePaths(revisionId, revision.githubPrNum))
     reviewLog("abortResolutionAction", {
       revisionId,
