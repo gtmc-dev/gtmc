@@ -133,6 +133,16 @@ function getFirstConflictedFile(
   )
 }
 
+function summarizeTextSegment(content: string) {
+  const lineCount = content.length === 0 ? 0 : content.split("\n").length
+  const preview = content.replace(/\s+/g, " ").trim().slice(0, 72)
+
+  return {
+    lineCount,
+    preview,
+  }
+}
+
 function inferMode(revision: {
   conflictMode: string | null
   rebaseState: unknown
@@ -208,6 +218,8 @@ export function ReviewEditor({
     tone: "info" | "success" | "warning"
     message: string
   } | null>(null)
+  const [expandedThreeWaySegments, setExpandedThreeWaySegments] =
+    React.useState<Record<string, boolean>>({})
   const [mounted, setMounted] = React.useState(false)
   const abortedRef = React.useRef(false)
   const autosaveTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
@@ -456,6 +468,85 @@ export function ReviewEditor({
   const handleSelectFile = (fileId: string) => {
     setReviewSession((prev) => ({ ...prev, activeFileId: fileId }))
   }
+
+  const toggleThreeWaySegment = React.useCallback(
+    (segmentId: string) => {
+      const fileId = reviewSession.activeFileId
+      const key = `${fileId}:${segmentId}`
+
+      setExpandedThreeWaySegments((prev) => ({
+        ...prev,
+        [key]: !prev[key],
+      }))
+    },
+    [reviewSession.activeFileId]
+  )
+
+  const renderCollapsedThreeWaySegment = React.useCallback(
+    (
+      segment: Extract<EditorSegment, { type: "text" }>,
+      tone: "neutral" | "draft" | "main"
+    ) => {
+      const key = `${reviewSession.activeFileId}:${segment.id}`
+      const isExpanded = Boolean(expandedThreeWaySegments[key])
+      const { lineCount, preview } = summarizeTextSegment(segment.content)
+      const palette =
+        tone === "draft"
+          ? {
+              border: "border-red-300/70",
+              bg: "bg-red-500/[0.03]",
+              text: "text-red-700/80",
+              button:
+                "border-red-300/80 text-red-700 hover:bg-red-500/10 hover:border-red-400",
+            }
+          : tone === "main"
+            ? {
+                border: "border-blue-300/70",
+                bg: "bg-blue-500/[0.03]",
+                text: "text-blue-700/80",
+                button:
+                  "border-blue-300/80 text-blue-700 hover:bg-blue-500/10 hover:border-blue-400",
+              }
+            : {
+                border: "border-tech-main/20",
+                bg: "bg-tech-main/[0.03]",
+                text: "text-tech-main/60",
+                button:
+                  "border-tech-main/20 text-tech-main/70 hover:bg-tech-main/10 hover:border-tech-main/30",
+              }
+
+      return (
+        <div
+          key={segment.id}
+          className={`my-1 border border-dashed ${palette.border} ${palette.bg}`}>
+          <div className="flex items-center justify-between gap-3 px-3 py-2">
+            <div className={`min-w-0 font-mono text-[0.625rem] tracking-widest uppercase ${palette.text}`}>
+              <span>{lineCount}_UNCHANGED_LINES_</span>
+              {preview ? (
+                <span className="ml-2 truncate normal-case tracking-normal">
+                  {preview}
+                  {segment.content.length > preview.length ? "..." : ""}
+                </span>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={() => toggleThreeWaySegment(segment.id)}
+              className={`min-h-[1.75rem] shrink-0 border px-2 py-0.5 font-mono text-[0.6rem] tracking-widest uppercase transition ${palette.button}`}>
+              {isExpanded ? "COLLAPSE" : "EXPAND"}
+            </button>
+          </div>
+
+          {isExpanded ? (
+            <pre className={`border-t ${palette.border} px-3 py-2 font-mono text-xs/relaxed whitespace-pre-wrap ${palette.text}`}>
+              {segment.content}
+            </pre>
+          ) : null}
+        </div>
+      )
+    },
+    [expandedThreeWaySegments, reviewSession.activeFileId, toggleThreeWaySegment]
+  )
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setFileContents((prev) => ({
@@ -1049,12 +1140,9 @@ export function ReviewEditor({
                           <div className="p-3 font-mono text-xs/relaxed">
                             {parsedSegments.map((segment) => {
                               if (segment.type === "text") {
-                                return (
-                                  <pre
-                                    key={segment.id}
-                                    className="whitespace-pre-wrap text-tech-main/70">
-                                    {segment.content}
-                                  </pre>
+                                return renderCollapsedThreeWaySegment(
+                                  segment,
+                                  "draft"
                                 )
                               }
                               return (
@@ -1106,12 +1194,9 @@ export function ReviewEditor({
                           <div className="p-3 font-mono text-xs/relaxed">
                             {parsedSegments.map((segment) => {
                               if (segment.type === "text") {
-                                return (
-                                  <pre
-                                    key={segment.id}
-                                    className="whitespace-pre-wrap text-tech-main/70">
-                                    {segment.content}
-                                  </pre>
+                                return renderCollapsedThreeWaySegment(
+                                  segment,
+                                  "main"
                                 )
                               }
                               return (
