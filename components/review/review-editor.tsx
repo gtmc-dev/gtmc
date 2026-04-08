@@ -585,20 +585,24 @@ export function ReviewEditor({
         <div
           key={segment.id}
           className={`my-1 border border-dashed ${palette.border} ${palette.bg}`}>
-          <div className="flex items-center justify-between gap-3 px-3 py-2">
-            <div className={`min-w-0 font-mono text-[0.625rem] tracking-widest uppercase ${palette.text}`}>
-              <span>{lineCount}_UNCHANGED_LINES_</span>
+          <div className="flex flex-col gap-2 px-3 py-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <div
+                className={`font-mono text-[0.625rem] tracking-widest uppercase ${palette.text}`}>
+                <span>{lineCount}_UNCHANGED_LINES_</span>
+              </div>
               {preview ? (
-                <span className="ml-2 truncate normal-case tracking-normal">
+                <div
+                  className={`mt-1 truncate font-mono text-[0.625rem] normal-case tracking-normal ${palette.text}`}>
                   {preview}
                   {segment.content.length > preview.length ? "..." : ""}
-                </span>
+                </div>
               ) : null}
             </div>
             <button
               type="button"
               onClick={() => toggleThreeWaySegment(segment.id)}
-              className={`min-h-[1.75rem] shrink-0 border px-2 py-0.5 font-mono text-[0.6rem] tracking-widest uppercase transition ${palette.button}`}>
+              className={`min-h-[1.75rem] shrink-0 self-start border px-2 py-0.5 font-mono text-[0.6rem] tracking-widest uppercase transition ${palette.button}`}>
               {isExpanded ? "COLLAPSE" : "EXPAND"}
             </button>
           </div>
