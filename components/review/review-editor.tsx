@@ -43,12 +43,12 @@ const CONFLICT_BLOCK_REGEX =
 type EditorSegment =
   | { type: "text"; id: string; content: string }
   | {
-      type: "conflict"
-      id: string
-      marker: string
-      ours: string
-      theirs: string
-    }
+    type: "conflict"
+    id: string
+    marker: string
+    ours: string
+    theirs: string
+  }
 
 function parseEditorSegments(content: string): EditorSegment[] {
   const segments: EditorSegment[] = []
@@ -233,7 +233,6 @@ export function ReviewEditor({
   const lastConflictSignatureRef = React.useRef<string | null>(null)
 
   const textareaRef = React.useRef<any>(null)
-
   React.useEffect(() => {
     setMounted(true)
   }, [])
@@ -337,6 +336,25 @@ export function ReviewEditor({
     [sessionFiles]
   )
 
+  const conflictRefs = React.useRef<Map<string, HTMLElement>>(new Map())
+  const [currentConflictIdx, setCurrentConflictIdx] = React.useState(0)
+
+  const conflictSegments = React.useMemo(
+    () => parsedSegments.filter((s) => s.type === "conflict"),
+    [parsedSegments]
+  )
+
+  const handleJumpToNextConflict = React.useCallback(() => {
+    if (conflictSegments.length === 0) return
+    const idx = currentConflictIdx % conflictSegments.length
+    const seg = conflictSegments[idx]
+    const el = conflictRefs.current.get(seg.id)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+    }
+    setCurrentConflictIdx((prev) => (prev + 1) % conflictSegments.length)
+  }, [conflictSegments, currentConflictIdx])
+
   const rebaseState = revision.rebaseState as RebaseState | null
 
   React.useEffect(() => {
@@ -372,10 +390,10 @@ export function ReviewEditor({
     const targetFile =
       (requestedPath
         ? sessionFiles.find(
-            (file) =>
-              file.filePath === requestedPath &&
-              fileHasConflicts(file, file.content)
-          )
+          (file) =>
+            file.filePath === requestedPath &&
+            fileHasConflicts(file, file.content)
+        )
         : null) ?? firstConflictedFile
 
     if (!targetFile) {
@@ -432,9 +450,12 @@ export function ReviewEditor({
         return
       }
 
-      finalizeProgressResetRef.current = window.setTimeout(() => {
-        setFinalizeProgressState("idle")
-      }, nextState === "success" ? 1400 : 3200)
+      finalizeProgressResetRef.current = window.setTimeout(
+        () => {
+          setFinalizeProgressState("idle")
+        },
+        nextState === "success" ? 1400 : 3200
+      )
     },
     []
   )
@@ -493,27 +514,27 @@ export function ReviewEditor({
       const palette =
         tone === "draft"
           ? {
-              border: "border-red-300/70",
-              bg: "bg-red-500/[0.03]",
-              text: "text-red-700/80",
-              button:
-                "border-red-300/80 text-red-700 hover:bg-red-500/10 hover:border-red-400",
-            }
+            border: "border-red-300/70",
+            bg: "bg-red-500/[0.03]",
+            text: "text-red-700/80",
+            button:
+              "border-red-300/80 text-red-700 hover:bg-red-500/10 hover:border-red-400",
+          }
           : tone === "main"
             ? {
-                border: "border-blue-300/70",
-                bg: "bg-blue-500/[0.03]",
-                text: "text-blue-700/80",
-                button:
-                  "border-blue-300/80 text-blue-700 hover:bg-blue-500/10 hover:border-blue-400",
-              }
+              border: "border-blue-300/70",
+              bg: "bg-blue-500/[0.03]",
+              text: "text-blue-700/80",
+              button:
+                "border-blue-300/80 text-blue-700 hover:bg-blue-500/10 hover:border-blue-400",
+            }
             : {
-                border: "border-tech-main/20",
-                bg: "bg-tech-main/[0.03]",
-                text: "text-tech-main/60",
-                button:
-                  "border-tech-main/20 text-tech-main/70 hover:bg-tech-main/10 hover:border-tech-main/30",
-              }
+              border: "border-tech-main/20",
+              bg: "bg-tech-main/[0.03]",
+              text: "text-tech-main/60",
+              button:
+                "border-tech-main/20 text-tech-main/70 hover:bg-tech-main/10 hover:border-tech-main/30",
+            }
 
       return (
         <div
@@ -648,12 +669,12 @@ export function ReviewEditor({
           parsedSegments.flatMap((segment) =>
             segment.type === "conflict" && segment.id === segmentId
               ? [
-                  {
-                    type: "text" as const,
-                    id: `${segment.id}-resolved`,
-                    content: resolution,
-                  },
-                ]
+                {
+                  type: "text" as const,
+                  id: `${segment.id}-resolved`,
+                  content: resolution,
+                },
+              ]
               : [segment]
           )
         )
@@ -741,7 +762,7 @@ export function ReviewEditor({
         activeFileId:
           result.focusFilePath
             ? prev.files.find((file) => file.filePath === result.focusFilePath)
-                ?.id ?? prev.activeFileId
+              ?.id ?? prev.activeFileId
             : prev.activeFileId,
       }))
       pendingServerRefreshRef.current = true
@@ -867,22 +888,22 @@ export function ReviewEditor({
 
         {effectiveMode === null && mounted
           ? ReactDOM.createPortal(
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                <div className="relative w-full max-w-2xl border border-tech-main/40 bg-white p-6 shadow-xl">
-                  <CornerBrackets color="border-tech-main/40" />
-                  <p className="mb-4 font-mono text-xs tracking-widest text-tech-main/60 uppercase">
-                    RESOLUTION_METHOD_
-                  </p>
-                  <ModeSelector
-                    modeAnalysis={reviewSession.modeAnalysis}
-                    onSelectMode={handleSelectMode}
-                    hasConflicts={hasConflicts}
-                    isSelecting={isSelectingMode}
-                  />
-                </div>
-              </div>,
-              document.body
-            )
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+              <div className="relative w-full max-w-2xl border border-tech-main/40 bg-white p-6 shadow-xl">
+                <CornerBrackets color="border-tech-main/40" />
+                <p className="mb-4 font-mono text-xs tracking-widest text-tech-main/60 uppercase">
+                  RESOLUTION_METHOD_
+                </p>
+                <ModeSelector
+                  modeAnalysis={reviewSession.modeAnalysis}
+                  onSelectMode={handleSelectMode}
+                  hasConflicts={hasConflicts}
+                  isSelecting={isSelectingMode}
+                />
+              </div>
+            </div>,
+            document.body
+          )
           : null}
 
         {effectiveMode !== null ? (
@@ -901,13 +922,12 @@ export function ReviewEditor({
               <button
                 type="button"
                 onClick={() => setActionNotice(null)}
-                className={`w-full border-l-4 px-4 py-3 text-left font-mono text-xs transition ${
-                  actionNotice.tone === "warning"
+                className={`w-full border-l-4 px-4 py-3 text-left font-mono text-xs transition ${actionNotice.tone === "warning"
                     ? "border-amber-500 bg-amber-500/10 text-amber-800 hover:bg-amber-500/15"
                     : actionNotice.tone === "success"
                       ? "border-green-500 bg-green-500/10 text-green-800 hover:bg-green-500/15"
                       : "border-tech-main bg-tech-main/5 text-tech-main hover:bg-tech-main/10"
-                }`}
+                  }`}
                 aria-label="Dismiss action notice">
                 {actionNotice.message}
               </button>
@@ -942,6 +962,20 @@ export function ReviewEditor({
                 rightSlot={activeFile?.filePath || "UNTITLED_FILE_"}
               />
 
+              {hasInlineConflicts && (
+                <div className="flex items-center border-b border-tech-main/20 bg-tech-main/3 px-3 py-1">
+                  <button
+                    type="button"
+                    onClick={handleJumpToNextConflict}
+                    className="font-mono text-[0.625rem] tracking-widest uppercase px-2 py-1 border border-tech-main/30 text-tech-main/60 hover:border-tech-main hover:text-tech-main">
+                    NEXT_CONFLICT_ ↓
+                  </button>
+                  <span className="ml-2 font-mono text-[0.625rem] tracking-widest text-tech-main/40 uppercase">
+                    {conflictSegments.length} UNRESOLVED
+                  </span>
+                </div>
+              )}
+
               {activeTab === "write" && !hasInlineConflicts && (
                 <EditorToolbar
                   onInsert={insertSyntax}
@@ -959,40 +993,98 @@ export function ReviewEditor({
                   {hasInlineConflicts ? (
                     <div className="custom-left-scrollbar overflow-auto">
                       <pre className="p-4 font-mono text-xs/relaxed whitespace-pre-wrap sm:p-6">
-                        {(() => {
-                          type LineRegion = "normal" | "ours" | "theirs"
-                          let region: LineRegion = "normal"
-                          let charOffset = 0
-                          return activeContent.split("\n").map((line) => {
-                            const key = `co${charOffset}`
-                            charOffset += line.length + 1
-                            let cls = "text-tech-main/80"
-                            if (/^<<<<<<< draft/.test(line)) {
-                              region = "ours"
-                              cls =
-                                "border-l-2 border-red-500 pl-2 bg-red-500/10 text-red-700 font-bold"
-                            } else if (/^=======/.test(line)) {
-                              region = "theirs"
-                              cls =
-                                "border-l-2 border-gray-400 pl-2 bg-gray-100 text-gray-500"
-                            } else if (/^>>>>>>> main/.test(line)) {
-                              region = "normal"
-                              cls =
-                                "border-l-2 border-blue-500 pl-2 bg-blue-500/10 text-blue-700 font-bold"
-                            } else if (region === "ours") {
-                              cls =
-                                "bg-red-500/5 text-red-900 pl-2 border-l-2 border-red-300"
-                            } else if (region === "theirs") {
-                              cls =
-                                "bg-blue-500/5 text-blue-900 pl-2 border-l-2 border-blue-300"
-                            }
+                        {parsedSegments.map((segment) => {
+                          if (segment.type === "text") {
                             return (
-                              <span key={key} className={`block ${cls}`}>
-                                {line || "\u00a0"}
+                              <span
+                                key={segment.id}
+                                className="block text-tech-main/80">
+                                {segment.content || "\u00a0"}
                               </span>
                             )
-                          })
-                        })()}
+                          }
+                          return (
+                            <span
+                              key={segment.id}
+                              ref={(el) => {
+                                if (el) conflictRefs.current.set(segment.id, el)
+                                else conflictRefs.current.delete(segment.id)
+                              }}>
+                              <span className="block border-l-2 border-red-500 bg-red-500/10 pl-2 font-bold text-red-700">
+                                {"<<<<<<< draft"}
+                              </span>
+                              <span className="block pl-2 font-mono text-[0.6rem] text-red-600/70 select-none">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    resolveConflictSegment(
+                                      segment.id,
+                                      segment.ours
+                                    )
+                                  }
+                                  className="cursor-pointer hover:text-red-700 hover:underline">
+                                  [accept ours]
+                                </button>
+                                {" · "}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    resolveConflictSegment(
+                                      segment.id,
+                                      segment.theirs
+                                    )
+                                  }
+                                  className="cursor-pointer hover:text-blue-700 hover:underline">
+                                  [accept theirs]
+                                </button>
+                              </span>
+                              {
+                                segment.ours.split("\n").reduce<{
+                                  nodes: React.ReactNode[]
+                                  offset: number
+                                }>(
+                                  (acc, line) => {
+                                    acc.nodes.push(
+                                      <span
+                                        key={`${segment.id}-o${acc.offset}`}
+                                        className="block border-l-2 border-red-300 bg-red-500/5 pl-2 text-red-900">
+                                        {line || "\u00a0"}
+                                      </span>
+                                    )
+                                    acc.offset += line.length + 1
+                                    return acc
+                                  },
+                                  { nodes: [], offset: 0 }
+                                ).nodes
+                              }
+                              <span className="block border-l-2 border-gray-400 bg-gray-100 pl-2 text-gray-500">
+                                {"======="}
+                              </span>
+                              {
+                                segment.theirs.split("\n").reduce<{
+                                  nodes: React.ReactNode[]
+                                  offset: number
+                                }>(
+                                  (acc, line) => {
+                                    acc.nodes.push(
+                                      <span
+                                        key={`${segment.id}-t${acc.offset}`}
+                                        className="block border-l-2 border-blue-300 bg-blue-500/5 pl-2 text-blue-900">
+                                        {line || "\u00a0"}
+                                      </span>
+                                    )
+                                    acc.offset += line.length + 1
+                                    return acc
+                                  },
+                                  { nodes: [], offset: 0 }
+                                ).nodes
+                              }
+                              <span className="block border-l-2 border-blue-500 bg-blue-500/10 pl-2 font-bold text-blue-700">
+                                {">>>>>>> main"}
+                              </span>
+                            </span>
+                          )
+                        })}
                       </pre>
                     </div>
                   ) : (
@@ -1018,37 +1110,81 @@ export function ReviewEditor({
                         )
                         const conflictTotal = conflictSegments.length
                         let conflictIdx = 0
-                        return parsedSegments.map((segment) =>
-                          segment.type === "conflict" ? (
-                            <ConflictBlock
-                              key={`${activeFile?.id ?? ""}:${segment.id}`}
-                              id={segment.id}
-                              index={++conflictIdx}
-                              total={conflictTotal}
-                              ours={segment.ours}
-                              theirs={segment.theirs}
-                              onAcceptOurs={() =>
-                                resolveConflictSegment(segment.id, segment.ours)
-                              }
-                              onAcceptTheirs={() =>
-                                resolveConflictSegment(
-                                  segment.id,
-                                  segment.theirs
-                                )
-                              }
-                              onManualEdit={(content) =>
-                                resolveConflictSegment(segment.id, content)
-                              }
-                              autoApplied={(() => {
-                                const key = `${segment.ours}|||${segment.theirs}`
-                                const resolution = rerereResolutionMap.get(key)
-                                return resolution
-                                  ? { resolution, source: "rerere" as const }
-                                  : undefined
-                              })()}
-                            />
-                          ) : null
-                        )
+                        return parsedSegments.map((segment, segIdx) => {
+                          if (segment.type !== "conflict") return null
+                          const localIdx = conflictIdx++
+
+                          const prevSeg = parsedSegments[segIdx - 1]
+                          const nextSeg = parsedSegments[segIdx + 1]
+                          const contextBefore =
+                            prevSeg?.type === "text"
+                              ? prevSeg.content
+                                .split("\n")
+                                .filter((l) => l !== "")
+                                .slice(-3)
+                                .join("\n")
+                              : undefined
+                          const contextAfter =
+                            nextSeg?.type === "text"
+                              ? nextSeg.content
+                                .split("\n")
+                                .filter((l) => l !== "")
+                                .slice(0, 3)
+                                .join("\n")
+                              : undefined
+
+                          return (
+                            <React.Fragment
+                              key={`${activeFile?.id ?? ""}:${segment.id}`}>
+                              {localIdx > 0 && (
+                                <div className="h-px bg-tech-main/20 my-2" />
+                              )}
+                              {contextBefore && (
+                                <pre className="border-l border-tech-main/20 bg-tech-main/3 px-3 py-1 font-mono text-[0.6875rem] text-tech-main/40 whitespace-pre-wrap">
+                                  {contextBefore}
+                                </pre>
+                              )}
+                              <ConflictBlock
+                                id={segment.id}
+                                index={localIdx + 1}
+                                total={conflictTotal}
+                                ours={segment.ours}
+                                theirs={segment.theirs}
+                                onAcceptOurs={() =>
+                                  resolveConflictSegment(
+                                    segment.id,
+                                    segment.ours
+                                  )
+                                }
+                                onAcceptTheirs={() =>
+                                  resolveConflictSegment(
+                                    segment.id,
+                                    segment.theirs
+                                  )
+                                }
+                                onManualEdit={(content) =>
+                                  resolveConflictSegment(segment.id, content)
+                                }
+                                autoApplied={(() => {
+                                  const key = `${segment.ours}|||${segment.theirs}`
+                                  const resolution =
+                                    rerereResolutionMap.get(key)
+                                  return resolution
+                                    ? {
+                                      resolution,
+                                      source: "rerere" as const,
+                                    }
+                                    : undefined
+                                })()}
+                              />
+                              {contextAfter && (
+                                <pre className="border-l border-tech-main/20 bg-tech-main/3 px-3 py-1 font-mono text-[0.6875rem] text-tech-main/40 whitespace-pre-wrap">
+                                  {contextAfter}
+                                </pre>
+                              )}
+                            </React.Fragment>
+                          )
+                        })
                       })()}
                     </div>
                   ) : (
@@ -1129,13 +1265,15 @@ export function ReviewEditor({
               )}
 
               {activeTab === "3-way" && (
-                <section role="tabpanel" className="editor-grow flex flex-col">
-                  <div className="flex min-h-0 flex-[3] divide-x divide-tech-main/20 border-b border-tech-main/20">
+                <section
+                  role="tabpanel"
+                  className="editor-grow flex flex-col min-h-0">
+                  <div className="flex min-h-0 flex-[3] overflow-hidden divide-x divide-tech-main/20 border-b border-tech-main/20">
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="border-b border-tech-main/20 bg-tech-main/5 px-3 py-1.5 font-mono text-[0.625rem] tracking-widest text-tech-main/60 uppercase">
                         CURRENT_(DRAFT)_
                       </div>
-                      <div className="custom-left-scrollbar min-h-[16rem] flex-1 overflow-auto">
+                      <div className="custom-left-scrollbar h-full overflow-y-auto">
                         {hasInlineConflicts ? (
                           <div className="p-3 font-mono text-xs/relaxed">
                             {parsedSegments.map((segment) => {
@@ -1148,11 +1286,11 @@ export function ReviewEditor({
                               return (
                                 <div
                                   key={segment.id}
-                                  ref={
-                                    segment.id === firstConflictSegmentId
-                                      ? firstConflictAnchorRef
-                                      : undefined
-                                  }
+                                  ref={(el) => {
+                                    if (el)
+                                      conflictRefs.current.set(segment.id, el)
+                                    else conflictRefs.current.delete(segment.id)
+                                  }}
                                   className="my-1 border border-red-300 bg-red-500/5">
                                   <div className="flex items-center justify-between border-b border-red-300 bg-red-500/10 px-2 py-1">
                                     <span className="font-mono text-[0.6rem] tracking-widest text-red-700 uppercase">
@@ -1189,7 +1327,7 @@ export function ReviewEditor({
                       <div className="border-b border-tech-main/20 bg-tech-main/5 px-3 py-1.5 font-mono text-[0.625rem] tracking-widest text-tech-main/60 uppercase">
                         INCOMING_(MAIN)_
                       </div>
-                      <div className="custom-left-scrollbar min-h-[16rem] flex-1 overflow-auto">
+                      <div className="custom-left-scrollbar h-full overflow-y-auto">
                         {hasInlineConflicts ? (
                           <div className="p-3 font-mono text-xs/relaxed">
                             {parsedSegments.map((segment) => {
