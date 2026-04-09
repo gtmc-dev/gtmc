@@ -32,7 +32,9 @@ import { getReauthLoginUrl, isReauthRequiredError } from "@/lib/admin-reauth"
 import type {
   ConflictMode,
   ModeAnalysis,
+  ReviewMergeStrategyAnalysis,
   ReviewFile,
+  ReviewMergeMethod,
   ReviewSessionState,
 } from "@/types/review"
 import type { RebaseState } from "@/types/rebase"
@@ -165,10 +167,22 @@ function inferMode(revision: {
 }
 
 interface ReviewEditorProps {
-  pr: { number: number; title: string; htmlUrl: string }
+  pr: {
+    number: number
+    title: string
+    htmlUrl: string
+    baseRef: string
+    headRef: string
+    commits: number
+    changedFiles: number
+    additions: number
+    deletions: number
+    authorLogin: string
+  }
   files: ReviewFile[]
   initialActiveFileId?: string
   modeAnalysis: ModeAnalysis
+  mergeStrategyAnalysis: ReviewMergeStrategyAnalysis
   revision: { id: string; conflictMode: string | null; rebaseState: unknown }
   squashCommitDefaults?: {
     title: string
@@ -192,6 +206,7 @@ export function ReviewEditor({
   files,
   initialActiveFileId,
   modeAnalysis,
+  mergeStrategyAnalysis,
   revision,
   squashCommitDefaults,
 }: ReviewEditorProps) {
@@ -871,6 +886,7 @@ export function ReviewEditor({
   const handleFinalize = async (options?: {
     commitTitle?: string
     commitBody?: string
+    mergeMethod?: ReviewMergeMethod
   }) => {
     setActionError(null)
     setActionNotice(null)
@@ -910,9 +926,9 @@ export function ReviewEditor({
 
       <div className="space-y-4">
         <div className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-2 border border-tech-main/40 bg-tech-bg/95 px-4 py-3 font-mono text-xs text-tech-main backdrop-blur-sm">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
             <span className="shrink-0 border border-tech-main/40 bg-tech-main/10 px-2 py-0.5 tracking-widest uppercase">
-              PR_{pr.number}_
+              FILES_CHANGED_#{pr.number}
             </span>
             <span className="truncate tracking-widest uppercase">
               {pr.title}
@@ -922,15 +938,22 @@ export function ReviewEditor({
                 {effectiveMode}
               </span>
             )}
+            <span className="shrink-0 border border-tech-main/20 bg-white/70 px-2 py-0.5 tracking-widest text-tech-main/60 uppercase">
+              {pr.baseRef} ← {pr.headRef}
+            </span>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 flex-wrap items-center gap-3">
             <span className="font-mono text-[0.6875rem] tracking-widest text-tech-main/60 uppercase">
-              {
-                sessionFiles.filter(
-                  (f) => f.status === "resolved" || f.status === "clean"
-                ).length
-              }
-              /{sessionFiles.length}_FILES_
+              {pr.commits}_COMMITS
+            </span>
+            <span className="font-mono text-[0.6875rem] tracking-widest text-tech-main/60 uppercase">
+              {pr.changedFiles}_FILES
+            </span>
+            <span className="font-mono text-[0.6875rem] tracking-widest text-green-700 uppercase">
+              +{pr.additions}
+            </span>
+            <span className="font-mono text-[0.6875rem] tracking-widest text-red-600 uppercase">
+              -{pr.deletions}
             </span>
             <a
               href={pr.htmlUrl}
@@ -1004,6 +1027,7 @@ export function ReviewEditor({
               defaultCommitTitle={squashCommitDefaults?.title}
               defaultCommitBody={squashCommitDefaults?.body}
               coauthorLines={squashCommitDefaults?.coauthorLines}
+              mergeStrategyAnalysis={mergeStrategyAnalysis}
             />
 
             <div
