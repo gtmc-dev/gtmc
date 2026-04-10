@@ -64,9 +64,13 @@ export async function GET(
   const title = rawTitle.length > 60 ? rawTitle.slice(0, 60) + "…" : rawTitle
 
   const slugMapEntry = getLocalizedSlugMapEntry(slugPath, "en")
+  const parentEntry = slugMapEntry?.parentSlug
+    ? getLocalizedSlugMapEntry(slugMapEntry.parentSlug, "en")
+    : null
   const chapterTitle =
-    slugMapEntry?.chapterTitle ??
-    (data["chapter-title"] as string | undefined) ??
+    slugMapEntry?.chapterTitle.trim() ||
+    parentEntry?.chapterTitle.trim() ||
+    (data["chapter-title"] as string | undefined) ||
     null
 
   const author = (data.author as string | undefined) ?? null
