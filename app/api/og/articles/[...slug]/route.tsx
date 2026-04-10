@@ -183,7 +183,7 @@ export async function GET(
               <div style={{ width: 9, height: 9, background: "#4a5a78", display: "flex", flexShrink: 0 }} />
               Graduate Texts in Minecraft
             </div>
-            <div style={{ fontSize: 18, color: "#4a5a78", letterSpacing: 0.3, border: "1px solid #60708f", padding: "2px 12px", background: "white", display: "flex" }}>
+            <div style={{ fontSize: 18, color: "#4a5a78", letterSpacing: 0.3, padding: "2px 12px", background: "white", display: "flex" }}>
               techmc.wiki
             </div>
           </div>
@@ -191,25 +191,24 @@ export async function GET(
           {/* CONTENT AREA */}
           <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "16px 28px 0", position: "relative", overflow: "hidden" }}>
             {chapterTitle && (
-              <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 15, color: "#60708f", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>
-                <div style={{ width: 5, height: 5, background: "#60708f", display: "flex", flexShrink: 0 }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 20, color: "#60708f", letterSpacing: 2, textTransform: "uppercase", marginBottom: 8 }}>
                 {chapterTitle}
               </div>
             )}
 
-            <div style={{ fontSize: 42, fontWeight: 400, color: "#1e293b", lineHeight: 1.2, marginBottom: 10, letterSpacing: -0.3, display: "flex" }}>
+            <div style={{ fontSize: 64, fontWeight: 400, color: "#1e293b", lineHeight: 1.2, marginBottom: 10, letterSpacing: -0.3, display: "flex" }}>
               {title}
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 15, color: "#60708f", marginBottom: 14, flexShrink: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 20, color: "rgba(96, 112, 143, 0.67)", marginBottom: 14, flexShrink: 0 }}>
               {author && <span style={{ display: "flex" }}>by {author}</span>}
               {author && readingTime > 0 && <span style={{ color: "#cbd5e1", display: "flex" }}>|</span>}
-              {readingTime > 0 && <span style={{ display: "flex" }}>~{readingTime} min</span>}
+              {readingTime > 0 && <span style={{ display: "flex" }}>~{readingTime} min to read</span>}
               {isAdvanced && (
                 <>
                   <span style={{ color: "#cbd5e1", display: "flex" }}>|</span>
                   <span style={{ border: "1px solid rgba(76,91,150,0.4)", background: "rgba(76,91,150,0.08)", color: "#4c5b96", padding: "2px 8px", fontSize: 12, letterSpacing: 2, textTransform: "uppercase", display: "flex" }}>
-                    ADVANCED
+                    ADVANCED CONTENT
                   </span>
                 </>
               )}
@@ -217,7 +216,7 @@ export async function GET(
 
             {bodyHook && (
               <div style={{ position: "relative", flex: 1, overflow: "hidden", display: "flex" }}>
-                <div style={{ fontSize: 22, fontWeight: 400, color: "#60708f", lineHeight: 1.6, display: "flex" }}>
+                <div style={{ fontSize: 24, fontWeight: 350, color: "#60708f", lineHeight: 1.6, display: "flex" }}>
                   {bodyHook}
                 </div>
                 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 100, background: "linear-gradient(to bottom, rgba(248,249,252,0) 0%, rgba(248,249,252,0.6) 40%, rgba(248,249,252,1) 100%)", display: "flex" }} />
