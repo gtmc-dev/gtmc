@@ -22,7 +22,7 @@ export interface DraftFileRecord {
 
 export interface DraftFileCollection {
   activeFileId: string
-  folders?: string[]
+  folders: string[]
   files: DraftFileRecord[]
 }
 
