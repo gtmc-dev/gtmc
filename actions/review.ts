@@ -1158,6 +1158,7 @@ export async function keepFileAction(revisionId: string) {
 
   const keptDraftStorage = serializeDraftFilesForStorage({
     activeFileId: storedDraftFiles.activeFileId,
+    folders: storedDraftFiles.folders || [],
     files: [
       {
         ...draftFile,

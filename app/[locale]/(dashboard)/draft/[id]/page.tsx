@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 import { decodeStoredDraftFiles } from "@/lib/draft-files"
 import { notFound, redirect } from "next/navigation"
+import { readFile } from "fs/promises"
+import path from "path"
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -41,6 +43,7 @@ export default async function EditDraftPage({
     draftFiles.files.length > 1
       ? `FILES_[${draftFiles.files.length}]`
       : draftFiles.files[0]?.filePath || "DRAFT_WORKSPACE"
+  const contributingGuides = await loadContributingGuides()
 
   return (
     <div
@@ -74,12 +77,54 @@ export default async function EditDraftPage({
             activeFileId: draftFiles.activeFileId,
             id: draft.id,
             files: draftFiles.files,
+            folders: draftFiles.folders,
             title: draft.title,
             githubPrUrl: draft.githubPrUrl || undefined,
             status: draft.status,
+            contributingGuides,
           }}
         />
       </div>
     </div>
+  )
+}
+
+async function loadContributingGuides() {
+  const guideTargets = [
+    {
+      id: "web",
+      title: "GTMC Web",
+      filePath: path.join(process.cwd(), "CONTRIBUTING.md"),
+    },
+    {
+      id: "articles",
+      title: "Articles",
+      filePath: path.join(process.cwd(), "articles", "CONTRIBUTING.md"),
+    },
+  ]
+
+  const guides = await Promise.all(
+    guideTargets.map(async (guide) => {
+      try {
+        const content = await readFile(guide.filePath, "utf8")
+        return {
+          id: guide.id,
+          title: guide.title,
+          content,
+        }
+      } catch {
+        return null
+      }
+    })
+  )
+
+  return guides.filter(
+    (
+      guide
+    ): guide is {
+      id: string
+      title: string
+      content: string
+    } => Boolean(guide)
   )
 }
