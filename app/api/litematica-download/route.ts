@@ -31,10 +31,18 @@ function isAllowedRemoteUrl(urlString: string) {
 
       const parsedPort =
         parsed.port ||
-        (parsed.protocol === "https:" ? "443" : parsed.protocol === "http:" ? "80" : "")
+        (parsed.protocol === "https:"
+          ? "443"
+          : parsed.protocol === "http:"
+            ? "80"
+            : "")
       const sitePort =
         SITE_ORIGIN.port ||
-        (SITE_ORIGIN.protocol === "https:" ? "443" : SITE_ORIGIN.protocol === "http:" ? "80" : "")
+        (SITE_ORIGIN.protocol === "https:"
+          ? "443"
+          : SITE_ORIGIN.protocol === "http:"
+            ? "80"
+            : "")
 
       if (parsedPort !== sitePort) {
         return false
