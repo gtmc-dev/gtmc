@@ -25,6 +25,11 @@ export function MobileTocBar() {
   const { toc, activeHeadingId } = useSidebarContext()
   const progress = useScrollProgress()
   const [isSheetOpen, setIsSheetOpen] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   React.useEffect(() => {
     if (!isSheetOpen) return
@@ -44,7 +49,7 @@ export function MobileTocBar() {
     }
   }, [isSheetOpen])
 
-  if (toc.length === 0) return null
+  if (!mounted || toc.length === 0) return null
 
   const activeItem = toc.find((item) => item.id === activeHeadingId)
   const pct = Math.round(progress * 100)
