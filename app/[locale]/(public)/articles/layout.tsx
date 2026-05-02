@@ -3,6 +3,7 @@ import { DesktopNav } from "@/components/layout/desktop-nav"
 import { MobileNav } from "@/components/layout/mobile-nav"
 import { SiteShell } from "@/components/layout/site-shell"
 import { Logo } from "@/components/ui/logo"
+import { AuthIsland } from "@/components/layout/auth-island"
 import { ArticlesLayoutClient } from "./articles-layout-client"
 
 const navLinks = [
@@ -25,9 +26,7 @@ export default function ArticlesLayout({
           <MobileNav navLinks={navLinks} />
         </>
       }
-      rightSlot={
-        <div aria-hidden="true" />
-      }>
+      rightSlot={<AuthIsland />}>
       <ArticlesLayoutClient tree={[]}>{children}</ArticlesLayoutClient>
     </SiteShell>
   )
