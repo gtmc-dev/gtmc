@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { SessionProvider, useSession, signIn } from "next-auth/react"
+import { SessionProvider, useSession } from "next-auth/react"
 import { Link } from "@/i18n/navigation"
 import { UesrAvatar } from "@/components/ui/user-avatar"
 import { SignOutButton } from "@/components/ui/sign-out-button"
