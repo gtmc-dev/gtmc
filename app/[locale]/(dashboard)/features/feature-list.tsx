@@ -9,7 +9,7 @@ import { FeatureStatusBadge } from "@/components/ui/status-badge"
 import { CardHeaderRow } from "@/components/ui/card-header-row"
 import { SectionTitle } from "@/components/ui/section-title"
 import { TagList } from "@/components/ui/tag-list"
-import { FilterButtonGroup } from "./filter-button-group"
+import { SegmentedControl } from "@/components/ui/segmented-control"
 import { StatusDot } from "@/components/ui/status-dot"
 import { EmptyState } from "@/components/ui/empty-state"
 
@@ -192,7 +192,7 @@ export function FeatureList({ features }: { features: Feature[] }) {
                 ">
                 {t("filterByStatus")}
               </h4>
-              <FilterButtonGroup
+              <SegmentedControl
                 options={[
                   { label: t("filterAll"), value: "ALL" },
                   { label: tStatus("pending"), value: "UNRESOLVED" },
@@ -201,7 +201,7 @@ export function FeatureList({ features }: { features: Feature[] }) {
                   { label: tStatus("resolved"), value: "RESOLVED" },
                 ]}
                 value={statusFilter}
-                onChange={setStatusFilter}
+                onValueChange={setStatusFilter}
               />
             </div>
 

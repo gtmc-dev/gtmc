@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { CornerBrackets } from "@/components/ui/corner-brackets"
 
 /**
  * Square section frame with optional corner brackets.
- * Reuses brutal-card corner bracket pattern for consistency.
+ * Reuses shared CornerBrackets primitive for consistency.
  */
 export const SectionFrame = React.forwardRef<
   HTMLDivElement,
@@ -19,32 +20,7 @@ export const SectionFrame = React.forwardRef<
     `}
     {...props}>
     {showBrackets && (
-      <>
-        <div
-          className="
-            pointer-events-none absolute top-0 left-0 size-2 -translate-px
-            border-t-2 border-l-2 border-tech-main/60
-          "
-        />
-        <div
-          className="
-            pointer-events-none absolute top-0 right-0 size-2 translate-x-px
-            -translate-y-px border-t-2 border-r-2 border-tech-main/60
-          "
-        />
-        <div
-          className="
-            pointer-events-none absolute bottom-0 left-0 size-2 -translate-x-px
-            translate-y-px border-b-2 border-l-2 border-tech-main/60
-          "
-        />
-        <div
-          className="
-            pointer-events-none absolute right-0 bottom-0 size-2 translate-px
-            border-r-2 border-b-2 border-tech-main/60
-          "
-        />
-      </>
+      <CornerBrackets size="size-2" color="border-tech-main/60" />
     )}
     {children}
   </div>

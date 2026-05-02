@@ -78,3 +78,48 @@ export function DraftStatusBadge({ status }: StatusBadgeProps) {
 
   return <TechBadge className={className}>[{label}]</TechBadge>
 }
+
+interface ReviewStatusBadgeProps {
+  variant:
+    | "pr"
+    | "conflict"
+    | "conflict-mode-fine-grained"
+    | "conflict-mode-simple"
+  prNumber?: number
+}
+
+export function ReviewStatusBadge({
+  variant,
+  prNumber,
+}: ReviewStatusBadgeProps) {
+  const t = useTranslations("Review")
+
+  switch (variant) {
+    case "pr":
+      return (
+        <TechBadge className="border-blue-500/40 bg-blue-500/10 text-blue-600">
+          [PR #{prNumber}]
+        </TechBadge>
+      )
+    case "conflict":
+      return (
+        <TechBadge className="animate-pulse border-red-500/40 bg-red-500 text-white">
+          {t("unresolvedConflicts")}
+        </TechBadge>
+      )
+    case "conflict-mode-fine-grained":
+      return (
+        <TechBadge className="border-blue-500/30 bg-blue-500/10 text-blue-700">
+          {t("modeFineGrained")}
+        </TechBadge>
+      )
+    case "conflict-mode-simple":
+      return (
+        <TechBadge className="border-tech-main/30 bg-tech-main/10 text-tech-main">
+          SIMPLE
+        </TechBadge>
+      )
+    default:
+      return null
+  }
+}
