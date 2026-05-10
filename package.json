@@ -103,8 +103,9 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@prisma/engines",
-      "prisma",
+      "@swc/core",
       "esbuild",
+      "prisma",
       "sharp",
       "unrs-resolver"
     ],
