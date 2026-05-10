@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  form-data: 4.0.5
-
 importers:
 
   .:
@@ -113,6 +110,9 @@ importers:
       pangu:
         specifier: ^7.2.1
         version: 7.2.1
+      pnpm:
+        specifier: ^11.0.9
+        version: 11.0.9
       prisma:
         specifier: 7.8.0
         version: 7.8.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@6.0.3)
@@ -219,9 +219,6 @@ importers:
       playwright:
         specifier: ^1.59.1
         version: 1.59.1
-      pnpm:
-        specifier: ^11.0.9
-        version: 11.0.9
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
