@@ -72,3 +72,7 @@ skills.local
 # prevent anyone accidently not using pnpm
 package-lock.json
 .gitnexus
+
+# ide
+.vscode
+.idea
