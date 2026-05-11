@@ -116,6 +116,13 @@ export async function getPublicSidebarTree(
         return a.isReadmeIntro ? -1 : 1
       }
 
+      if (a.isFolder && b.isFolder) {
+        const indexComparison = compareIndex(a.index ?? -1, b.index ?? -1)
+        if (indexComparison !== 0) {
+          return indexComparison
+        }
+      }
+
       if (a.isFolder !== b.isFolder) {
         return a.isFolder ? -1 : 1
       }
