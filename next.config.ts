@@ -6,6 +6,9 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts")
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@prisma/client", "prisma"],
+  outputFileTracingIncludes: {
+    "/*": ["./lib/slug-map.json"],
+  },
   turbopack: {
     resolveAlias: {
       "../extensions/extensions.json":

@@ -7,7 +7,7 @@
     "articles:init": "git submodule update --init --recursive",
     "articles:status": "git submodule status articles",
     "articles:update": "git submodule update --remote articles",
-    "build": "next build",
+    "build": "pnpm generate-slug-map && next build",
     "dev": "next dev",
     "generate-slug-map": "tsx scripts/generate-slug-map.ts",
     "lighthouse": "lhci autorun",
