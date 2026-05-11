@@ -9,6 +9,8 @@ import { shouldIgnoreDirectory, shouldIgnoreFile } from "../lib/article-ignore"
 const ARTICLES_DIR = path.join(process.cwd(), "articles")
 const OUTPUT_FILE = path.join(process.cwd(), "lib", "slug-map.json")
 const MAX_DEPTH = 3
+const TREE_PREVIEW_DEPTH = 3
+const TREE_PREVIEW_CHILD_LIMIT = 12
 
 type SlugMap = Record<string, SlugMapEntry>
 
@@ -255,6 +257,137 @@ function processDirectory(
   return hasError
 }
 
+function buildGenerationSummary(slugMap: SlugMap): string {
+  const entries = Object.values(slugMap)
+  const folders = entries.filter((entry) => entry.isFolder)
+  const articles = entries.filter((entry) => !entry.isFolder)
+  const roots = entries
+    .filter(
+      (entry) => !entry.parentSlug || slugMap[entry.parentSlug] === undefined
+    )
+    .sort(comparePreviewEntries)
+  const maxSlugDepth = entries.reduce(
+    (max, entry) => Math.max(max, entry.slug.split("/").length),
+    0
+  )
+
+  const summaryLines = [
+    "[generate-slug-map] Article structure indexed",
+    `Source: ${path.relative(process.cwd(), ARTICLES_DIR) || "."}`,
+    `Output: ${path.relative(process.cwd(), OUTPUT_FILE) || OUTPUT_FILE}`,
+    `Entries: ${entries.length} total (${folders.length} folders, ${articles.length} articles)`,
+    `Roots: ${roots.length} | max slug depth: ${maxSlugDepth} | max directory depth: ${MAX_DEPTH}`,
+    `Flags: ${countFlagged(entries, "isPreface")} preface, ${countFlagged(entries, "isAppendix")} appendix, ${countFlagged(entries, "isAdvanced")} advanced, ${countFlagged(entries, "hasIntro")} with intro`,
+    "Legend: [dir] folder README, [doc] article, * advanced, + intro, ! preface/appendix",
+    "",
+    "Structure preview:",
+  ]
+
+  const previewLines = formatPreviewEntries(roots, 0)
+  if (previewLines.length === 0) {
+    previewLines.push("  (no routable articles found)")
+  }
+
+  return [...summaryLines, ...previewLines, ""].join("\n")
+}
+
+function countFlagged(
+  entries: SlugMapEntry[],
+  field: "isPreface" | "isAppendix" | "isAdvanced" | "hasIntro"
+): number {
+  return entries.filter((entry) => entry[field]).length
+}
+
+function formatPreviewEntries(
+  entries: SlugMapEntry[],
+  depth: number
+): string[] {
+  const visibleEntries = entries.slice(0, TREE_PREVIEW_CHILD_LIMIT)
+  const lines: string[] = []
+  const nextDepth = depth + 1
+
+  for (const entry of visibleEntries) {
+    lines.push(formatPreviewEntry(entry, depth))
+
+    const children = [...(entry.children ?? [])].sort(comparePreviewEntries)
+    if (children.length > 0) {
+      if (nextDepth < TREE_PREVIEW_DEPTH) {
+        lines.push(...formatPreviewEntries(children, nextDepth))
+      } else {
+        lines.push(
+          `${indent(nextDepth)}... ${children.length} nested entries hidden`
+        )
+      }
+    }
+  }
+
+  const hiddenCount = entries.length - visibleEntries.length
+  if (hiddenCount > 0) {
+    lines.push(`${indent(depth)}... ${hiddenCount} more entries`)
+  }
+
+  return lines
+}
+
+function formatPreviewEntry(entry: SlugMapEntry, depth: number): string {
+  const kind = entry.isFolder ? "dir" : "doc"
+  const markers = [
+    entry.isAdvanced ? "*" : "",
+    entry.hasIntro ? "+" : "",
+    entry.isPreface || entry.isAppendix ? "!" : "",
+  ]
+    .filter(Boolean)
+    .join("")
+  const markerSuffix = markers === "" ? "" : ` ${markers}`
+  const indexSuffix = entry.index >= 0 ? ` #${entry.index}` : ""
+  const childCount = entry.children?.length ?? 0
+  const childSuffix = childCount > 0 ? `, ${childCount} children` : ""
+  const title = truncate(getPreviewTitle(entry), 72)
+
+  return `${indent(depth)}- [${kind}] ${title} <${entry.slug}>${indexSuffix}${markerSuffix}${childSuffix} @ articles/${entry.filePath}`
+}
+
+function comparePreviewEntries(a: SlugMapEntry, b: SlugMapEntry): number {
+  if (a.isFolder !== b.isFolder) {
+    return a.isFolder ? -1 : 1
+  }
+
+  const indexA = a.index >= 0 ? a.index : Number.MAX_SAFE_INTEGER
+  const indexB = b.index >= 0 ? b.index : Number.MAX_SAFE_INTEGER
+  if (indexA !== indexB) {
+    return indexA - indexB
+  }
+
+  return getPreviewTitle(a).localeCompare(getPreviewTitle(b), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  })
+}
+
+function getPreviewTitle(entry: SlugMapEntry): string {
+  return (
+    entry.chapterTitle ||
+    entry.title ||
+    entry.chapterTitleEn ||
+    entry.introTitle ||
+    entry.introTitleEn ||
+    entry.filePath.split("/").pop()?.replace(/\.md$/i, "") ||
+    entry.slug
+  )
+}
+
+function truncate(value: string, maxLength: number): string {
+  if (value.length <= maxLength) {
+    return value
+  }
+
+  return `${value.slice(0, maxLength - 1)}...`
+}
+
+function indent(depth: number): string {
+  return "  ".repeat(depth)
+}
+
 function main(): void {
   const slugMap: SlugMap = {}
   let hasError = false
@@ -403,6 +536,7 @@ function main(): void {
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(slugMap, null, 2) + "\n")
 
   const entryCount = Object.keys(slugMap).length
+  process.stdout.write(buildGenerationSummary(slugMap))
   process.stdout.write(`Generated slug-map.json with ${entryCount} entries\n`)
 }
 
