@@ -1,6 +1,6 @@
 import fs from "fs"
 import path from "path"
-import { type ArticleTreeNode } from "./github-repo-client"
+import { type ArticleTreeNode } from "@/lib/github"
 import { ArticleManifest, type ArticleEntry } from "./slug-resolver"
 
 export type ArticleLocale = "en" | "zh"
