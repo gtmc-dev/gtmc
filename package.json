@@ -48,7 +48,7 @@
     "motion": "^12.38.0",
     "next": "16.2.6",
     "next-auth": "5.0.0-beta.31",
-    "next-intl": "^4.11.1",
+    "next-intl": "^4.11.2",
     "node-diff3": "^3.2.0",
     "pangu": "^7.2.1",
     "prisma": "7.8.0",
@@ -67,7 +67,7 @@
     "schematic-renderer": "^1.1.25",
     "shiki": "^4.0.2",
     "strip-markdown": "^6.0.0",
-    "tailwind-merge": "^3.5.0",
+    "tailwind-merge": "^3.6.0",
     "three": "^0.184.0",
     "undici": "^8.2.0",
     "unist-util-visit": "^5.1.0"
