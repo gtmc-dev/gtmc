@@ -349,7 +349,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   return (
     <span
       ref={containerRef}
-      className="relative inline-block"
+      className="group relative inline-block"
       onMouseEnter={openDelayed}
       onMouseLeave={closeDelayed}>
       <button
@@ -366,13 +366,13 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
           }
         }}
         className="
-          inline-flex items-center gap-0.5 border border-tech-main/30
-          bg-tech-main/5 px-1 mx-1 font-mono text-[0.8em] tracking-wide
+          mx-1 inline-flex items-center gap-0.5 border
+          border-tech-main/30 bg-tech-main/5 px-1 font-mono text-[0.8em] tracking-wide
           text-tech-main no-underline transition-colors
-          hover:bg-tech-main/80 hover:text-white
+          group-hover:bg-tech-main/80 group-hover:text-white
           focus-visible:ring-2 focus-visible:ring-tech-main/50 focus-visible:outline-none
         ">
-        <span className="text-tech-main/40">@</span>
+        <span className="text-tech-main/40 group-hover:text-white/60">@</span>
         {children}
       </button>
 
