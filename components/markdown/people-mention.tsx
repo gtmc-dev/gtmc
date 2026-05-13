@@ -64,11 +64,13 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   const personKey = (props["data-person-key"] as string) ?? ""
   const person: ResolvedPerson = resolvePerson(personKey)
   const [isOpen, setIsOpen] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
   const generatedId = useId()
   const popupId = `people-popup-${generatedId}`
   const containerRef = useRef<HTMLSpanElement>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const animTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
   const t = useTranslations("PeopleMention")
 
@@ -78,23 +80,46 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
     }
   }, [])
 
+  const closeWithAnimation = useCallback(() => {
+    if (animTimeoutRef.current) {
+      clearTimeout(animTimeoutRef.current)
+    }
+    setIsAnimating(true)
+    setIsOpen(false)
+    animTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false)
+      animTimeoutRef.current = null
+    }, 150)
+  }, [])
+
   const open = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current)
       closeTimerRef.current = null
     }
+    if (animTimeoutRef.current) {
+      clearTimeout(animTimeoutRef.current)
+      animTimeoutRef.current = null
+    }
     recalcPosition()
+    setIsAnimating(false)
     setIsOpen(true)
   }, [recalcPosition])
 
   const closeDelayed = useCallback(() => {
-    closeTimerRef.current = setTimeout(() => setIsOpen(false), 300)
-  }, [])
+    closeTimerRef.current = setTimeout(() => closeWithAnimation(), 300)
+  }, [closeWithAnimation])
 
   const cancelClose = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current)
       closeTimerRef.current = null
+    }
+    if (animTimeoutRef.current) {
+      clearTimeout(animTimeoutRef.current)
+      animTimeoutRef.current = null
+      setIsAnimating(false)
+      setIsOpen(true)
     }
   }, [])
 
@@ -118,11 +143,11 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       const inContainer = containerRef.current?.contains(target)
       const inPopup = popupRef.current?.contains(target)
       if (!inContainer && !inPopup) {
-        setIsOpen(false)
+        closeWithAnimation()
       }
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setIsOpen(false)
+      if (e.key === "Escape") closeWithAnimation()
     }
 
     document.addEventListener("mousedown", handleClick)
@@ -131,11 +156,12 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       document.removeEventListener("mousedown", handleClick)
       document.removeEventListener("keydown", handleKey)
     }
-  }, [isOpen])
+  }, [isOpen, closeWithAnimation])
 
   useEffect(() => {
     return () => {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+      if (animTimeoutRef.current) clearTimeout(animTimeoutRef.current)
     }
   }, [])
 
@@ -159,11 +185,15 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       id={popupId}
       role="dialog"
       style={portalStyle}
-      className="
+      className={`
         w-72 max-w-[calc(100vw-2rem)]
         border border-tech-main/40 bg-white/90 p-4 backdrop-blur-md sm:w-80
-        animate-tech-pop-in
-      "
+        ${
+          isOpen
+            ? "animate-tech-pop-in"
+            : "opacity-0 scale-95 transition-all duration-150 ease-out"
+        }
+      `}
       onMouseEnter={cancelClose}
       onMouseLeave={closeDelayed}>
       <CornerBrackets
@@ -298,8 +328,8 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         aria-expanded={isOpen}
         aria-describedby={popupId}
         onClick={() => {
-          if (isOpen) {
-            setIsOpen(false)
+          if (isOpen || isAnimating) {
+            closeWithAnimation()
           } else {
             recalcPosition()
             setIsOpen(true)
@@ -315,7 +345,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         {children}
       </button>
 
-      {isOpen && createPortal(popupContent, document.body)}
+      {(isOpen || isAnimating) && createPortal(popupContent, document.body)}
     </span>
   )
 }
