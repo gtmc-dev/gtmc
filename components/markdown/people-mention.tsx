@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, useId } from "react"
+import { createPortal } from "react-dom"
 import { useTranslations } from "next-intl"
 import { resolvePerson } from "@/lib/markdown/people"
 import { UesrAvatar } from "@/components/ui/user-avatar"
@@ -66,29 +67,57 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   const generatedId = useId()
   const popupId = `people-popup-${generatedId}`
   const containerRef = useRef<HTMLSpanElement>(null)
+  const popupRef = useRef<HTMLDivElement>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
   const t = useTranslations("PeopleMention")
+
+  const recalcPosition = useCallback(() => {
+    if (containerRef.current) {
+      setTriggerRect(containerRef.current.getBoundingClientRect())
+    }
+  }, [])
 
   const open = useCallback(() => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current)
       closeTimerRef.current = null
     }
+    recalcPosition()
     setIsOpen(true)
-  }, [])
+  }, [recalcPosition])
 
   const closeDelayed = useCallback(() => {
     closeTimerRef.current = setTimeout(() => setIsOpen(false), 300)
   }, [])
 
+  const cancelClose = useCallback(() => {
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current)
+      closeTimerRef.current = null
+    }
+  }, [])
+
+  // Reposition the portaled popup on scroll/resize while open
+  useEffect(() => {
+    if (!isOpen) return
+    window.addEventListener("scroll", recalcPosition, true)
+    window.addEventListener("resize", recalcPosition)
+    return () => {
+      window.removeEventListener("scroll", recalcPosition, true)
+      window.removeEventListener("resize", recalcPosition)
+    }
+  }, [isOpen, recalcPosition])
+
+  // Click-outside (handles both in-flow and portaled popup) and Escape key
   useEffect(() => {
     if (!isOpen) return
 
     function handleClick(e: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Node
+      const inContainer = containerRef.current?.contains(target)
+      const inPopup = popupRef.current?.contains(target)
+      if (!inContainer && !inPopup) {
         setIsOpen(false)
       }
     }
@@ -112,6 +141,151 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
 
   const hasSocial = !person.isFallback && Object.keys(person.social).length > 0
 
+  const portalStyle: React.CSSProperties | undefined = triggerRect
+    ? {
+        position: "fixed",
+        top: `${triggerRect.bottom + 8}px`,
+        left: `${Math.max(
+          8,
+          Math.min(triggerRect.left, window.innerWidth - 328),
+        )}px`,
+        zIndex: 50,
+      }
+    : undefined
+
+  const popupContent = (
+    <div
+      ref={popupRef}
+      id={popupId}
+      role="dialog"
+      style={portalStyle}
+      className="
+        w-72 max-w-[calc(100vw-2rem)]
+        border border-tech-main/40 bg-white/90 p-4 backdrop-blur-md sm:w-80
+        animate-tech-pop-in
+      "
+      onMouseEnter={cancelClose}
+      onMouseLeave={closeDelayed}>
+      <CornerBrackets
+        variant="static"
+        color="border-tech-main/30"
+        size="size-3"
+      />
+
+      <p className="mb-3 font-mono text-[10px] tracking-wide text-tech-main/60">
+        {t("panelLabel")}
+      </p>
+
+      <div className="flex items-center gap-3">
+        <div className="size-12">
+          <UesrAvatar
+            src={person.profile}
+            alt={person.name}
+            fallback={person.isFallback ? "?" : person.name[0]}
+          />
+        </div>
+        <span className="font-mono text-sm font-medium tracking-wide">
+          {person.name}
+        </span>
+      </div>
+
+      {!person.isFallback && (
+        <>
+          {person.description && (
+            <div className="mt-3">
+              <p className="mb-0.5 font-mono text-[10px] tracking-widest text-tech-main/40">
+                {t("descriptionLabel")}
+              </p>
+              <p className="text-xs/relaxed text-tech-main/60">
+                {person.description}
+              </p>
+            </div>
+          )}
+
+          {person.email && (
+            <div className="mt-2">
+              <p className="mb-0.5 font-mono text-[10px] tracking-widest text-tech-main/40">
+                {t("emailLabel")}
+              </p>
+              <a
+                href={`mailto:${person.email}`}
+                className="font-mono text-xs text-tech-main underline-offset-2 hover:underline">
+                {person.email}
+              </a>
+            </div>
+          )}
+
+          {hasSocial && (
+            <div className="mt-2">
+              <p className="mb-1 font-mono text-[10px] tracking-widest text-tech-main/40">
+                {t("socialLabel")}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {person.social.github && (
+                  <a
+                    href={person.social.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
+                    <GithubIcon />
+                    {t("githubLabel")}
+                  </a>
+                )}
+                {person.social.bilibili && (
+                  <a
+                    href={person.social.bilibili}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
+                    <BilibiliIcon />
+                    {t("bilibiliLabel")}
+                  </a>
+                )}
+                {person.social.twitter && (
+                  <a
+                    href={person.social.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
+                    <TwitterIcon />
+                    {t("twitterLabel")}
+                  </a>
+                )}
+                {person.social.website && (
+                  <a
+                    href={person.social.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
+                    <GlobeIcon />
+                    {t("websiteLabel")}
+                  </a>
+                )}
+                {person.social.custom?.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
+                    <GlobeIcon />
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {person.isFallback && (
+        <p className="mt-3 font-mono text-xs text-tech-main/40">
+          {t("fallbackLabel")}
+        </p>
+      )}
+    </div>
+  )
+
   return (
     <span
       ref={containerRef}
@@ -123,7 +297,14 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         aria-label={`${t("profileLabel")}: ${person.name}`}
         aria-expanded={isOpen}
         aria-describedby={popupId}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          if (isOpen) {
+            setIsOpen(false)
+          } else {
+            recalcPosition()
+            setIsOpen(true)
+          }
+        }}
         className="
           inline-flex items-center gap-0.5 border border-tech-main/30
           bg-tech-main/5 px-1.5 py-0.5 font-mono text-[0.8em] tracking-wide
@@ -134,133 +315,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         {children}
       </button>
 
-      <div
-        id={popupId}
-        role="dialog"
-        className={`
-          absolute top-full left-0 z-50 mt-2 w-72 max-w-[calc(100vw-2rem)]
-          border border-tech-main/40 bg-white/90 p-4 backdrop-blur-md sm:w-80
-          transition-all duration-150 ease-out
-          ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1 opacity-0"}
-        `}>
-        <CornerBrackets
-          variant="static"
-          color="border-tech-main/30"
-          size="size-3"
-        />
-
-<p className="mb-3 font-mono text-[10px] tracking-wide text-tech-main/60">
-  {t("panelLabel")}
-</p>
-
-        <div className="flex items-center gap-3">
-          <div className="size-12">
-            <UesrAvatar
-              src={person.profile}
-              alt={person.name}
-              fallback={person.isFallback ? "?" : person.name[0]}
-            />
-          </div>
-          <span className="font-mono text-sm font-medium tracking-wide">
-            {person.name}
-          </span>
-        </div>
-
-        {!person.isFallback && (
-          <>
-            {person.description && (
-              <div className="mt-3">
-                <p className="mb-0.5 font-mono text-[10px] tracking-widest text-tech-main/40">
-                  {t("descriptionLabel")}
-                </p>
-                <p className="text-xs/relaxed text-tech-main/60">
-                  {person.description}
-                </p>
-              </div>
-            )}
-
-            {person.email && (
-              <div className="mt-2">
-                <p className="mb-0.5 font-mono text-[10px] tracking-widest text-tech-main/40">
-                  {t("emailLabel")}
-                </p>
-                <a
-                  href={`mailto:${person.email}`}
-                  className="font-mono text-xs text-tech-main underline-offset-2 hover:underline">
-                  {person.email}
-                </a>
-              </div>
-            )}
-
-            {hasSocial && (
-              <div className="mt-2">
-                <p className="mb-1 font-mono text-[10px] tracking-widest text-tech-main/40">
-                  {t("socialLabel")}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {person.social.github && (
-                    <a
-                      href={person.social.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
-                      <GithubIcon />
-                      {t("githubLabel")}
-                    </a>
-                  )}
-                  {person.social.bilibili && (
-                    <a
-                      href={person.social.bilibili}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
-                      <BilibiliIcon />
-                      {t("bilibiliLabel")}
-                    </a>
-                  )}
-                  {person.social.twitter && (
-                    <a
-                      href={person.social.twitter}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
-                      <TwitterIcon />
-                      {t("twitterLabel")}
-                    </a>
-                  )}
-                  {person.social.website && (
-                    <a
-                      href={person.social.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
-                      <GlobeIcon />
-                      {t("websiteLabel")}
-                    </a>
-                  )}
-                  {person.social.custom?.map((link) => (
-                    <a
-                      key={link.label}
-                      href={link.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-xs text-tech-main underline-offset-2 hover:underline">
-                      <GlobeIcon />
-                      {link.label}
-                    </a>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {person.isFallback && (
-          <p className="mt-3 font-mono text-xs text-tech-main/40">
-            {t("fallbackLabel")}
-          </p>
-        )}
-      </div>
+      {isOpen && createPortal(popupContent, document.body)}
     </span>
   )
 }
