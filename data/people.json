@@ -2,11 +2,13 @@
   "$schema": "people.schema.json",
   "BFladderbean": {
     "name": "BFladderbean",
-    "description": "GTMC contributor",
+    "description": "不写在纸上也没有关系，书于手掌之上亦无妨，因为故事所需要的，仅仅只有悲剧和泪水而已。",
     "profile": "/avatars/bfladderbean.png",
     "email": "bfladderbean@example.com",
     "social": {
-      "github": "https://github.com/BFladderbean"
+      "github": "https://github.com/BFladderbean",
+      "bilibili": "https://space.bilibili.com/499560971",
+      "website": "https://www.bfladderbean.me"
     }
   },
   "4rcadia": {
@@ -32,7 +34,6 @@
   "Ryan100c": {
     "name": "Ryan100c",
     "description": "GTMC contributor",
-    "profile": "/avatars/ryan100c.png",
     "social": {
       "github": "https://github.com/Ryan100c"
     }
@@ -40,7 +41,6 @@
   "yuhan2680": {
     "name": "yuhan2680",
     "description": "GTMC contributor",
-    "profile": "/avatars/yuhan2680.png",
     "social": {
       "github": "https://github.com/yuhan2680"
     }
@@ -48,7 +48,6 @@
   "Molforte": {
     "name": "Molforte",
     "description": "GTMC contributor",
-    "profile": "/avatars/molforte.png",
     "social": {
       "github": "https://github.com/Molforte"
     }
@@ -56,7 +55,6 @@
   "Twisuki": {
     "name": "Twisuki",
     "description": "GTMC contributor",
-    "profile": "/avatars/twisuki.png",
     "social": {
       "github": "https://github.com/Twisuki"
     }
@@ -64,9 +62,22 @@
   "xhbsh": {
     "name": "xhbsh",
     "description": "GTMC contributor",
-    "profile": "/avatars/xhbsh.png",
     "social": {
       "github": "https://github.com/xhbsh"
+    }
+  },
+  "Fallen_Breath": {
+    "name": "Fallen_Breath",
+    "profile": "https://i0.hdslb.com/bfs/face/cd7e76930c1b0c7d60851c2344719fafd9d4c6a9.jpg",
+    "social": {
+      "bilibili": "https://space.bilibili.com/4690315"
+    }
+  },
+  "void": {
+    "name": "Void0",
+    "profile": "https://i0.hdslb.com/bfs/face/c253cbf9bd1538523faabe0d153479a9d0e88bc2.jpg",
+    "social": {
+      "bilibili": "https://space.bilibili.com/500260506"
     }
   }
 }
