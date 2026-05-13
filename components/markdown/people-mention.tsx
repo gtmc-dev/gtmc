@@ -256,7 +256,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
               <p className="mb-0.5 font-mono text-[10px] tracking-widest text-tech-main/40">
                 {t("descriptionLabel")}
               </p>
-              <p className="text-xs/relaxed text-tech-main/60">
+              <p className="whitespace-pre-wrap text-xs/relaxed text-tech-main/60">
                 {person.description}
               </p>
             </div>
