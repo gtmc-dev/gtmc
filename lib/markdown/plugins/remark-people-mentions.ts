@@ -58,7 +58,10 @@ function replacePeopleMentions(value: string): Content[] | null {
     const matchIndex = match.index ?? 0
 
     if (matchIndex > lastIndex) {
-      nextChildren.push({ type: "text", value: value.slice(lastIndex, matchIndex) })
+      nextChildren.push({
+        type: "text",
+        value: value.slice(lastIndex, matchIndex),
+      })
     }
 
     let backslashCount = 0
