@@ -140,7 +140,8 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         className={`
           absolute top-full left-0 z-50 mt-2 w-72 max-w-[calc(100vw-2rem)]
           border border-tech-main/40 bg-white/90 p-4 backdrop-blur-md sm:w-80
-          ${isOpen ? "" : "pointer-events-none hidden"}
+          transition-all duration-150 ease-out
+          ${isOpen ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-1 opacity-0"}
         `}>
         <CornerBrackets
           variant="static"
@@ -148,9 +149,9 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
           size="size-3"
         />
 
-        <p className="mb-3 font-mono text-xs tracking-wide text-tech-main/60">
-          {t("panelLabel")}
-        </p>
+<p className="mb-3 font-mono text-[10px] tracking-wide text-tech-main/60">
+  {t("panelLabel")}
+</p>
 
         <div className="flex items-center gap-3">
           <div className="size-12">
