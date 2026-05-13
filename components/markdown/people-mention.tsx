@@ -71,6 +71,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   const popupRef = useRef<HTMLDivElement>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const animTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
   const t = useTranslations("PeopleMention")
 
@@ -93,6 +94,10 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   }, [])
 
   const open = useCallback(() => {
+    if (openTimerRef.current) {
+      clearTimeout(openTimerRef.current)
+      openTimerRef.current = null
+    }
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current)
       closeTimerRef.current = null
@@ -106,9 +111,34 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
     setIsOpen(true)
   }, [recalcPosition])
 
+  /**
+   * Hover-intent open: only open after the cursor has remained
+   * over the trigger for HOVER_DELAY ms.  Quick flick-throughs
+   * are ignored because cancelOpen() clears the pending timer
+   * on mouseLeave.
+   */
+  const HOVER_DELAY = 200
+
+  const cancelOpen = useCallback(() => {
+    if (openTimerRef.current) {
+      clearTimeout(openTimerRef.current)
+      openTimerRef.current = null
+    }
+  }, [])
+
+  const openDelayed = useCallback(() => {
+    if (isOpen || isAnimating) return
+    cancelOpen()
+    openTimerRef.current = setTimeout(() => {
+      openTimerRef.current = null
+      open()
+    }, HOVER_DELAY)
+  }, [open, cancelOpen, isOpen, isAnimating])
+
   const closeDelayed = useCallback(() => {
+    cancelOpen()
     closeTimerRef.current = setTimeout(() => closeWithAnimation(), 300)
-  }, [closeWithAnimation])
+  }, [closeWithAnimation, cancelOpen])
 
   const cancelClose = useCallback(() => {
     if (closeTimerRef.current) {
@@ -320,7 +350,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
     <span
       ref={containerRef}
       className="relative inline-block"
-      onMouseEnter={open}
+      onMouseEnter={openDelayed}
       onMouseLeave={closeDelayed}>
       <button
         type="button"
