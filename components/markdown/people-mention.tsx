@@ -203,7 +203,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         top: `${triggerRect.bottom + 8}px`,
         left: `${Math.max(
           8,
-          Math.min(triggerRect.left, window.innerWidth - 328),
+          Math.min(triggerRect.left, window.innerWidth - 328)
         )}px`,
         zIndex: 50,
       }
@@ -217,7 +217,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       style={portalStyle}
       className={`
         w-72 max-w-[calc(100vw-2rem)]
-        border border-tech-main/40 bg-white/90 p-4 backdrop-blur-md sm:w-80
+        border border-tech-main/40 bg-white/70 p-4 backdrop-blur-sm sm:w-80
         ${
           isOpen
             ? "animate-tech-pop-in"
@@ -367,11 +367,12 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         }}
         className="
           inline-flex items-center gap-0.5 border border-tech-main/30
-          bg-tech-main/5 px-1.5 py-0.5 font-mono text-[0.8em] tracking-wide
+          bg-tech-main/5 px-1 mx-1 font-mono text-[0.8em] tracking-wide
           text-tech-main no-underline transition-colors
           hover:bg-tech-main/80 hover:text-white
           focus-visible:ring-2 focus-visible:ring-tech-main/50 focus-visible:outline-none
         ">
+        <span className="text-tech-main/40">@</span>
         {children}
       </button>
 
