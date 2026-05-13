@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef, useCallback, useId } from "react"
 import { useTranslations } from "next-intl"
 import { resolvePerson } from "@/lib/markdown/people"
 import { UesrAvatar } from "@/components/ui/user-avatar"
@@ -63,7 +63,8 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   const personKey = (props["data-person-key"] as string) ?? ""
   const person: ResolvedPerson = resolvePerson(personKey)
   const [isOpen, setIsOpen] = useState(false)
-  const popupId = `people-popup-${personKey}`
+  const generatedId = useId()
+  const popupId = `people-popup-${generatedId}`
   const containerRef = useRef<HTMLSpanElement>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const t = useTranslations("PeopleMention")
@@ -135,7 +136,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
 
       <div
         id={popupId}
-        role="tooltip"
+        role="dialog"
         className={`
           absolute top-full left-0 z-50 mt-2 w-72 max-w-[calc(100vw-2rem)]
           border border-tech-main/40 bg-white/90 p-4 backdrop-blur-md sm:w-80
