@@ -1,4 +1,5 @@
 {
+  "$schema": "people.schema.json",
   "BFladderbean": {
     "name": "BFladderbean",
     "description": "GTMC contributor",
@@ -10,18 +11,22 @@
   },
   "4rcadia": {
     "name": "4rcadia",
-    "description": "GTMC contributor",
-    "profile": "/avatars/4rcadia.png",
+    "description": "网站开发/运维\n\nA man who thinks he is a king is mad, a king who thinks he is a king is no less so.",
+    "profile": "https://avatars.githubusercontent.com/u/97033226",
     "social": {
-      "github": "https://github.com/4rcadia"
+      "github": "https://github.com/4rcadia",
+      "twitter": "https://x.com/_4rcadia",
+      "bilibili": "https://space.bilibili.com/499244418"
     }
   },
   "tanh_Heng": {
     "name": "tanh_Heng",
-    "description": "GTMC contributor",
-    "profile": "/avatars/tanh_Heng.png",
+    "description": "风雪拂枕，北星饮尘。喵。",
+    "profile": "https://avatars.githubusercontent.com/u/100672377?v=4",
     "social": {
-      "github": "https://github.com/tanhHeng"
+      "github": "https://github.com/tanhHeng",
+      "twitter": "https://x.com/tanh_Heng",
+      "bilibili": "https://space.bilibili.com/454721668"
     }
   },
   "Ryan100c": {
