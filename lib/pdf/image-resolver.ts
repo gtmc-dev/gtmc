@@ -53,7 +53,7 @@ export function classifyImagePath(imageSrc: string): ImagePathType {
  */
 export function resolveImagePath(
   imageSrc: string,
-  articleFilePath: string,
+  articleFilePath: string
 ): string | null {
   if (!imageSrc || !articleFilePath) return null
 
@@ -90,7 +90,7 @@ export function resolveImagePath(
  */
 export function resolveImageUrl(
   imageSrc: string,
-  articleFilePath: string,
+  articleFilePath: string
 ): string | null {
   const resolved = resolveImagePath(imageSrc, articleFilePath)
 
@@ -122,130 +122,145 @@ function runTests(): void {
 
   assert(
     classifyImagePath("./img/test.png") === "relative",
-    '"./img/test.png" → relative',
+    '"./img/test.png" → relative'
   )
   assert(
     classifyImagePath("img/test.png") === "relative",
-    '"img/test.png" → relative',
+    '"img/test.png" → relative'
   )
   assert(
     classifyImagePath("../img/test.png") === "relative",
-    '"../img/test.png" → relative',
+    '"../img/test.png" → relative'
   )
   assert(
     classifyImagePath("https://example.com/img.png") === "external",
-    '"https://example.com/img.png" → external',
+    '"https://example.com/img.png" → external'
   )
   assert(
     classifyImagePath("http://example.com/img.png") === "external",
-    '"http://example.com/img.png" → external',
+    '"http://example.com/img.png" → external'
   )
   assert(
     classifyImagePath("/img/foo.png") === "absolute",
-    '"/img/foo.png" → absolute',
+    '"/img/foo.png" → absolute'
   )
   assert(
     classifyImagePath("data:image/png;base64,abc") === "data-uri",
-    '"data:image/png;base64,abc" → data-uri',
+    '"data:image/png;base64,abc" → data-uri'
   )
 
   // --- resolveImagePath ---
   console.log("\nresolveImagePath:")
 
   // Relative path from BlockUpdate/article.md
-  const r1 = resolveImagePath("./img/test.png", "/project/articles/BlockUpdate/article.md")
+  const r1 = resolveImagePath(
+    "./img/test.png",
+    "/project/articles/BlockUpdate/article.md"
+  )
   assert(
     r1 === "/project/articles/BlockUpdate/img/test.png",
-    `"./img/test.png" from BlockUpdate/article.md → ${r1}`,
+    `"./img/test.png" from BlockUpdate/article.md → ${r1}`
   )
 
   // Relative without ./
-  const r2 = resolveImagePath("img/test.png", "/project/articles/BlockUpdate/article.md")
+  const r2 = resolveImagePath(
+    "img/test.png",
+    "/project/articles/BlockUpdate/article.md"
+  )
   assert(
     r2 === "/project/articles/BlockUpdate/img/test.png",
-    `"img/test.png" from BlockUpdate/article.md → ${r2}`,
+    `"img/test.png" from BlockUpdate/article.md → ${r2}`
   )
 
   // Parent-relative
-  const r3 = resolveImagePath("../img/test.png", "/project/articles/BlockUpdate/sub/article.md")
+  const r3 = resolveImagePath(
+    "../img/test.png",
+    "/project/articles/BlockUpdate/sub/article.md"
+  )
   assert(
     r3 === "/project/articles/BlockUpdate/img/test.png",
-    `"../img/test.png" from BlockUpdate/sub/article.md → ${r3}`,
+    `"../img/test.png" from BlockUpdate/sub/article.md → ${r3}`
   )
 
   // External URL passthrough
-  const r4 = resolveImagePath("https://example.com/img.png", "/project/articles/any/article.md")
+  const r4 = resolveImagePath(
+    "https://example.com/img.png",
+    "/project/articles/any/article.md"
+  )
   assert(
     r4 === "https://example.com/img.png",
-    `external URL passthrough → ${r4}`,
+    `external URL passthrough → ${r4}`
   )
 
   // Data URI passthrough
-  const r5 = resolveImagePath("data:image/png;base64,abc123", "/project/articles/any/article.md")
-  assert(
-    r5 === "data:image/png;base64,abc123",
-    `data URI passthrough → ${r5}`,
+  const r5 = resolveImagePath(
+    "data:image/png;base64,abc123",
+    "/project/articles/any/article.md"
   )
+  assert(r5 === "data:image/png;base64,abc123", `data URI passthrough → ${r5}`)
 
   // Empty src
   const r6 = resolveImagePath("", "/project/articles/any/article.md")
-  assert(r6 === null, 'empty src → null')
+  assert(r6 === null, "empty src → null")
 
   // Absolute path (leading /) — resolves to IMAGES_BASE_DIR + path
-  const r7 = resolveImagePath("/img/shared.png", "/project/articles/any/article.md")
+  const r7 = resolveImagePath(
+    "/img/shared.png",
+    "/project/articles/any/article.md"
+  )
   assert(
     r7 === `${IMAGES_BASE_DIR}/img/shared.png`,
-    `"/img/shared.png" → ${r7}`,
+    `"/img/shared.png" → ${r7}`
   )
 
   // URL-encoded characters
   const r8 = resolveImagePath(
     "./img/4gt%20birch%20layout1.png",
-    "/project/articles/TreeFarm/article.md",
+    "/project/articles/TreeFarm/article.md"
   )
   assert(
     r8 === "/project/articles/TreeFarm/img/4gt birch layout1.png",
-    `URL-encoded %20 decoded → ${r8}`,
+    `URL-encoded %20 decoded → ${r8}`
   )
 
   // --- resolveImageUrl ---
   console.log("\nresolveImageUrl:")
 
-  const u1 = resolveImageUrl("./img/test.png", "/project/articles/BlockUpdate/article.md")
+  const u1 = resolveImageUrl(
+    "./img/test.png",
+    "/project/articles/BlockUpdate/article.md"
+  )
   assert(
     u1 === "file:///project/articles/BlockUpdate/img/test.png",
-    `file:// URL for relative path → ${u1}`,
+    `file:// URL for relative path → ${u1}`
   )
 
   const u2 = resolveImageUrl(
     "https://example.com/img.png",
-    "/project/articles/any/article.md",
+    "/project/articles/any/article.md"
   )
   assert(
     u2 === "https://example.com/img.png",
-    `external URL passthrough → ${u2}`,
+    `external URL passthrough → ${u2}`
   )
 
   const u3 = resolveImageUrl(
     "data:image/png;base64,abc123",
-    "/project/articles/any/article.md",
+    "/project/articles/any/article.md"
   )
-  assert(
-    u3 === "data:image/png;base64,abc123",
-    `data URI passthrough → ${u3}`,
-  )
+  assert(u3 === "data:image/png;base64,abc123", `data URI passthrough → ${u3}`)
 
   const u4 = resolveImageUrl(
     "./img/4gt%20birch%20layout1.png",
-    "/project/articles/TreeFarm/article.md",
+    "/project/articles/TreeFarm/article.md"
   )
   assert(
     u4 === "file:///project/articles/TreeFarm/img/4gt%20birch%20layout1.png",
-    `file:// URL with encoded space → ${u4}`,
+    `file:// URL with encoded space → ${u4}`
   )
 
   const u5 = resolveImageUrl("", "/project/articles/any/article.md")
-  assert(u5 === null, 'empty src → null')
+  assert(u5 === null, "empty src → null")
 
   console.log("\nAll tests completed.\n")
 }

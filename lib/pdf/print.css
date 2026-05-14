@@ -5,10 +5,10 @@
    ========================================================================== */
 
 /* --- Font Imports (resolved from node_modules via Playwright base URL) --- */
-@import '@fontsource/space-mono/400.css';
-@import '@fontsource/space-mono/700.css';
-@import '@fontsource/noto-sans-sc/400.css';
-@import '@fontsource/noto-sans-sc/700.css';
+@import "@fontsource/space-mono/400.css";
+@import "@fontsource/space-mono/700.css";
+@import "@fontsource/noto-sans-sc/400.css";
+@import "@fontsource/noto-sans-sc/700.css";
 
 /* --- Page Rules --- */
 @page {
@@ -44,14 +44,19 @@ html {
 }
 
 body {
-  font-family: 'Noto Sans SC', 'PingFang SC', sans-serif;
+  font-family: "Noto Sans SC", "PingFang SC", sans-serif;
   margin: 0;
   padding: 0;
 }
 
 /* --- Headings (monospace, technical) --- */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Space Mono', monospace;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Mono", monospace;
   color: #3b4a6b;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -106,7 +111,8 @@ p {
   widows: 3;
 }
 
-ul, ol {
+ul,
+ol {
   margin: 0.5em 0;
   padding-left: 1.8em;
 }
@@ -127,7 +133,7 @@ a {
 
 /* --- Code --- */
 code {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 9pt;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
@@ -136,7 +142,7 @@ code {
 }
 
 pre {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 8.5pt;
   line-height: 1.5;
   background: #f8f9fc;
@@ -166,7 +172,7 @@ table {
 }
 
 th {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 8.5pt;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -203,7 +209,7 @@ figure {
 }
 
 figcaption {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 8.5pt;
   color: #60708f;
   margin-top: 0.4em;
@@ -236,7 +242,7 @@ aside[data-callout] {
 }
 
 aside[data-callout]::before {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 8pt;
   font-weight: 700;
   text-transform: uppercase;
@@ -251,7 +257,7 @@ aside[data-callout="WARNING"] {
 }
 
 aside[data-callout="WARNING"]::before {
-  content: '⚠ WARNING';
+  content: "⚠ WARNING";
   color: #d97706;
 }
 
@@ -260,7 +266,7 @@ aside[data-callout="TIP"] {
 }
 
 aside[data-callout="TIP"]::before {
-  content: '▸ TIP';
+  content: "▸ TIP";
   color: #059669;
 }
 
@@ -269,7 +275,7 @@ aside[data-callout="IMPORTANT"] {
 }
 
 aside[data-callout="IMPORTANT"]::before {
-  content: '● IMPORTANT';
+  content: "● IMPORTANT";
   color: #3b4a6b;
 }
 
@@ -279,7 +285,7 @@ aside[data-callout="CRASH"] {
 }
 
 aside[data-callout="CRASH"]::before {
-  content: '✕ CRASH';
+  content: "✕ CRASH";
   color: #dc2626;
 }
 
@@ -289,7 +295,7 @@ aside[data-callout="CORRUPTION"] {
 }
 
 aside[data-callout="CORRUPTION"]::before {
-  content: '◆ CORRUPTION';
+  content: "◆ CORRUPTION";
   color: #7c3aed;
 }
 
@@ -323,14 +329,14 @@ aside[data-callout="CORRUPTION"]::before {
 }
 
 .cover-page .subtitle {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 11pt;
   color: #60708f;
   margin-top: 0.5em;
 }
 
 .cover-page .meta {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 9pt;
   color: #64748b;
   margin-top: 2em;
@@ -358,14 +364,14 @@ aside[data-callout="CORRUPTION"]::before {
 }
 
 .toc-page li::after {
-  content: '';
+  content: "";
   flex: 1;
   border-bottom: 1px dotted #cbd5e1;
   margin: 0 0.5em;
 }
 
 .toc-page li .page-num {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 9pt;
   color: #64748b;
 }
@@ -408,7 +414,7 @@ aside[data-callout="CORRUPTION"]::before {
 }
 
 .chapter-title-page .chapter-number {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 9pt;
   color: #60708f;
   text-transform: uppercase;
@@ -424,7 +430,7 @@ div[data-advanced-section] {
 }
 
 span[data-advanced] {
-  font-family: 'Space Mono', monospace;
+  font-family: "Space Mono", monospace;
   font-size: 7.5pt;
   font-weight: 700;
   text-transform: uppercase;
@@ -438,15 +444,21 @@ span[data-advanced] {
 }
 
 /* --- Page Break Rules --- */
-h1, h2, .chapter-title {
+h1,
+h2,
+.chapter-title {
   page-break-before: always;
 }
 
-h3, h4 {
+h3,
+h4 {
   page-break-after: avoid;
 }
 
-pre, table, img, figure {
+pre,
+table,
+img,
+figure {
   page-break-inside: avoid;
 }
 

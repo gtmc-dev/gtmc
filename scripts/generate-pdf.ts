@@ -351,7 +351,7 @@ async function main(): Promise<void> {
   console.log("[pdf] Phase 1/6: Loading article tree...")
   let tree: TreeNode[]
   try {
-    tree = await getArticleTree(locale) as TreeNode[]
+    tree = (await getArticleTree(locale)) as TreeNode[]
   } catch (err) {
     console.error("[pdf] Failed to load article tree:", err)
     process.exit(1)

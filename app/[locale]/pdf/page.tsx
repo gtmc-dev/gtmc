@@ -20,25 +20,25 @@ export default async function PdfPage() {
         bracketVariant="hover-expand"
         pattern="grid"
         className="w-full">
-        <div className="mb-6 font-mono text-[10px] tracking-[0.2em] text-tech-main/60 uppercase">
+        <div className="text-tech-main/60 mb-6 font-mono text-[10px] tracking-[0.2em] uppercase">
           {t("label")}
         </div>
 
-        <h1 className="mb-2 text-xl font-bold tracking-tight text-tech-main-dark sm:text-2xl">
+        <h1 className="text-tech-main-dark mb-2 text-xl font-bold tracking-tight sm:text-2xl">
           {t("title")}
         </h1>
 
-        <p className="mb-8 text-sm leading-relaxed text-tech-main/80">
+        <p className="text-tech-main/80 mb-8 text-sm leading-relaxed">
           {t("subtitle")}
         </p>
 
-        <div className="mb-6 flex items-center gap-4 border-t border-tech-line/40 pt-6">
-          <div className="flex items-center gap-2 font-mono text-xs text-tech-main/60">
-            <span className="inline-block size-2 border border-tech-main/40 bg-tech-main/10" />
+        <div className="border-tech-line/40 mb-6 flex items-center gap-4 border-t pt-6">
+          <div className="text-tech-main/60 flex items-center gap-2 font-mono text-xs">
+            <span className="border-tech-main/40 bg-tech-main/10 inline-block size-2 border" />
             PDF
           </div>
           {/* TODO: parse actual file size from public/gtmc.pdf at build time */}
-          <div className="font-mono text-xs text-tech-main/40">~3.7 MB</div>
+          <div className="text-tech-main/40 font-mono text-xs">~3.7 MB</div>
         </div>
 
         <a href="/gtmc.pdf" download>

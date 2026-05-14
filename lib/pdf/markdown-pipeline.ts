@@ -51,9 +51,7 @@ export interface PdfPipelineOptions {
  */
 function hasMathContent(content: string): boolean {
   return (
-    content.includes("$") ||
-    content.includes("\\(") ||
-    content.includes("\\[")
+    content.includes("$") || content.includes("\\(") || content.includes("\\[")
   )
 }
 

@@ -75,10 +75,8 @@ export function remarkWikilinks() {
           if (isImage) {
             // Image wikilink: ![[filename.ext]] or ![[filename.ext|alt]]
             const pipeIndex = inner.indexOf("|")
-            const filename =
-              pipeIndex >= 0 ? inner.slice(0, pipeIndex) : inner
-            const alt =
-              pipeIndex >= 0 ? inner.slice(pipeIndex + 1) : filename
+            const filename = pipeIndex >= 0 ? inner.slice(0, pipeIndex) : inner
+            const alt = pipeIndex >= 0 ? inner.slice(pipeIndex + 1) : filename
 
             newChildren.push({
               type: "image",
@@ -89,18 +87,14 @@ export function remarkWikilinks() {
           } else {
             // Link wikilink: [[target]] or [[display|target]]
             const pipeIndex = inner.indexOf("|")
-            const display =
-              pipeIndex >= 0 ? inner.slice(0, pipeIndex) : inner
-            const target =
-              pipeIndex >= 0 ? inner.slice(pipeIndex + 1) : inner
+            const display = pipeIndex >= 0 ? inner.slice(0, pipeIndex) : inner
+            const target = pipeIndex >= 0 ? inner.slice(pipeIndex + 1) : inner
 
             newChildren.push({
               type: "link",
               url: urlEncode(target),
               title: null,
-              children: [
-                { type: "text", value: display } as Text,
-              ],
+              children: [{ type: "text", value: display } as Text],
             } as Link)
           }
 
