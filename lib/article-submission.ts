@@ -16,11 +16,11 @@ import {
   normalizeDraftFileCollection,
   type DraftFileRecord,
 } from "@/lib/draft-files"
+import type { ConflictBlock } from "@/types/rebase"
 import {
   applyAutoAppliedResolutions,
   autoApplyRerere,
   parseConflictBlocks,
-  type ConflictBlock,
 } from "@/lib/rerere"
 import { GIT_BLOB_MODE } from "@/lib/github/constants"
 import { getMergeLibrary } from "@/lib/merge-strategy"

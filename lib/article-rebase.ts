@@ -8,10 +8,10 @@ import {
   applyAutoAppliedResolutions,
   autoApplyRerere,
   parseConflictBlocks,
-  type ConflictBlock,
 } from "@/lib/rerere"
+import type { ConflictBlock, MergeConflictBlock } from "@/types/rebase"
 import { Prisma } from "@prisma/client"
-import { getMergeLibrary, type MergeConflictBlock } from "./merge-strategy"
+import { getMergeLibrary } from "./merge-strategy"
 import type {
   FileRebaseState,
   RebaseCommitInfo,
