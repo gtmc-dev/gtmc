@@ -25,6 +25,7 @@ import {
   getArticleContentForPdf,
 } from "@/lib/articles/linearize"
 import type { LinearizedArticle } from "@/lib/articles/linearize"
+import type { TreeNode } from "@/types/sidebar-tree"
 import { buildEbookHtml, resolveImagesInHtml } from "@/lib/pdf/ebook-structure"
 import { renderMarkdownToHtml } from "@/lib/pdf/markdown-pipeline"
 import { createRehypeShiki } from "@/lib/markdown/plugins/rehype-shiki"
@@ -241,9 +242,12 @@ async function writePdfOutlines(
   // ── Phase 1: Build refs, create all dicts ───────────────────────────────
   // We structure the data so we can link siblings after creation.
 
+  /** Structural type for PDF dict objects (returned by context.obj({...})). */
+  type OutlineDict = { set(key: PDFName, value: unknown): void }
+
   interface ItemData {
     ref: ReturnType<typeof context.nextRef>
-    dict: ReturnType<typeof context.obj>
+    dict: OutlineDict
     children: ItemData[]
   }
 
@@ -257,7 +261,7 @@ async function writePdfOutlines(
       Title: node.title,
       Parent: parentRef,
       Dest: dest,
-    }) as ReturnType<typeof context.obj>
+    })
 
     const item: ItemData = { ref, dict, children: [] }
 
@@ -320,7 +324,7 @@ async function writePdfOutlines(
     First: topLevelItems[0].ref,
     Last: topLevelItems[topLevelItems.length - 1].ref,
     Count: totalCount,
-  }) as ReturnType<typeof context.obj>
+  })
 
   context.assign(rootRef, rootDict)
 
@@ -345,9 +349,9 @@ async function main(): Promise<void> {
   // Phase 1: Load article tree
   // ═══════════════════════════════════════════════════════════════════════
   console.log("[pdf] Phase 1/6: Loading article tree...")
-  let tree
+  let tree: TreeNode[]
   try {
-    tree = await getArticleTree(locale)
+    tree = await getArticleTree(locale) as TreeNode[]
   } catch (err) {
     console.error("[pdf] Failed to load article tree:", err)
     process.exit(1)
@@ -360,8 +364,8 @@ async function main(): Promise<void> {
     process.exit(0)
   }
 
-  function sortTree(nodes: typeof tree) {
-    nodes.sort((a, b) => {
+  function sortTree(nodes: TreeNode[]) {
+    nodes.sort((a: TreeNode, b: TreeNode) => {
       if (a.isPreface !== b.isPreface) return a.isPreface ? -1 : 1
       if (a.isFolder && b.isFolder && a.isAppendix !== b.isAppendix) {
         return a.isAppendix ? 1 : -1
@@ -464,7 +468,10 @@ async function main(): Promise<void> {
   console.log("[pdf] Phase 6/6: Generating PDF via Playwright...")
 
   const browser = await chromium.launch().catch((err) => {
-    console.warn("[pdf] Failed to launch Playwright, skipping PDF generation:", err)
+    console.warn(
+      "[pdf] Failed to launch Playwright, skipping PDF generation:",
+      err
+    )
     process.exit(0)
   })
 
