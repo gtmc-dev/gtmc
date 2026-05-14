@@ -14,6 +14,8 @@ import { PDFDocument, PDFName, PDFRef } from "pdf-lib"
 import fs from "node:fs"
 import path from "node:path"
 
+type DictLike = { get(key: PDFName): unknown }
+
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function formatSize(bytes: number): string {
@@ -54,7 +56,7 @@ function getOutlineCount(pdfDoc: PDFDocument): number {
     if (entry instanceof PDFRef) {
       const obj = pdfDoc.context.lookup(entry)
       if (obj && typeof obj === "object" && "get" in obj) {
-        const countEntry = (obj as any).get(PDFName.of("Count"))
+        const countEntry = (obj as DictLike).get(PDFName.of("Count"))
         if (countEntry != null) {
           return Number(countEntry)
         }
