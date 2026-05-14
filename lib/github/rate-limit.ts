@@ -29,10 +29,7 @@ export function isGithubRateLimitedResponse(
 }
 
 export function getGithubRateLimitResetMs(error: unknown): number | null {
-  const resetHeader = getGithubErrorResponseHeader(
-    error,
-    "x-ratelimit-reset"
-  )
+  const resetHeader = getGithubErrorResponseHeader(error, "x-ratelimit-reset")
 
   if (typeof resetHeader === "number") {
     return resetHeader * 1000

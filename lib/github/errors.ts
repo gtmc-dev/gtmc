@@ -103,9 +103,7 @@ export function getGithubErrorStatus(error: unknown): number | undefined {
   return undefined
 }
 
-export function getGithubErrorStatusNumber(
-  error: unknown
-): number | undefined {
+export function getGithubErrorStatusNumber(error: unknown): number | undefined {
   if (!isRecord(error)) {
     return undefined
   }

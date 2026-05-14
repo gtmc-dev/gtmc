@@ -141,7 +141,10 @@ const CALLOUT_STYLES = {
 
 type CalloutType = keyof typeof CALLOUT_STYLES
 
-const CALLOUT_TYPES_WITH_DEFAULT = ["crash", "corruption"] as const satisfies readonly CalloutType[]
+const CALLOUT_TYPES_WITH_DEFAULT = [
+  "crash",
+  "corruption",
+] as const satisfies readonly CalloutType[]
 
 function isCalloutType(type: string): type is CalloutType {
   return type in CALLOUT_STYLES
