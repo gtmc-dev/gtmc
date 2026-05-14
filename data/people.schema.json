@@ -16,24 +16,44 @@
     "^[a-zA-Z0-9_ .-]+$": {
       "type": "object",
       "properties": {
-        "name":        { "type": "string", "description": "Display name" },
+        "name": { "type": "string", "description": "Display name" },
         "description": { "type": "string", "description": "Short bio / role" },
-        "profile":     { "type": "string", "description": "Avatar image URL" },
-        "email":       { "type": "string", "format": "email", "description": "Contact email (optional)" },
+        "profile": { "type": "string", "description": "Avatar image URL" },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email (optional)"
+        },
         "social": {
           "type": "object",
           "properties": {
-            "github":   { "type": "string", "format": "uri", "description": "GitHub profile URL" },
-            "bilibili": { "type": "string", "format": "uri", "description": "Bilibili space URL" },
-            "twitter":  { "type": "string", "format": "uri", "description": "Twitter / X profile URL" },
-            "website":  { "type": "string", "format": "uri", "description": "Personal website URL" },
+            "github": {
+              "type": "string",
+              "format": "uri",
+              "description": "GitHub profile URL"
+            },
+            "bilibili": {
+              "type": "string",
+              "format": "uri",
+              "description": "Bilibili space URL"
+            },
+            "twitter": {
+              "type": "string",
+              "format": "uri",
+              "description": "Twitter / X profile URL"
+            },
+            "website": {
+              "type": "string",
+              "format": "uri",
+              "description": "Personal website URL"
+            },
             "custom": {
               "type": "array",
               "items": {
                 "type": "object",
                 "properties": {
                   "label": { "type": "string" },
-                  "url":   { "type": "string", "format": "uri" }
+                  "url": { "type": "string", "format": "uri" }
                 },
                 "required": ["label", "url"]
               },

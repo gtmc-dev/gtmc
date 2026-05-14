@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useCallback, useId } from "react"
+import { useState, useEffect, useRef, useId } from "react"
 import { createPortal } from "react-dom"
 import { useTranslations } from "next-intl"
 import { resolvePerson } from "@/lib/markdown/people"
@@ -75,13 +75,13 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
   const [triggerRect, setTriggerRect] = useState<DOMRect | null>(null)
   const t = useTranslations("PeopleMention")
 
-  const recalcPosition = useCallback(() => {
+  const recalcPosition = () => {
     if (containerRef.current) {
       setTriggerRect(containerRef.current.getBoundingClientRect())
     }
-  }, [])
+  }
 
-  const closeWithAnimation = useCallback(() => {
+  const closeWithAnimation = () => {
     if (animTimeoutRef.current) {
       clearTimeout(animTimeoutRef.current)
     }
@@ -91,9 +91,9 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       setIsAnimating(false)
       animTimeoutRef.current = null
     }, 150)
-  }, [])
+  }
 
-  const open = useCallback(() => {
+  const open = () => {
     if (openTimerRef.current) {
       clearTimeout(openTimerRef.current)
       openTimerRef.current = null
@@ -109,7 +109,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
     recalcPosition()
     setIsAnimating(false)
     setIsOpen(true)
-  }, [recalcPosition])
+  }
 
   /**
    * Hover-intent open: only open after the cursor has remained
@@ -119,28 +119,28 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
    */
   const HOVER_DELAY = 200
 
-  const cancelOpen = useCallback(() => {
+  const cancelOpen = () => {
     if (openTimerRef.current) {
       clearTimeout(openTimerRef.current)
       openTimerRef.current = null
     }
-  }, [])
+  }
 
-  const openDelayed = useCallback(() => {
+  const openDelayed = () => {
     if (isOpen || isAnimating) return
     cancelOpen()
     openTimerRef.current = setTimeout(() => {
       openTimerRef.current = null
       open()
     }, HOVER_DELAY)
-  }, [open, cancelOpen, isOpen, isAnimating])
+  }
 
-  const closeDelayed = useCallback(() => {
+  const closeDelayed = () => {
     cancelOpen()
     closeTimerRef.current = setTimeout(() => closeWithAnimation(), 300)
-  }, [closeWithAnimation, cancelOpen])
+  }
 
-  const cancelClose = useCallback(() => {
+  const cancelClose = () => {
     if (closeTimerRef.current) {
       clearTimeout(closeTimerRef.current)
       closeTimerRef.current = null
@@ -151,18 +151,25 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       setIsAnimating(false)
       setIsOpen(true)
     }
-  }, [])
+  }
 
   // Reposition the portaled popup on scroll/resize while open
   useEffect(() => {
     if (!isOpen) return
-    window.addEventListener("scroll", recalcPosition, true)
-    window.addEventListener("resize", recalcPosition)
-    return () => {
-      window.removeEventListener("scroll", recalcPosition, true)
-      window.removeEventListener("resize", recalcPosition)
+
+    function handleRecalcPosition() {
+      if (containerRef.current) {
+        setTriggerRect(containerRef.current.getBoundingClientRect())
+      }
     }
-  }, [isOpen, recalcPosition])
+
+    window.addEventListener("scroll", handleRecalcPosition, true)
+    window.addEventListener("resize", handleRecalcPosition)
+    return () => {
+      window.removeEventListener("scroll", handleRecalcPosition, true)
+      window.removeEventListener("resize", handleRecalcPosition)
+    }
+  }, [isOpen])
 
   // Click-outside (handles both in-flow and portaled popup) and Escape key
   useEffect(() => {
@@ -173,11 +180,22 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       const inContainer = containerRef.current?.contains(target)
       const inPopup = popupRef.current?.contains(target)
       if (!inContainer && !inPopup) {
-        closeWithAnimation()
+        closeWithAnimationForEffect()
       }
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") closeWithAnimation()
+      if (e.key === "Escape") closeWithAnimationForEffect()
+    }
+    function closeWithAnimationForEffect() {
+      if (animTimeoutRef.current) {
+        clearTimeout(animTimeoutRef.current)
+      }
+      setIsAnimating(true)
+      setIsOpen(false)
+      animTimeoutRef.current = setTimeout(() => {
+        setIsAnimating(false)
+        animTimeoutRef.current = null
+      }, 150)
     }
 
     document.addEventListener("mousedown", handleClick)
@@ -186,7 +204,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
       document.removeEventListener("mousedown", handleClick)
       document.removeEventListener("keydown", handleKey)
     }
-  }, [isOpen, closeWithAnimation])
+  }, [isOpen])
 
   useEffect(() => {
     return () => {
@@ -221,7 +239,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
         ${
           isOpen
             ? "animate-tech-pop-in"
-            : "opacity-0 scale-95 transition-all duration-150 ease-out"
+            : "scale-95 opacity-0 transition-all duration-150 ease-out"
         }
       `}
       onMouseEnter={cancelClose}
@@ -256,7 +274,7 @@ export function PeopleMention({ children, ...props }: MarkdownComponentProps) {
               <p className="mb-0.5 font-mono text-[10px] tracking-widest text-tech-main/40">
                 {t("descriptionLabel")}
               </p>
-              <p className="whitespace-pre-wrap text-xs/relaxed text-tech-main/60">
+              <p className="text-xs/relaxed whitespace-pre-wrap text-tech-main/60">
                 {person.description}
               </p>
             </div>
