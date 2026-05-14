@@ -6,15 +6,15 @@
     "analyze": "ANALYZE=true pnpm build",
     "articles:generate-manifest": "tsx scripts/generate-article-manifest.ts",
     "articles:init": "git submodule update --init --recursive",
+    "articles:pdf": "npx tsx scripts/generate-pdf.ts",
     "articles:status": "git submodule status articles",
     "articles:update": "git submodule update --remote articles",
     "build": "pnpm articles:generate-manifest && npx tsx scripts/generate-pdf.ts && next build",
-    "generate-pdf": "npx tsx scripts/generate-pdf.ts",
     "dev": "next dev",
     "lighthouse": "lhci autorun",
-    "lint": "pnpm lint:fix",
     "lint:check": "prettier --check .; eslint",
     "lint:fix": "eslint --fix; prettier --write .",
+    "lint": "pnpm lint:fix",
     "postinstall": "git config --local include.path .gitconfig; pnpm articles:init && pnpm articles:update; prisma generate; pnpm articles:generate-manifest"
   },
   "dependencies": {
