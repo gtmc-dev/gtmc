@@ -44,7 +44,8 @@ export function normalizePeopleKey(raw: string): string {
  */
 export function resolvePerson(key: string): ResolvedPerson {
   const normalized = normalizePeopleKey(key)
-  const entry = (peopleData as Record<string, PeopleEntry>)[normalized]
+  const { $schema: _, ...peopleEntries } = peopleData as Record<string, unknown>
+  const entry = (peopleEntries as Record<string, PeopleEntry>)[normalized]
 
   if (entry) {
     return {
