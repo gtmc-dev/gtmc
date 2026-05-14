@@ -354,10 +354,10 @@ async function main(): Promise<void> {
   }
 
   if (!tree || tree.length === 0) {
-    console.error(
-      "[pdf] No articles found in tree. Ensure the articles submodule is initialized."
+    console.warn(
+      "[pdf] No articles found in tree (submodule may not be initialized). Skipping PDF generation."
     )
-    process.exit(1)
+    process.exit(0)
   }
 
   function sortTree(nodes: typeof tree) {
@@ -464,8 +464,8 @@ async function main(): Promise<void> {
   console.log("[pdf] Phase 6/6: Generating PDF via Playwright...")
 
   const browser = await chromium.launch().catch((err) => {
-    console.error("[pdf] Failed to launch Playwright:", err)
-    process.exit(1)
+    console.warn("[pdf] Failed to launch Playwright, skipping PDF generation:", err)
+    process.exit(0)
   })
 
   try {
