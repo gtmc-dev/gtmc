@@ -116,5 +116,13 @@ export async function renderMarkdownToHtml(
     .use(rehypeStringify, { allowDangerousHtml: true })
     .process(cleanContent)
 
-  return String(file)
+  let html = String(file)
+
+  // ── Inject animated notice for GIF images ────────────────────────
+  html = html.replace(
+    /(<img[^>]*src="[^"]*\.gif"[^>]*\/?>)/gi,
+    '$1<p class="gif-caption">▶ This figure is animated in the original resource.</p>'
+  )
+
+  return html
 }

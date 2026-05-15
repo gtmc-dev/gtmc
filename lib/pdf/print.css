@@ -582,6 +582,17 @@ hr {
   margin: 2em 0;
 }
 
+/* --- GIF Caption --- */
+.gif-caption {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8pt;
+  color: #60708f;
+  text-align: center;
+  margin-top: 0.3em;
+  margin-bottom: 1em;
+  letter-spacing: 0.05em;
+}
+
 /* --- Footnotes --- */
 .footnotes {
   margin-top: 2em;
