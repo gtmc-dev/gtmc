@@ -132,6 +132,7 @@ function createRenderArticle(shikiPlugin: RehypeShikiPlugin | undefined) {
 
       const html = await renderMarkdownToHtml(content, {
         articlePath: article.filePath ?? undefined,
+        articleSlug: article.slug,
         shikiPlugin,
       })
 
@@ -488,11 +489,12 @@ async function main(): Promise<void> {
       () =>
         document.fonts.ready.then(() =>
           document.fonts.check('16px "Geist Sans"') &&
-          document.fonts.check('16px "Geist Mono"')
+          document.fonts.check('16px "Geist Mono"') &&
+          document.fonts.check('16px "Noto Sans SC"')
         ),
-      { timeout: 10000 }
+      { timeout: 30000 }
     )
-    console.log("[pdf]   → PDF fonts verified (Geist Sans + Geist Mono)")
+    console.log("[pdf]   → PDF fonts verified (Geist Sans + Geist Mono + Noto Sans SC)")
 
     // ── Generate PDF ───────────────────────────────────────────────────────
     console.log("[pdf]   → Rendering PDF pages...")
