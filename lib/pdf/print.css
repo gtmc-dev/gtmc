@@ -185,7 +185,7 @@ a {
 
 /* --- Code --- */
 code {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9pt;
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
@@ -194,7 +194,7 @@ code {
 }
 
 pre {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 8.5pt;
   line-height: 1.5;
   background: #f8f9fc;
@@ -219,16 +219,22 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin: 1em 0;
+  font-family: 'Geist Sans', sans-serif;
   font-size: 9.5pt;
-  page-break-inside: avoid;
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+thead {
+  display: table-header-group;
 }
 
 th {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 8.5pt;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: #f1f5f9;
+  background: #f0f2f5;
   border: 1px solid #cbd5e1;
   padding: 0.5em 0.7em;
   text-align: left;
@@ -249,11 +255,11 @@ tr {
 
 /* --- Images --- */
 img {
-  max-width: 100%;
+  max-width: 85%;
   height: auto;
   page-break-inside: avoid;
   display: block;
-  margin: 1em auto;
+  margin: 1.5em auto;
 }
 
 figure {
@@ -263,7 +269,7 @@ figure {
 }
 
 figcaption {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 8.5pt;
   color: #60708f;
   margin-top: 0.4em;
@@ -312,7 +318,7 @@ aside[data-callout] {
 }
 
 aside[data-callout]::before {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 8pt;
   font-weight: 700;
   text-transform: uppercase;
@@ -562,7 +568,7 @@ div[data-advanced-section] {
 }
 
 span[data-advanced] {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 7.5pt;
   font-weight: 700;
   text-transform: uppercase;
