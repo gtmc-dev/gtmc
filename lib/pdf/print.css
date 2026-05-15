@@ -42,14 +42,14 @@
 }
 @font-face {
   font-family: 'Noto Sans SC';
-  src: url('fonts/geist/noto-sans-sc-latin-400-normal.woff2') format('woff2');
+  src: url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/files/noto-sans-sc-all-400-normal.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: 'Noto Sans SC';
-  src: url('fonts/geist/noto-sans-sc-latin-700-normal.woff2') format('woff2');
+  src: url('https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-sc@5/files/noto-sans-sc-all-700-normal.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -73,10 +73,6 @@
 @page :right {
   margin-left: 1.8cm;
   margin-right: 2.5cm;
-}
-
-@page chapter {
-  margin-top: 2.5cm;
 }
 
 /* --- Base --- */
@@ -214,6 +210,10 @@ pre code {
   font-size: inherit;
 }
 
+code .line {
+  display: block;
+}
+
 /* --- Tables --- */
 table {
   width: 100%;
@@ -302,8 +302,7 @@ dd {
 
 /* --- Article Measure --- */
 .chapter-content {
-  max-width: 38em;
-  margin: 0 auto;
+  max-width: none;
 }
 
 /* --- Callouts / Admonitions --- */
@@ -393,7 +392,6 @@ aside[data-callout="CORRUPTION"]::before {
   justify-content: center;
   min-height: 80vh;
   text-align: center;
-  page: unset;
 }
 
 .cover-frame {
@@ -499,7 +497,6 @@ aside[data-callout="CORRUPTION"]::before {
 /* --- Chapter Title Page --- */
 .chapter-title-page {
   page-break-before: always;
-  page: chapter;
   display: flex;
   flex-direction: column;
   align-items: center;
