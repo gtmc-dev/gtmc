@@ -616,3 +616,39 @@ hr {
 body > h1:first-of-type {
   page-break-before: avoid;
 }
+
+/* --- TOC Depth Indentation --- */
+.toc-depth-1 { padding-left: 0; }
+.toc-depth-2 { padding-left: 1.5em; }
+.toc-depth-3 { padding-left: 3em; }
+
+/* --- People Mentions --- */
+people-mention {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.8em;
+  border: 1px solid rgba(96, 112, 143, 0.3);
+  background: rgba(96, 112, 143, 0.05);
+  color: #60708f;
+  padding: 0.05em 0.4em;
+  border-radius: 2px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+people-mention::before {
+  content: "@";
+  color: rgba(96, 112, 143, 0.4);
+  margin-right: 0.1em;
+}
+
+/* --- GIF Source Link --- */
+.gif-source-link {
+  color: #60708f;
+  text-decoration: underline;
+  font-size: inherit;
+}
+
+/* --- Wikilink --- */
+.wikilink {
+  color: #4a5a78;
+  border-bottom: 1px dotted #c4d0df;
+}

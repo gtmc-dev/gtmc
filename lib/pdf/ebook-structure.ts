@@ -132,6 +132,7 @@ function renderTocHtml(
 
   let lastChapter = ""
   let prefaceListOpen = false
+  let chapterNumber = 0
 
   for (const article of articles) {
     if (article.isPreface) {
@@ -159,8 +160,14 @@ function renderTocHtml(
       parts.push("    <ul>")
     }
 
+    const isTopLevel = article.depth === 0
+    if (isTopLevel) chapterNumber++
+
+    const prefix = isTopLevel ? `Chapter ${chapterNumber}. ` : ""
+    const fullTitle = `${prefix}${escapeHtml(article.title)}`
+
     parts.push(
-      `      <li class="toc-entry"><span class="toc-title">${escapeHtml(article.title)}</span></li>`
+      `      <li class="toc-entry toc-depth-${article.depth}"><a href="#article-${article.slug}" class="toc-title">${fullTitle}</a></li>`
     )
   }
 
@@ -259,6 +266,7 @@ export async function defaultRenderArticle(
 
   const html = await renderMarkdownToHtml(content, {
     articlePath: article.filePath ?? undefined,
+    articleSlug: article.slug,
   })
 
   // Resolve relative image paths to file:// URLs for Playwright
