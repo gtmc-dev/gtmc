@@ -524,12 +524,7 @@ async function main(): Promise<void> {
 
   await browser.close()
 
-  // Clean up temp HTML file
-  try {
-    if (fs.existsSync(tempHtmlPath)) fs.unlinkSync(tempHtmlPath)
-  } catch {
-    /* ignore */
-  }
+  // Keep temp HTML file at public/.gtmc-pdf-temp.html for debugging/inspection
 
   // ── Add PDF bookmarks (outlines) ────────────────────────────────────────
   console.log("[pdf]   → Adding PDF bookmarks...")

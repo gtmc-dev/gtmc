@@ -131,13 +131,24 @@ function renderTocHtml(
   parts.push(`  <h2>${labels.tocTitle}</h2>`)
 
   let lastChapter = ""
+  let prefaceListOpen = false
 
   for (const article of articles) {
     if (article.isPreface) {
+      if (!prefaceListOpen) {
+        parts.push('  <ul class="toc-preface">')
+        prefaceListOpen = true
+      }
       parts.push(
         `    <li class="toc-entry"><span class="toc-title">${escapeHtml(article.title)}</span></li>`
       )
       continue
+    }
+
+    // Close preface list when first non-preface article encountered
+    if (prefaceListOpen) {
+      parts.push("  </ul>")
+      prefaceListOpen = false
     }
 
     if (article.chapterSlug && article.chapterSlug !== lastChapter) {
@@ -154,6 +165,8 @@ function renderTocHtml(
   }
 
   if (lastChapter !== "") parts.push("    </ul></div>")
+  // Close preface list if still open (only preface entries, no chapters)
+  if (prefaceListOpen) parts.push("  </ul>")
   parts.push("</div></section>")
   return parts.join("\n")
 }

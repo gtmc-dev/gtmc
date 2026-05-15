@@ -120,7 +120,7 @@ export async function renderMarkdownToHtml(
 
   // ── Inject animated notice for GIF images ────────────────────────
   html = html.replace(
-    /(<img[^>]*src="[^"]*\.gif"[^>]*\/?>)/gi,
+    /(<img[^>]*src="[^"]*\.gif[^"]*"[^>]*\/?>)/gi,
     '$1<p class="gif-caption">▶ This figure is animated in the original resource.</p>'
   )
 
