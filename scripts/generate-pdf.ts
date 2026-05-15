@@ -501,7 +501,7 @@ async function main(): Promise<void> {
       tagged: true,
       displayHeaderFooter: true,
       headerTemplate:
-        '<div style="font-size:8pt; font-family:Space Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px;">GTMC Technical Reference</div>',
+        '<div style="font-size:8pt; font-family:Space Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px;">Graduate Texts in Minecraft</div>',
       footerTemplate:
         '<div style="font-size:8pt; font-family:Space Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
     })
