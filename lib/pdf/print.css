@@ -390,23 +390,63 @@ aside[data-callout="CORRUPTION"]::before {
   page: unset;
 }
 
-.cover-page h1 {
-  font-size: 28pt;
-  border-bottom: none;
-  page-break-before: avoid;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.cover-frame {
+  position: relative;
+  padding: 3cm 2cm;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.cover-frame::before,
+.cover-frame::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: #60708f;
+  border-style: solid;
+}
+.cover-frame::before {
+  top: 2cm;
+  left: 1.5cm;
+  border-width: 2px 0 0 2px;
+}
+.cover-frame::after {
+  bottom: 2cm;
+  right: 1.5cm;
+  border-width: 0 2px 2px 0;
 }
 
-.cover-page .subtitle {
-  font-family: "Space Mono", monospace;
-  font-size: 11pt;
+.cover-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 28pt;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #3b4a6b;
+  text-align: center;
+  margin-bottom: 0.5em;
+  border-bottom: none;
+  page-break-before: avoid;
+}
+
+.cover-subtitle {
+  font-family: 'Geist Sans', sans-serif;
+  font-size: 13pt;
   color: #60708f;
-  margin-top: 0.5em;
+  text-align: center;
+}
+
+.cover-rule {
+  width: 60%;
+  border: none;
+  border-top: 1px solid #cbd5e1;
+  margin: 2em auto;
 }
 
 .cover-page .meta {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9pt;
   color: #64748b;
   margin-top: 2em;
@@ -424,46 +464,30 @@ aside[data-callout="CORRUPTION"]::before {
 .toc-page ul {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
-.toc-page li {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 0.4em;
-  font-size: 10pt;
+.toc-chapter {
+  margin-bottom: 1.5em;
 }
 
-.toc-page li::after {
-  content: "";
-  flex: 1;
-  border-bottom: 1px dotted #cbd5e1;
-  margin: 0 0.5em;
-}
-
-.toc-page li .page-num {
-  font-family: "Space Mono", monospace;
-  font-size: 9pt;
-  color: #64748b;
-}
-
-.toc-page li a {
-  color: #1e293b;
-}
-
-.toc-page li.toc-h1 {
-  font-weight: 700;
+.toc-chapter h3 {
+  font-family: 'Geist Mono', monospace;
   font-size: 11pt;
-  margin-top: 0.6em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #3b4a6b;
+  margin-bottom: 0.3em;
+  border-bottom: 1px solid #cbd5e1;
+  padding-bottom: 0.2em;
 }
 
-.toc-page li.toc-h2 {
-  padding-left: 1.2em;
-}
-
-.toc-page li.toc-h3 {
-  padding-left: 2.4em;
+.toc-entry {
   font-size: 9.5pt;
-  color: #4a5a78;
+  line-height: 1.8;
+  color: #1e293b;
+  list-style: none;
+  padding-left: 0;
 }
 
 /* --- Chapter Title Page --- */
@@ -484,12 +508,50 @@ aside[data-callout="CORRUPTION"]::before {
 }
 
 .chapter-title-page .chapter-number {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   font-size: 9pt;
   color: #60708f;
   text-transform: uppercase;
   letter-spacing: 0.15em;
   margin-bottom: 0.5em;
+}
+
+.chapter-frame {
+  position: relative;
+  padding: 2cm 2cm;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.chapter-frame::before,
+.chapter-frame::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: #60708f;
+  border-style: solid;
+}
+.chapter-frame::before {
+  top: 2cm;
+  left: 1.5cm;
+  border-width: 2px 0 0 2px;
+}
+.chapter-frame::after {
+  bottom: 2cm;
+  right: 1.5cm;
+  border-width: 0 2px 2px 0;
+}
+
+.chapter-meta {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9pt;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #60708f;
+  margin-top: 1em;
 }
 
 /* --- Advanced Sections --- */

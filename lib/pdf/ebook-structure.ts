@@ -99,13 +99,15 @@ function escapeHtml(text: string): string {
 }
 
 function renderCoverHtml(options: EbookOptions): string {
-  const parts: string[] = ['<section class="cover-page">']
+  const parts: string[] = ['<section class="cover-page"><div class="cover-frame">']
 
-  parts.push(`  <h1>${escapeHtml(options.title)}</h1>`)
+  parts.push(`  <h1 class="cover-title">${escapeHtml(options.title)}</h1>`)
 
   if (options.subtitle) {
-    parts.push(`  <p class="subtitle">${escapeHtml(options.subtitle)}</p>`)
+    parts.push(`  <p class="cover-subtitle">${escapeHtml(options.subtitle)}</p>`)
   }
+
+  parts.push('  <hr class="cover-rule">')
 
   if (options.meta && Object.keys(options.meta).length > 0) {
     parts.push('  <div class="meta">')
@@ -117,7 +119,7 @@ function renderCoverHtml(options: EbookOptions): string {
     parts.push("  </div>")
   }
 
-  parts.push("</section>")
+  parts.push("</div></section>")
   return parts.join("\n")
 }
 
@@ -125,34 +127,34 @@ function renderTocHtml(
   articles: LinearizedArticle[],
   labels: Record<string, string>
 ): string {
-  const parts: string[] = ['<section class="toc-page">']
+  const parts: string[] = ['<section class="toc-page"><div class="toc">']
   parts.push(`  <h2>${labels.tocTitle}</h2>`)
-  parts.push("  <ul>")
 
   let lastChapter = ""
 
   for (const article of articles) {
     if (article.isPreface) {
       parts.push(
-        `    <li class="toc-h2"><a href="#article-${article.slug}">${escapeHtml(article.title)}</a></li>`
+        `    <li class="toc-entry"><span class="toc-title">${escapeHtml(article.title)}</span></li>`
       )
       continue
     }
 
     if (article.chapterSlug && article.chapterSlug !== lastChapter) {
+      if (lastChapter !== "") parts.push("  </ul></div>")
       lastChapter = article.chapterSlug
-      parts.push(
-        `    <li class="toc-h1"><a href="#chapter-${article.chapterSlug}">${escapeHtml(article.chapterTitle)}</a></li>`
-      )
+      parts.push(`  <div class="toc-chapter">`)
+      parts.push(`    <h3>${escapeHtml(article.chapterTitle)}</h3>`)
+      parts.push("    <ul>")
     }
 
     parts.push(
-      `    <li class="toc-h2"><a href="#article-${article.slug}">${escapeHtml(article.title)}</a></li>`
+      `      <li class="toc-entry"><span class="toc-title">${escapeHtml(article.title)}</span></li>`
     )
   }
 
-  parts.push("  </ul>")
-  parts.push("</section>")
+  if (lastChapter !== "") parts.push("    </ul></div>")
+  parts.push("</div></section>")
   return parts.join("\n")
 }
 
@@ -160,12 +162,16 @@ function renderChapterTitlePageHtml(
   chapterSlug: string,
   chapterTitle: string,
   chapterNumber: number,
-  label: string
+  label: string,
+  articleCount: number
 ): string {
   return [
     `<section id="chapter-${chapterSlug}" class="chapter-title-page">`,
-    `  <p class="chapter-number">${label} ${chapterNumber}</p>`,
-    `  <h1>${escapeHtml(chapterTitle)}</h1>`,
+    `  <div class="chapter-frame">`,
+    `    <p class="chapter-number">${label} ${chapterNumber}</p>`,
+    `    <h1>${escapeHtml(chapterTitle)}</h1>`,
+    `    <span class="chapter-meta">${articleCount} articles</span>`,
+    `  </div>`,
     "</section>",
   ].join("\n")
 }
@@ -282,6 +288,17 @@ export async function buildEbookHtml(options: EbookOptions): Promise<string> {
   let lastChapterSlug = ""
   let chapterNumber = 0
 
+  // Pre-compute article counts per chapter
+  const chapterArticleCounts = new Map<string, number>()
+  for (const a of options.articles) {
+    if (!a.isPreface && a.chapterSlug) {
+      chapterArticleCounts.set(
+        a.chapterSlug,
+        (chapterArticleCounts.get(a.chapterSlug) ?? 0) + 1
+      )
+    }
+  }
+
   for (const article of options.articles) {
     // Preface articles: no chapter divider, render inline after cover/toc
     if (article.isPreface) {
@@ -314,7 +331,8 @@ export async function buildEbookHtml(options: EbookOptions): Promise<string> {
           article.chapterSlug,
           article.chapterTitle,
           chapterNumber,
-          label
+          label,
+          chapterArticleCounts.get(article.chapterSlug) ?? 0
         ),
       })
     }
