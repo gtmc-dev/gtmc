@@ -74,7 +74,7 @@ function parseArticleContentArtifact(
     )
   }
 
-  return obj as ArticleContentArtifact
+  return obj as unknown as ArticleContentArtifact
 }
 
 /**
