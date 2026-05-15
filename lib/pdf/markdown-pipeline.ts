@@ -18,6 +18,7 @@ import rehypeRaw from "rehype-raw"
 import rehypeKatex from "rehype-katex"
 import rehypeSlug from "rehype-slug"
 import rehypeStringify from "rehype-stringify"
+import matter from "gray-matter"
 import type { PluggableList } from "unified"
 
 import { remarkAnsiColors } from "@/lib/markdown/plugins/remark-ansi-colors"
@@ -69,6 +70,9 @@ export async function renderMarkdownToHtml(
   content: string,
   options?: PdfPipelineOptions
 ): Promise<string> {
+  // ── Strip YAML frontmatter ────────────────────────────────────
+  const { content: cleanContent } = matter(content)
+
   // ── Build remark (markdown AST) plugin list ───────────────────────
   const remarkPlugins: PluggableList = [
     remarkGfm,
@@ -89,7 +93,7 @@ export async function renderMarkdownToHtml(
   ]
 
   // Conditionally include math support (KaTeX)
-  if (hasMathContent(content)) {
+  if (hasMathContent(cleanContent)) {
     remarkPlugins.push(remarkMath)
     // Insert rehypeKatex after rehypeAdvancedSections (index 2)
     rehypePlugins.splice(2, 0, rehypeKatex)
@@ -110,7 +114,7 @@ export async function renderMarkdownToHtml(
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypePlugins)
     .use(rehypeStringify, { allowDangerousHtml: true })
-    .process(content)
+    .process(cleanContent)
 
   return String(file)
 }

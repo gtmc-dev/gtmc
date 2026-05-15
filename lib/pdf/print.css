@@ -4,11 +4,56 @@
    Target: Chromium 130+ via Playwright page.pdf()
    ========================================================================== */
 
-/* --- Font Imports (resolved from node_modules via Playwright base URL) --- */
-@import "@fontsource/space-mono/400.css";
-@import "@fontsource/space-mono/700.css";
-@import "@fontsource/noto-sans-sc/400.css";
-@import "@fontsource/noto-sans-sc/700.css";
+/* --- Font Declarations (self-hosted woff2 for file:// PDF context) --- */
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('fonts/geist/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('fonts/geist/Geist-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Sans';
+  src: url('fonts/geist/Geist-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('fonts/geist/GeistMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('fonts/geist/GeistMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('fonts/geist/noto-sans-sc-latin-400-normal.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  src: url('fonts/geist/noto-sans-sc-latin-700-normal.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* --- Page Rules --- */
 @page {
@@ -44,9 +89,13 @@ html {
 }
 
 body {
-  font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+  font-family: 'Geist Sans', 'Noto Sans SC', 'PingFang SC', sans-serif;
   margin: 0;
   padding: 0;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 /* --- Headings (monospace, technical) --- */
@@ -56,13 +105,14 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Space Mono", monospace;
+  font-family: 'Geist Mono', monospace;
   color: #3b4a6b;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
   line-height: 1.3;
+  break-after: avoid;
 }
 
 h1 {
@@ -70,7 +120,6 @@ h1 {
   font-weight: 700;
   border-bottom: 2px solid #cbd5e1;
   padding-bottom: 0.3em;
-  page-break-before: always;
 }
 
 h2 {
@@ -78,18 +127,19 @@ h2 {
   font-weight: 700;
   border-bottom: 1px solid #cbd5e1;
   padding-bottom: 0.2em;
-  page-break-before: always;
 }
 
 h3 {
   font-size: 13pt;
   font-weight: 700;
+  break-before: avoid;
   page-break-after: avoid;
 }
 
 h4 {
   font-size: 11pt;
   font-weight: 700;
+  break-before: avoid;
   page-break-after: avoid;
 }
 
@@ -119,6 +169,8 @@ ol {
 
 li {
   margin-bottom: 0.25em;
+  orphans: 3;
+  widows: 3;
 }
 
 li > p {
@@ -187,6 +239,8 @@ td {
   border: 1px solid #cbd5e1;
   padding: 0.4em 0.7em;
   vertical-align: top;
+  orphans: 3;
+  widows: 3;
 }
 
 tr {
@@ -214,6 +268,8 @@ figcaption {
   color: #60708f;
   margin-top: 0.4em;
   text-align: center;
+  orphans: 3;
+  widows: 3;
 }
 
 /* --- Blockquote --- */
@@ -224,10 +280,24 @@ blockquote {
   background: #f8f9fc;
   color: #4a5a78;
   font-style: italic;
+  break-inside: avoid;
 }
 
 blockquote p {
   margin: 0.3em 0;
+  orphans: 3;
+  widows: 3;
+}
+
+dd {
+  orphans: 3;
+  widows: 3;
+}
+
+/* --- Article Measure --- */
+.chapter-content {
+  max-width: 38em;
+  margin: 0 auto;
 }
 
 /* --- Callouts / Admonitions --- */
@@ -441,29 +511,6 @@ span[data-advanced] {
   border-radius: 2px;
   vertical-align: middle;
   margin-right: 0.4em;
-}
-
-/* --- Page Break Rules --- */
-h1,
-h2,
-.chapter-title {
-  page-break-before: always;
-}
-
-h3,
-h4 {
-  page-break-after: avoid;
-}
-
-pre,
-table,
-img,
-figure {
-  page-break-inside: avoid;
-}
-
-tr {
-  page-break-inside: avoid;
 }
 
 /* --- Horizontal Rule --- */

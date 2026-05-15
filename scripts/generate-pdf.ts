@@ -483,27 +483,30 @@ async function main(): Promise<void> {
       waitUntil: "networkidle",
     })
 
-    // Extra wait for KaTeX font loading and font-display swap
-    await page.waitForTimeout(3000)
+    // Wait for KaTeX font loading and PDF-specific font loading
+    await page.waitForFunction(
+      () =>
+        document.fonts.ready.then(() =>
+          document.fonts.check('16px "Geist Sans"') &&
+          document.fonts.check('16px "Geist Mono"')
+        ),
+      { timeout: 10000 }
+    )
+    console.log("[pdf]   → PDF fonts verified (Geist Sans + Geist Mono)")
 
     // ── Generate PDF ───────────────────────────────────────────────────────
     console.log("[pdf]   → Rendering PDF pages...")
     await page.pdf({
       path: tempPdfPath,
       format: "A4",
-      margin: {
-        top: "0px",
-        right: "0px",
-        bottom: "0px",
-        left: "0px",
-      },
+      preferCSSPageSize: true,
       printBackground: true,
       tagged: true,
       displayHeaderFooter: true,
       headerTemplate:
-        '<div style="font-size:8pt; font-family:Space Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px;">Graduate Texts in Minecraft</div>',
+        '<div style="font-size:8pt; font-family:Geist Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px; letter-spacing:0.15em; text-transform:uppercase;">Graduate Texts in Minecraft</div>',
       footerTemplate:
-        '<div style="font-size:8pt; font-family:Space Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+        '<div style="font-size:8pt; font-family:Geist Mono,monospace; color:#64748b; width:100%; text-align:center; padding-top:5px;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
     })
 
     console.log("[pdf]   → PDF written to temp file")
